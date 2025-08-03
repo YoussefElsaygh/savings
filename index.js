@@ -68,8 +68,6 @@ $(document).ready(function () {
     $("#gold24-amount").val(localStorage.getItem("gold24Amount"));
   }
 
-  // Load rate history
-  let rateHistory = JSON.parse(localStorage.getItem("rateHistory") || "[]");
   let allHistory = JSON.parse(localStorage.getItem("allHistory") || "[]");
   let lastSum = 0;
 
@@ -135,18 +133,12 @@ $(document).ready(function () {
       };
 
       // Store the previous sum for comparison
-      if (rateHistory.length > 0) {
-        lastSum = rateHistory[0].sum || 0;
+      if (allHistory.length > 0) {
+        lastSum = allHistory[0].sum || 0;
       }
 
-      rateHistory.unshift(newEntry); // Add to beginning of array
+      allHistory.unshift(newEntry); // Add to beginning of array
 
-      // Keep only last 5 entries
-      if (rateHistory.length > 5) {
-        rateHistory = rateHistory.slice(0, 5);
-      }
-
-      localStorage.setItem("rateHistory", JSON.stringify(rateHistory));
       allHistory.unshift(newEntry);
       localStorage.setItem("allHistory", JSON.stringify(allHistory));
       updateHistoryDisplay();
@@ -235,12 +227,7 @@ $(document).ready(function () {
                                 }
                                 ${
                                   showDeleteButton
-                                    ? `<button class="${
-                                        container.attr("id") ===
-                                        "full-history-items"
-                                          ? "delete-history"
-                                          : "delete-rates"
-                                      }" data-index="${index}">Delete</button>`
+                                    ? `<button class="${"delete-history"}" data-index="${index}">Delete</button>`
                                     : ""
                                 }
                             </div>
@@ -255,6 +242,7 @@ $(document).ready(function () {
     const fullHistoryContainer = $("#full-history-items");
     historyContainer.empty();
     fullHistoryContainer.empty();
+    let rateHistory = allHistory.slice(0, 5);
 
     if (rateHistory.length === 0) {
       historyContainer.append('<div class="history-item">No history yet</div>');
@@ -264,8 +252,6 @@ $(document).ready(function () {
         '<div class="history-item">No history yet</div>'
       );
     }
-    console.log(rateHistory, "rateHistory");
-    console.log(allHistory, "allHistory");
     createHistory(rateHistory, historyContainer);
     createHistory(allHistory, fullHistoryContainer, false, true);
 
@@ -279,13 +265,6 @@ $(document).ready(function () {
       $("#gold24-rate").val(entry.gold24Rate);
     });
 
-    // Add click handler for delete buttons
-    $(".delete-rates").click(function () {
-      const index = $(this).data("index");
-      rateHistory.splice(index, 1);
-      localStorage.setItem("rateHistory", JSON.stringify(rateHistory));
-      updateHistoryDisplay();
-    });
     $(".delete-history").click(function () {
       const index = $(this).data("index");
       allHistory.splice(index, 1);
