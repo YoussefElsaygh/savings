@@ -137,8 +137,6 @@ $(document).ready(function () {
         lastSum = allHistory[0].sum || 0;
       }
 
-      allHistory.unshift(newEntry); // Add to beginning of array
-
       allHistory.unshift(newEntry);
       localStorage.setItem("allHistory", JSON.stringify(allHistory));
       updateHistoryDisplay();
