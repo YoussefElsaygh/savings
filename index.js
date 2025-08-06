@@ -95,7 +95,7 @@ $(document).ready(function () {
   $("#save-btn").click(function () {
     var usdAmount = $("#usd-amount").val();
     var egpAmount = $("#egp-amount").val();
-    var gold21Amount = $("#gold18-amount").val();
+    var gold18Amount = $("#gold18-amount").val();
     var gold21Amount = $("#gold21-amount").val();
     var gold24Amount = $("#gold24-amount").val();
 
