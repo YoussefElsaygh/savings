@@ -31,14 +31,17 @@ $(document).ready(function () {
   // Calculate sum for a history entry
   function calculateHistorySum(entry) {
     const usdAmount = parseFloat(localStorage.getItem("usdAmount")) || 0;
+    const egpAmount = parseFloat(localStorage.getItem("egpAmount")) || 0;
+    const gold18Amount = parseFloat(localStorage.getItem("gold18Amount")) || 0;
     const gold21Amount = parseFloat(localStorage.getItem("gold21Amount")) || 0;
     const gold24Amount = parseFloat(localStorage.getItem("gold24Amount")) || 0;
 
     const usdValue = usdAmount * entry.usdRate;
+    const gold18Value = gold18Amount * (entry.gold18Rate / 1.1667);
     const gold21Value = gold21Amount * entry.gold21Rate;
     const gold24Value = gold24Amount * (entry.gold21Rate / 0.875);
 
-    return usdValue + gold21Value + gold24Value;
+    return usdValue + gold21Value + gold24Value + gold18Value + egpAmount;
   }
 
   // Get comparison class based on value change
@@ -124,7 +127,7 @@ $(document).ready(function () {
     var usdRate = parseFloat($("#usd-rate").val()) || 0;
     var gold21Rate = parseFloat($("#gold21-rate").val()) || 0;
     var gold24Rate = parseFloat(gold21Rate / 0.875) || 0;
-    var gold18Rate = parseFloat(gold21Rate * 1.1667) || 0;
+    var gold18Rate = parseFloat(gold21Rate / 1.1667) || 0;
 
     // Calculate current sum
     var usdValue = usdAmount * usdRate;
