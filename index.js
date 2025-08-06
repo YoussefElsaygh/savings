@@ -170,9 +170,7 @@ $(document).ready(function () {
                 <p><strong>USD Value:</strong> $${formatNumber(
                   usdAmount
                 )} × ${formatNumber(usdRate)} = ${formatNumber(usdValue)}</p> 
-                <p><strong>EGP Value:</strong> ${formatNumber(
-                  egpAmount
-                )} × ${formatNumber(usdRate)} = ${formatNumber(egpValue)}</p>
+                <p><strong>EGP Value:</strong> ${formatNumber(egpAmount)}</p>
                 <p><strong>18K Gold Value:</strong> ${formatNumber(
                   gold18Amount
                 )}g × ${formatNumber(gold18Rate)} = ${formatNumber(
