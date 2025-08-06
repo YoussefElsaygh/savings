@@ -121,7 +121,7 @@ $(document).ready(function () {
     var usdRate = parseFloat($("#usd-rate").val()) || 0;
     var gold21Rate = parseFloat($("#gold21-rate").val()) || 0;
     var gold24Rate = parseFloat(gold21Rate / 0.875) || 0;
-    var gold18Rate = parseFloat($(gold21Rate * 1.1667).val()) || 0;
+    var gold18Rate = parseFloat(gold21Rate * 1.1667) || 0;
 
     // Calculate current sum
     var usdValue = usdAmount * usdRate;
@@ -129,7 +129,8 @@ $(document).ready(function () {
     var gold18Value = gold18Amount * gold18Rate;
     var gold21Value = gold21Amount * gold21Rate;
     var gold24Value = gold24Amount * gold24Rate;
-    var currentSum = usdValue + gold21Value + gold24Value;
+    var currentSum =
+      usdValue + gold21Value + gold24Value + gold18Value + egpValue;
 
     // Save to history
     if (usdRate > 0 || gold21Rate > 0 || gold24Rate > 0 || gold18Rate > 0) {
