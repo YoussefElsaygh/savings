@@ -61,6 +61,12 @@ $(document).ready(function () {
   if (localStorage.getItem("usdAmount")) {
     $("#usd-amount").val(localStorage.getItem("usdAmount"));
   }
+  if (localStorage.getItem("egpAmount")) {
+    $("#egp-amount").val(localStorage.getItem("egpAmount"));
+  }
+  if (localStorage.getItem("gold18Amount")) {
+    $("#gold18-amount").val(localStorage.getItem("gold18Amount"));
+  }
   if (localStorage.getItem("gold21Amount")) {
     $("#gold21-amount").val(localStorage.getItem("gold21Amount"));
   }
@@ -88,6 +94,7 @@ $(document).ready(function () {
   // Save amounts
   $("#save-btn").click(function () {
     var usdAmount = $("#usd-amount").val();
+    var gold21Amount = $("#gold18-amount").val();
     var gold21Amount = $("#gold21-amount").val();
     var gold24Amount = $("#gold24-amount").val();
 
@@ -105,30 +112,38 @@ $(document).ready(function () {
 
   // Calculate total savings
   $("#calculate-btn").click(function () {
+    var egpAmount = parseFloat(localStorage.getItem("egpAmount")) || 0;
     var usdAmount = parseFloat(localStorage.getItem("usdAmount")) || 0;
+    var gold18Amount = parseFloat(localStorage.getItem("gold18Amount")) || 0;
     var gold21Amount = parseFloat(localStorage.getItem("gold21Amount")) || 0;
     var gold24Amount = parseFloat(localStorage.getItem("gold24Amount")) || 0;
 
     var usdRate = parseFloat($("#usd-rate").val()) || 0;
     var gold21Rate = parseFloat($("#gold21-rate").val()) || 0;
     var gold24Rate = parseFloat(gold21Rate / 0.875) || 0;
+    var gold18Rate = parseFloat($(gold21Rate * 1.1667).val()) || 0;
 
     // Calculate current sum
     var usdValue = usdAmount * usdRate;
+    var egpValue = egpAmount;
+    var gold18Value = gold18Amount * gold18Rate;
     var gold21Value = gold21Amount * gold21Rate;
     var gold24Value = gold24Amount * gold24Rate;
     var currentSum = usdValue + gold21Value + gold24Value;
 
     // Save to history
-    if (usdRate > 0 || gold21Rate > 0 || gold24Rate > 0) {
+    if (usdRate > 0 || gold21Rate > 0 || gold24Rate > 0 || gold18Rate > 0) {
       const newEntry = {
         date: new Date(),
         usdRate: usdRate,
         gold21Rate: gold21Rate,
         gold24Rate: gold24Rate,
+        gold18Rate: gold18Rate,
         sum: currentSum,
+        gold18Amount: gold18Amount,
         gold21Amount: gold21Amount,
         gold24Amount: gold24Amount,
+        egpAmount: egpAmount,
         usdAmount: usdAmount,
       };
 
@@ -147,7 +162,15 @@ $(document).ready(function () {
         `
                 <p><strong>USD Value:</strong> $${formatNumber(
                   usdAmount
-                )} × ${formatNumber(usdRate)} = ${formatNumber(usdValue)}</p>
+                )} × ${formatNumber(usdRate)} = ${formatNumber(usdValue)}</p> 
+                <p><strong>EGP Value:</strong> ${formatNumber(
+                  egpAmount
+                )} × ${formatNumber(usdRate)} = ${formatNumber(egpValue)}</p>
+                <p><strong>18K Gold Value:</strong> ${formatNumber(
+                  gold18Amount
+                )}g × ${formatNumber(gold18Rate)} = ${formatNumber(
+          gold18Value
+        )}</p>
                 <p><strong>21K Gold Value:</strong> ${formatNumber(
                   gold21Amount
                 )}g × ${formatNumber(gold21Rate)} = ${formatNumber(
@@ -192,7 +215,11 @@ $(document).ready(function () {
                                   entry.date
                                 )}</strong> <div style="font-size: 10px;">(USD: <strong>${formatNumber(
         entry?.usdAmount
-      )} USD</strong>,21K: <strong>${formatNumber(
+      )} USD</strong>, EGP: <strong>${formatNumber(
+        entry?.egpAmount
+      )} EGP</strong>, 18K: <strong>${formatNumber(
+        entry?.gold18Amount
+      )}gm</strong>, 21K: <strong>${formatNumber(
         entry?.gold21Amount
       )}gm</strong>, 24K: <strong>${formatNumber(
         entry?.gold24Amount
@@ -200,6 +227,9 @@ $(document).ready(function () {
                                 <div class="history-details">
                                     <span class="history-rate">USD: ${formatNumber(
                                       entry.usdRate
+                                    )}</span>
+                                    <span class="history-rate">18K: ${formatNumber(
+                                      entry.gold18Rate
                                     )}</span>
                                     <span class="history-rate">21K: ${formatNumber(
                                       entry.gold21Rate
@@ -259,6 +289,7 @@ $(document).ready(function () {
       const entry = rateHistory[index];
 
       $("#usd-rate").val(entry.usdRate);
+      $("#gold18-rate").val(entry.gold18Rate);
       $("#gold21-rate").val(entry.gold21Rate);
       $("#gold24-rate").val(entry.gold24Rate);
     });
