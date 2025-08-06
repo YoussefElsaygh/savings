@@ -94,11 +94,14 @@ $(document).ready(function () {
   // Save amounts
   $("#save-btn").click(function () {
     var usdAmount = $("#usd-amount").val();
+    var egpAmount = $("#egp-amount").val();
     var gold21Amount = $("#gold18-amount").val();
     var gold21Amount = $("#gold21-amount").val();
     var gold24Amount = $("#gold24-amount").val();
 
     localStorage.setItem("usdAmount", usdAmount);
+    localStorage.setItem("egpAmount", egpAmount);
+    localStorage.setItem("gold18Amount", gold18Amount);
     localStorage.setItem("gold21Amount", gold21Amount);
     localStorage.setItem("gold24Amount", gold24Amount);
 
