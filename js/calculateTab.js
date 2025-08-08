@@ -100,9 +100,15 @@ function createHistory(
   history,
   container,
   showUseButton = true,
-  showDeleteButton = true
+  showDeleteButton = true,
+  useOriginalIndex = false
 ) {
   history.forEach((entry, index) => {
+    // Use originalIndex if available (for month grouping), otherwise use current index
+    const deleteIndex =
+      useOriginalIndex && entry.originalIndex !== undefined
+        ? entry.originalIndex
+        : index;
     const sum = entry.sum || calculateHistorySum(entry);
     const prevSum = index < history.length - 1 ? history[index + 1].sum : 0;
     const comparisonClass = getComparisonClass(sum, prevSum);
@@ -155,7 +161,7 @@ function createHistory(
                                 }
                                 ${
                                   showDeleteButton
-                                    ? `<button class="${"delete-history"}" data-index="${index}">Delete</button>`
+                                    ? `<button class="${"delete-history"}" data-index="${deleteIndex}">Delete</button>`
                                     : ""
                                 }
                             </div>
