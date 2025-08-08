@@ -1,6 +1,11 @@
 // Main application initialization and tab management
 
 $(document).ready(function () {
+  // Load tab content first, then initialize
+  initializeTabContent();
+});
+
+function initializeTabSwitching() {
   // Tab switching
   $(".tab").click(function () {
     $(".tab").removeClass("active");
@@ -25,21 +30,4 @@ $(document).ready(function () {
       }
     }
   });
-
-  // Initialize all tabs
-  if (typeof initializeEditTab === "function") {
-    initializeEditTab();
-  }
-
-  if (typeof initializeCalculateTab === "function") {
-    initializeCalculateTab();
-  }
-
-  if (typeof initializeHistoryTab === "function") {
-    initializeHistoryTab();
-  }
-
-  if (typeof initializeQuantityHistoryTab === "function") {
-    initializeQuantityHistoryTab();
-  }
-});
+}
