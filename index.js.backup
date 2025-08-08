@@ -91,6 +91,8 @@ $(document).ready(function () {
 
     if (tabId === "calculate") {
       updateHistoryDisplay();
+    } else if (tabId === "quantity-history") {
+      updateQuantityHistoryDisplay();
     }
   });
 
@@ -312,6 +314,120 @@ $(document).ready(function () {
     updateHistoryDisplay();
   });
 
+  // Clear quantity history (clears allHistory)
+  $("#clear-quantity-history").click(function () {
+    allHistory = [];
+    localStorage.setItem("allHistory", JSON.stringify(allHistory));
+    updateQuantityHistoryDisplay();
+  });
+
+  // Update quantity history display using allHistory
+  function updateQuantityHistoryDisplay() {
+    const container = $("#quantity-history-items");
+    container.empty();
+
+    if (allHistory.length === 0) {
+      container.append(
+        '<div class="history-item">No quantity changes yet</div>'
+      );
+      return;
+    }
+
+    // Process allHistory to find quantity changes between consecutive entries
+    const quantityChanges = [];
+
+    for (let i = 0; i < allHistory.length; i++) {
+      const current = allHistory[i];
+      const previous = allHistory[i + 1]; // Next entry is actually previous in time
+
+      if (previous) {
+        const changes = [];
+
+        // Check each amount type for changes
+        const amounts = [
+          { key: "usdAmount", name: "USD", unit: "USD" },
+          { key: "egpAmount", name: "EGP", unit: "EGP" },
+          { key: "gold18Amount", name: "18K Gold", unit: "g" },
+          { key: "gold21Amount", name: "21K Gold", unit: "g" },
+          { key: "gold24Amount", name: "24K Gold", unit: "g" },
+        ];
+
+        amounts.forEach((amount) => {
+          const currentVal = parseFloat(current[amount.key]) || 0;
+          const previousVal = parseFloat(previous[amount.key]) || 0;
+
+          if (currentVal !== previousVal) {
+            const difference = currentVal - previousVal;
+            changes.push({
+              type: amount.key,
+              name: amount.name,
+              unit: amount.unit,
+              previous: previousVal,
+              current: currentVal,
+              difference: difference,
+              changeType:
+                difference > 0
+                  ? "added"
+                  : difference < 0
+                  ? "removed"
+                  : "modified",
+            });
+          }
+        });
+
+        if (changes.length > 0) {
+          quantityChanges.push({
+            date: current.date,
+            changes: changes,
+            historyIndex: i,
+          });
+        }
+      }
+    }
+
+    if (quantityChanges.length === 0) {
+      container.append(
+        '<div class="history-item">No quantity changes detected in history</div>'
+      );
+      return;
+    }
+
+    quantityChanges.forEach((entry, index) => {
+      const entryDiv = $(`
+        <div class="history-item">
+          <div>
+            <strong>${formatDate(entry.date)}</strong>
+            <div class="quantity-changes">
+              ${entry.changes
+                .map((change) => {
+                  return `
+                  <div class="quantity-change ${change.changeType}">
+                    <div>
+                      <span class="quantity-amount">${change.name}:</span>
+                      <span class="quantity-details">
+                        ${formatNumber(change.previous)} → ${formatNumber(
+                    change.current
+                  )} ${change.unit}
+                      </span>
+                    </div>
+                    <div class="quantity-amount ${change.changeType}">
+                      ${change.difference > 0 ? "+" : ""}${formatNumber(
+                    change.difference
+                  )} ${change.unit}
+                    </div>
+                  </div>
+                `;
+                })
+                .join("")}
+            </div>
+          </div>
+        </div>
+      `);
+      container.append(entryDiv);
+    });
+  }
+
   // Initialize history display
   updateHistoryDisplay();
+  updateQuantityHistoryDisplay();
 });
