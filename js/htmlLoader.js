@@ -72,6 +72,11 @@ function initializeTabContent() {
       if (typeof initializeTabSwitching === "function") {
         initializeTabSwitching();
       }
+
+      // Check and set the appropriate active tab based on saved data
+      if (typeof checkAndSetActiveTab === "function") {
+        checkAndSetActiveTab();
+      }
     })
     .catch((error) => {
       console.error("Error loading tab content:", error);
