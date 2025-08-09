@@ -86,7 +86,9 @@ export default function QuantityHistoryTab({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Savings Quantity History</h2>
+      <h2 id="test-id" className="text-2xl font-bold mb-6">
+        Savings Quantity History
+      </h2>
 
       {/* Filter Tabs */}
       <div className="flex flex-wrap gap-2 mb-6">
