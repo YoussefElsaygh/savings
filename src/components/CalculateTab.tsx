@@ -107,7 +107,7 @@ export default function CalculateTab({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold mb-6">Calculate Your Total Savings</h2>
+      <h2 className="text-2xl font-bold mb-6">Calculate Total Savings</h2>
 
       {/* Rate History */}
       {rateHistory.length > 0 && (
