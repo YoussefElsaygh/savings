@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { SavingsData, RateEntry, QuantityHistoryEntry, TabType } from "@/types";
+import { SavingsData, RateEntry, TabType } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
 import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";
@@ -26,8 +26,6 @@ export default function Home() {
   const [allHistory, setAllHistory, allHistoryLoaded] = useLocalStorage<
     RateEntry[]
   >(STORAGE_KEYS.ALL_HISTORY, []);
-  const [quantityHistory, setQuantityHistory, quantityHistoryLoaded] =
-    useLocalStorage<QuantityHistoryEntry[]>(STORAGE_KEYS.QUANTITY_HISTORY, []);
 
   // Check if there are any savings and set the appropriate active tab (only on initial load)
   useEffect(() => {
@@ -84,7 +82,7 @@ export default function Home() {
     { id: "history" as TabType, label: "History", disabled: !hasSavedAmounts },
   ];
 
-  if (!savingsLoaded || !allHistoryLoaded || !quantityHistoryLoaded) {
+  if (!savingsLoaded || !allHistoryLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">Loading...</div>
@@ -131,8 +129,6 @@ export default function Home() {
             <EditTab
               savings={savings}
               setSavings={setSavings}
-              quantityHistory={quantityHistory}
-              setQuantityHistory={setQuantityHistory}
               onAfterSave={handleAfterSave}
             />
           )}
@@ -144,14 +140,10 @@ export default function Home() {
             />
           )}
           {activeTab === "quantity-history" && (
-            <QuantityHistoryTab quantityHistory={quantityHistory} />
+            <QuantityHistoryTab quantityHistory={allHistory} />
           )}
           {activeTab === "history" && (
-            <HistoryTab
-              allHistory={allHistory}
-              setAllHistory={setAllHistory}
-              savings={savings}
-            />
+            <HistoryTab allHistory={allHistory} setAllHistory={setAllHistory} />
           )}
         </div>
       </div>

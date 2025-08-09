@@ -1,5 +1,7 @@
 // Shared utility functions
 
+import { RateEntry } from "@/types";
+
 // Format date as dd/mm/yy hh:mm
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
@@ -30,26 +32,24 @@ export function formatSum(value: number): string {
 }
 
 // Calculate sum for a history entry
-export function calculateHistorySum(
-  entry: { usdRate: number; gold18Rate: number; gold21Rate: number },
-  savings: {
-    usdAmount: number;
-    egpAmount: number;
-    gold18Amount: number;
-    gold21Amount: number;
-    gold24Amount: number;
-  }
-): number {
-  const usdValue = savings.usdAmount * entry.usdRate;
-  const gold18Value = savings.gold18Amount * (entry.gold18Rate / 1.1667);
-  const gold21Value = savings.gold21Amount * entry.gold21Rate;
-  const gold24Value = savings.gold24Amount * (entry.gold21Rate / 0.875);
+export function calculateHistorySum(entry: RateEntry): number {
+  const usdValue = (entry?.usdAmount ?? 0) * (entry?.usdRate ?? 0);
+  const gold18Value =
+    (entry?.gold18Amount ?? 0) * (entry?.gold18Rate ?? 0 / 1.1667);
+  const gold21Value = (entry?.gold21Amount ?? 0) * (entry?.gold21Rate ?? 0);
+  const gold24Value =
+    (entry?.gold24Amount ?? 0) * (entry?.gold21Rate ?? 0 / 0.875);
 
-  return usdValue + gold21Value + gold24Value + gold18Value + savings.egpAmount;
+  return (
+    usdValue + gold21Value + gold24Value + gold18Value + (entry?.egpAmount ?? 0)
+  );
 }
 
 // Get comparison class based on value change
-export function getComparisonClass(currentSum: number, previousSum: number): string {
+export function getComparisonClass(
+  currentSum: number,
+  previousSum: number
+): string {
   if (previousSum === 0) return "";
   const difference = currentSum - previousSum;
   if (difference === 0) return "no-change";
@@ -57,9 +57,12 @@ export function getComparisonClass(currentSum: number, previousSum: number): str
 }
 
 // Get comparison icon
-export function getComparisonIcon(currentSum: number, previousSum: number): string {
+export function getComparisonIcon(
+  currentSum: number,
+  previousSum: number
+): string {
   if (previousSum === 0) return "";
   const difference = currentSum - previousSum;
   if (difference === 0) return "→";
   return difference > 0 ? "↑" : "↓";
-} 
+}

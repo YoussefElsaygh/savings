@@ -14,7 +14,6 @@ import {
 interface HistoryTabProps {
   allHistory: RateEntry[];
   setAllHistory: (history: RateEntry[]) => void;
-  savings: SavingsData;
 }
 
 interface MonthGroup {
@@ -29,25 +28,20 @@ interface MonthGroups {
 export default function HistoryTab({
   allHistory,
   setAllHistory,
-  savings,
 }: HistoryTabProps) {
   const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(
     new Set()
   );
 
   const clearHistory = () => {
-    if (confirm("Are you sure you want to clear all history?")) {
-      setAllHistory([]);
-    }
+    setAllHistory([]);
   };
 
   const deleteEntry = (index: number) => {
-    if (confirm("Are you sure you want to delete this entry?")) {
-      const newHistory = allHistory.filter(
-        (_: RateEntry, i: number) => i !== index
-      );
-      setAllHistory(newHistory);
-    }
+    const newHistory = allHistory.filter(
+      (_: RateEntry, i: number) => i !== index
+    );
+    setAllHistory(newHistory);
   };
 
   const toggleMonth = (monthKey: string) => {
@@ -150,13 +144,13 @@ export default function HistoryTab({
               {!isCollapsed && (
                 <div className="p-4 space-y-3">
                   {monthData.entries.map((entry, index) => {
-                    const currentSum = calculateHistorySum(entry, savings);
+                    const currentSum = calculateHistorySum(entry);
                     const previousEntry =
                       index < monthData.entries.length - 1
                         ? monthData.entries[index + 1]
                         : null;
                     const previousSum = previousEntry
-                      ? calculateHistorySum(previousEntry, savings)
+                      ? calculateHistorySum(previousEntry)
                       : 0;
                     const comparisonClass = getComparisonClass(
                       currentSum,
@@ -180,23 +174,23 @@ export default function HistoryTab({
                             <div className="text-xs text-gray-500 mt-1">
                               USD:{" "}
                               <strong>
-                                {formatNumber(savings.usdAmount)} USD
+                                {formatNumber(entry.usdAmount)} USD
                               </strong>
                               , EGP:{" "}
                               <strong>
-                                {formatNumber(savings.egpAmount)} EGP
+                                {formatNumber(entry.egpAmount)} EGP
                               </strong>
                               , 18K:{" "}
                               <strong>
-                                {formatNumber(savings.gold18Amount)}gm
+                                {formatNumber(entry.gold18Amount)}gm
                               </strong>
                               , 21K:{" "}
                               <strong>
-                                {formatNumber(savings.gold21Amount)}gm
+                                {formatNumber(entry.gold21Amount)}gm
                               </strong>
                               , 24K:{" "}
                               <strong>
-                                {formatNumber(savings.gold24Amount)}gm
+                                {formatNumber(entry.gold24Amount)}gm
                               </strong>
                             </div>
                           </div>

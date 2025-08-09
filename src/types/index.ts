@@ -12,13 +12,13 @@ export interface RateEntry {
   usdRate: number;
   gold18Rate: number;
   gold21Rate: number;
-  totalSum: number;
-}
-
-export interface QuantityHistoryEntry {
-  id: string;
-  timestamp: string;
-  savings: SavingsData;
+  gold24Rate: number;
+  gold18Amount: number;
+  gold21Amount: number;
+  gold24Amount: number;
+  egpAmount: number;
+  usdAmount: number;
+  sum: number;
 }
 
 export type TabType = "edit" | "calculate" | "quantity-history" | "history";

@@ -9,7 +9,6 @@ export const STORAGE_KEYS = {
 
   // History data
   ALL_HISTORY: "allHistory",
-  QUANTITY_HISTORY: "quantityHistory",
 
   // Legacy keys (for backward compatibility with original app)
   USD_AMOUNT: "usdAmount",

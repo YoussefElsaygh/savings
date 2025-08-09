@@ -1,21 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { SavingsData, QuantityHistoryEntry } from "@/types";
+import { SavingsData } from "@/types";
 
 interface EditTabProps {
   savings: SavingsData;
   setSavings: (savings: SavingsData) => void;
-  quantityHistory: QuantityHistoryEntry[];
-  setQuantityHistory: (history: QuantityHistoryEntry[]) => void;
   onAfterSave?: () => void;
 }
 
 export default function EditTab({
   savings,
   setSavings,
-  quantityHistory,
-  setQuantityHistory,
   onAfterSave,
 }: EditTabProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -34,16 +30,6 @@ export default function EditTab({
   const handleSave = () => {
     // Save to localStorage
     setSavings(formData);
-
-    // Add to quantity history
-    const newEntry: QuantityHistoryEntry = {
-      id: Date.now().toString(),
-      timestamp: new Date().toISOString(),
-      savings: { ...formData },
-    };
-
-    const updatedHistory = [newEntry, ...quantityHistory].slice(0, 50); // Keep last 50 entries
-    setQuantityHistory(updatedHistory);
 
     // Show confirmation
     setShowConfirmation(true);

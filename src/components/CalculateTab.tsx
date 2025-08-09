@@ -57,7 +57,7 @@ export default function CalculateTab({
     const total = usdValue + egpValue + gold18Value + gold21Value + gold24Value;
 
     // Get previous total for comparison (before adding the new entry)
-    const previousTotal = allHistory.length > 0 ? allHistory[0].totalSum : 0;
+    const previousTotal = allHistory.length > 0 ? allHistory[0].sum : 0;
     const comparisonClass = getComparisonClass(total, previousTotal);
     const comparisonIcon = getComparisonIcon(total, previousTotal);
 
@@ -85,7 +85,13 @@ export default function CalculateTab({
         usdRate: usdRateNum,
         gold18Rate: gold18RateNum,
         gold21Rate: gold21RateNum,
-        totalSum: total,
+        gold24Rate: gold24RateNum,
+        sum: total,
+        gold24Amount: savings.gold24Amount,
+        gold18Amount: savings.gold18Amount,
+        gold21Amount: savings.gold21Amount,
+        egpAmount: savings.egpAmount,
+        usdAmount: savings.usdAmount,
       };
 
       // Add to full history (allHistory contains everything)
@@ -113,16 +119,24 @@ export default function CalculateTab({
           </div>
           <div className="space-y-2">
             {rateHistory.map((entry: RateEntry, index: number) => {
-              const currentSum = calculateHistorySum(entry, savings);
+              const currentSum = calculateHistorySum(entry);
               const previousEntry =
                 index < rateHistory.length - 1 ? rateHistory[index + 1] : null;
               const previousSum = previousEntry
-                ? calculateHistorySum(previousEntry, savings)
+                ? calculateHistorySum(previousEntry)
                 : 0;
               const comparisonClass = getComparisonClass(
                 currentSum,
                 previousSum
               );
+              if (index === 4) {
+                console.log(
+                  currentSum,
+                  "currentSum",
+                  previousSum,
+                  "previousSum"
+                );
+              }
               const comparisonIcon = getComparisonIcon(currentSum, previousSum);
 
               return (
@@ -136,8 +150,11 @@ export default function CalculateTab({
                       {formatDate(entry.timestamp)}
                     </div>
                     <div className="text-gray-600">
-                      USD: {formatNumber(entry.usdRate)} | Gold 21K:{" "}
-                      {formatNumber(entry.gold21Rate)}
+                      USD: {formatNumber(entry.usdRate)} | EGP:{" "}
+                      {formatNumber(entry.egpAmount)} | Gold 18K:{" "}
+                      {formatNumber(entry.gold18Rate)} | Gold 21K:{" "}
+                      {formatNumber(entry.gold21Rate)} | Gold 24K:{" "}
+                      {formatNumber(entry.gold24Rate)}
                     </div>
                   </div>
                   <div className="text-right">
