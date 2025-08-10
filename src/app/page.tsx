@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { SavingsData, RateEntry, TabType, isTabType, GoldPrice } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
@@ -19,8 +19,14 @@ const initialSavings: SavingsData = {
   gold21Amount: 0,
   gold24Amount: 0,
 };
-
 export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
+  );
+}
+function HomeContent() {
   const [goldPrices, setGoldPrices] = useState<GoldPrice | null>(null);
   useEffect(() => {
     axios({
