@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SavingsData, RateEntry } from "@/types";
 import {
   formatNumber,
@@ -14,6 +14,7 @@ import {
 interface CalculateTabProps {
   savings: SavingsData;
   allHistory: RateEntry[];
+  gold21Price: number | undefined;
   setAllHistory: (history: RateEntry[]) => void;
 }
 
@@ -21,11 +22,15 @@ export default function CalculateTab({
   savings,
   allHistory,
   setAllHistory,
+  gold21Price,
 }: CalculateTabProps) {
   // Get last 5 entries for display
   const rateHistory = allHistory.slice(0, 5);
   const [usdRate, setUsdRate] = useState("");
   const [gold21Rate, setGold21Rate] = useState("");
+  useEffect(() => {
+    setGold21Rate(gold21Price?.toString() || "");
+  }, [gold21Price]);
   const [result, setResult] = useState<{
     total: number;
     breakdown: {
@@ -108,82 +113,6 @@ export default function CalculateTab({
   return (
     <div>
       <h2 className="text-2xl font-bold mb-6">Calculate Total Savings</h2>
-
-      {/* Rate History */}
-      {rateHistory.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-medium text-gray-700">
-              Last 5 Rate Entries
-            </span>
-          </div>
-          <div className="space-y-2">
-            {rateHistory.map((entry: RateEntry, index: number) => {
-              const currentSum = calculateHistorySum(entry);
-              const previousEntry =
-                index < rateHistory.length - 1 ? rateHistory[index + 1] : null;
-              const previousSum = previousEntry
-                ? calculateHistorySum(previousEntry)
-                : 0;
-              const comparisonClass = getComparisonClass(
-                currentSum,
-                previousSum
-              );
-              if (index === 4) {
-                console.log(
-                  currentSum,
-                  "currentSum",
-                  previousSum,
-                  "previousSum"
-                );
-              }
-              const comparisonIcon = getComparisonIcon(currentSum, previousSum);
-
-              return (
-                <div
-                  key={entry.id}
-                  className="flex items-center justify-between bg-white p-3 rounded border cursor-pointer hover:bg-gray-50"
-                  onClick={() => loadFromHistory(entry)}
-                >
-                  <div className="text-sm">
-                    <div className="font-medium">
-                      {formatDate(entry.timestamp)}
-                    </div>
-                    <div className="text-gray-600">
-                      USD: {formatNumber(entry.usdRate)} | EGP:{" "}
-                      {formatNumber(entry.egpAmount)} | Gold 18K:{" "}
-                      {formatNumber(entry.gold18Rate)} | Gold 21K:{" "}
-                      {formatNumber(entry.gold21Rate)} | Gold 24K:{" "}
-                      {formatNumber(entry.gold24Rate)}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div
-                      className={`font-bold flex items-center gap-1 ${
-                        comparisonClass || ""
-                      }`}
-                    >
-                      {comparisonIcon && comparisonIcon !== "" && (
-                        <span className="change-indicator">
-                          {comparisonIcon}
-                        </span>
-                      )}
-                      {formatSum(currentSum)} EGP
-                    </div>
-                    {previousSum > 0 && (
-                      <div className={`text-xs mt-1 ${comparisonClass || ""}`}>
-                        {currentSum > previousSum ? "+" : ""}
-                        {formatSum(currentSum - previousSum)} EGP
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* Rate Input Forms */}
       <div className="grid gap-4 md:grid-cols-2 mb-6">
         <div>
@@ -232,7 +161,7 @@ export default function CalculateTab({
 
       {/* Results */}
       {result && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-3">
           <h3 className="text-lg font-bold mb-4">Calculation Results</h3>
 
           <div className="grid gap-3 mb-4">
@@ -319,6 +248,73 @@ export default function CalculateTab({
                   </span>
                 </div>
               )}
+          </div>
+        </div>
+      )}
+      {/* Rate History */}
+      {rateHistory.length > 0 && (
+        <div className="bg-gray-50 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className="font-medium text-gray-700">
+              Last 5 Rate Entries
+            </span>
+          </div>
+          <div className="space-y-2">
+            {rateHistory.map((entry: RateEntry, index: number) => {
+              const currentSum = calculateHistorySum(entry);
+              const previousEntry =
+                index < rateHistory.length - 1 ? rateHistory[index + 1] : null;
+              const previousSum = previousEntry
+                ? calculateHistorySum(previousEntry)
+                : 0;
+              const comparisonClass = getComparisonClass(
+                currentSum,
+                previousSum
+              );
+
+              const comparisonIcon = getComparisonIcon(currentSum, previousSum);
+
+              return (
+                <div
+                  key={entry.id}
+                  className="flex items-center justify-between bg-white p-3 rounded border cursor-pointer hover:bg-gray-50"
+                  onClick={() => loadFromHistory(entry)}
+                >
+                  <div className="text-sm">
+                    <div className="font-medium">
+                      {formatDate(entry.timestamp)}
+                    </div>
+                    <div className="text-gray-600">
+                      USD: {formatNumber(entry.usdRate)} | EGP:{" "}
+                      {formatNumber(entry.egpAmount)} | Gold 18K:{" "}
+                      {formatNumber(entry.gold18Rate)} | Gold 21K:{" "}
+                      {formatNumber(entry.gold21Rate)} | Gold 24K:{" "}
+                      {formatNumber(entry.gold24Rate)}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div
+                      className={`font-bold flex items-center gap-1 ${
+                        comparisonClass || ""
+                      }`}
+                    >
+                      {comparisonIcon && comparisonIcon !== "" && (
+                        <span className="change-indicator">
+                          {comparisonIcon}
+                        </span>
+                      )}
+                      {formatSum(currentSum)} EGP
+                    </div>
+                    {previousSum > 0 && (
+                      <div className={`text-xs mt-1 ${comparisonClass || ""}`}>
+                        {currentSum > previousSum ? "+" : ""}
+                        {formatSum(currentSum - previousSum)} EGP
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

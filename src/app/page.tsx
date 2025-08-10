@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { SavingsData, RateEntry, TabType } from "@/types";
+import { SavingsData, RateEntry, TabType, isTabType, GoldPrice } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
 import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";
 import QuantityHistoryTab from "@/components/QuantityHistoryTab";
 import HistoryTab from "@/components/HistoryTab";
+import { GoldPricesTab } from "@/components/GoldPricesTab";
+import { useRouter, useSearchParams } from "next/navigation";
+import axios from "axios";
 
 const initialSavings: SavingsData = {
   usdAmount: 0,
@@ -18,7 +21,17 @@ const initialSavings: SavingsData = {
 };
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<TabType>("edit");
+  const [goldPrices, setGoldPrices] = useState<GoldPrice | null>(null);
+  useEffect(() => {
+    axios({
+      method: "get",
+      url: "https://www.goldapi.io/api/XAU/EGP",
+      headers: { "x-access-token": "goldapi-1cey8cmsme6905k5-io" },
+    }).then(function (response) {
+      setGoldPrices(response.data);
+    });
+  }, []);
+  const [activeTab, setActiveTabProp] = useState<TabType | null>(null);
   const [savings, setSavings, savingsLoaded] = useLocalStorage<SavingsData>(
     STORAGE_KEYS.SAVINGS,
     initialSavings
@@ -26,7 +39,12 @@ export default function Home() {
   const [allHistory, setAllHistory, allHistoryLoaded] = useLocalStorage<
     RateEntry[]
   >(STORAGE_KEYS.ALL_HISTORY, []);
-
+  const setActiveTab = (tab: TabType) => {
+    setActiveTabProp(tab);
+    router.push(`/?tab=${tab}`);
+  };
+  const router = useRouter();
+  const searchParams = useSearchParams();
   // Check if there are any savings and set the appropriate active tab (only on initial load)
   useEffect(() => {
     if (savingsLoaded) {
@@ -37,13 +55,20 @@ export default function Home() {
         savings.gold21Amount > 0 ||
         savings.gold24Amount > 0;
 
+      if (
+        isTabType(searchParams.get("tab")) &&
+        (hasSavings || activeTab === "gold-prices")
+      ) {
+        setActiveTab(searchParams.get("tab") as TabType);
+        return;
+      }
       if (!hasSavings) {
         setActiveTab("edit");
       } else {
         setActiveTab("calculate");
       }
     }
-  }, [savingsLoaded]); // Only depend on savingsLoaded, not savings
+  }, [savingsLoaded, searchParams]); // Only depend on savingsLoaded, not savings
 
   // Function to switch to calculate tab after saving
   const handleAfterSave = () => {
@@ -59,16 +84,21 @@ export default function Home() {
     savings.gold18Amount > 0 ||
     savings.gold21Amount > 0 ||
     savings.gold24Amount > 0;
-
   // Redirect to edit tab if current tab becomes disabled
   useEffect(() => {
     if (savingsLoaded && !hasSavedAmounts && activeTab !== "edit") {
-      setActiveTab("edit");
+      if (activeTab === "gold-prices") {
+        setActiveTab("gold-prices");
+      } else {
+        setActiveTab("edit");
+      }
     }
   }, [hasSavedAmounts, activeTab, savingsLoaded]);
 
   const tabs = [
     { id: "edit" as TabType, label: "Savings Quantity", disabled: false },
+    { id: "gold-prices" as TabType, label: "Gold Prices", disabled: false },
+
     {
       id: "calculate" as TabType,
       label: "Savings Calculator",
@@ -137,6 +167,7 @@ export default function Home() {
               savings={savings}
               allHistory={allHistory}
               setAllHistory={setAllHistory}
+              gold21Price={goldPrices?.price_gram_21k}
             />
           )}
           {activeTab === "quantity-history" && (
@@ -144,6 +175,9 @@ export default function Home() {
           )}
           {activeTab === "history" && (
             <HistoryTab allHistory={allHistory} setAllHistory={setAllHistory} />
+          )}
+          {activeTab === "gold-prices" && (
+            <GoldPricesTab goldPrices={goldPrices} />
           )}
         </div>
       </div>
