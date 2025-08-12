@@ -41,12 +41,21 @@ export interface GoldPrice {
   timestamp: number;
 }
 
+export interface USDPrice {
+  base: string;
+  results: {
+    [key: string]: number;
+  };
+  updated: string;
+  ms: number;
+}
+
 export type TabType =
   | "edit"
   | "calculate"
   | "quantity-history"
   | "history"
-  | "gold-prices";
+  | "prices";
 
 export function isTabType(value: unknown): value is TabType {
   return [
@@ -54,6 +63,6 @@ export function isTabType(value: unknown): value is TabType {
     "calculate",
     "quantity-history",
     "history",
-    "gold-prices",
+    "prices",
   ].includes(value as TabType);
 }

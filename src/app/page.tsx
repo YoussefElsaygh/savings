@@ -2,13 +2,20 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { SavingsData, RateEntry, TabType, isTabType, GoldPrice } from "@/types";
+import {
+  SavingsData,
+  RateEntry,
+  TabType,
+  isTabType,
+  GoldPrice,
+  USDPrice,
+} from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
 import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";
 import QuantityHistoryTab from "@/components/QuantityHistoryTab";
 import HistoryTab from "@/components/HistoryTab";
-import { GoldPricesTab } from "@/components/GoldPricesTab";
+import { PricesTab } from "@/components/PricesTab";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
@@ -28,14 +35,9 @@ export default function Home() {
 }
 function HomeContent() {
   const [goldPrices, setGoldPrices] = useState<GoldPrice | null>(null);
+  const [usdPrices, setUSDPrices] = useState<USDPrice | null>(null);
   useEffect(() => {
-    axios({
-      method: "get",
-      url: "https://www.goldapi.io/api/XAU/EGP",
-      headers: { "x-access-token": "goldapi-1cey8cmsme6905k5-io" },
-    }).then(function (response) {
-      setGoldPrices(response.data);
-    });
+    getRates();
   }, []);
   const [activeTab, setActiveTabProp] = useState<TabType | null>(null);
   const [savings, setSavings, savingsLoaded] = useLocalStorage<SavingsData>(
@@ -63,7 +65,7 @@ function HomeContent() {
 
       if (
         isTabType(searchParams.get("tab")) &&
-        (hasSavings || activeTab === "gold-prices")
+        (hasSavings || activeTab === "prices")
       ) {
         setActiveTab(searchParams.get("tab") as TabType);
         return;
@@ -93,17 +95,31 @@ function HomeContent() {
   // Redirect to edit tab if current tab becomes disabled
   useEffect(() => {
     if (savingsLoaded && !hasSavedAmounts && activeTab !== "edit") {
-      if (activeTab === "gold-prices") {
-        setActiveTab("gold-prices");
+      if (activeTab === "prices") {
+        setActiveTab("prices");
       } else {
         setActiveTab("edit");
       }
     }
   }, [hasSavedAmounts, activeTab, savingsLoaded]);
-
+  const getRates = () => {
+    axios({
+      method: "get",
+      url: "https://www.goldapi.io/api/XAU/EGP",
+      headers: { "x-access-token": "goldapi-1cey8cmsme6905k5-io" },
+    }).then(function (response) {
+      setGoldPrices(response.data);
+    });
+    axios({
+      method: "get",
+      url: "https://api.fastforex.io/fetch-multi?api_key=9702d86e30-d813d4bc59-t0voml&from=USD&to=EGP",
+    }).then(function (response) {
+      setUSDPrices(response.data);
+    });
+  };
   const tabs = [
     { id: "edit" as TabType, label: "Savings Quantity", disabled: false },
-    { id: "gold-prices" as TabType, label: "Gold Prices", disabled: false },
+    { id: "prices" as TabType, label: "Rates", disabled: false },
 
     {
       id: "calculate" as TabType,
@@ -174,6 +190,7 @@ function HomeContent() {
               allHistory={allHistory}
               setAllHistory={setAllHistory}
               gold21Price={goldPrices?.price_gram_21k}
+              usdPrice={usdPrices?.results.EGP}
             />
           )}
           {activeTab === "quantity-history" && (
@@ -182,8 +199,12 @@ function HomeContent() {
           {activeTab === "history" && (
             <HistoryTab allHistory={allHistory} setAllHistory={setAllHistory} />
           )}
-          {activeTab === "gold-prices" && (
-            <GoldPricesTab goldPrices={goldPrices} />
+          {activeTab === "prices" && (
+            <PricesTab
+              goldPrices={goldPrices}
+              usdPrice={usdPrices}
+              refreshRates={getRates}
+            />
           )}
         </div>
       </div>

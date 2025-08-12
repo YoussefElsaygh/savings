@@ -16,6 +16,7 @@ interface CalculateTabProps {
   allHistory: RateEntry[];
   gold21Price: number | undefined;
   setAllHistory: (history: RateEntry[]) => void;
+  usdPrice: number | undefined;
 }
 
 export default function CalculateTab({
@@ -23,6 +24,7 @@ export default function CalculateTab({
   allHistory,
   setAllHistory,
   gold21Price,
+  usdPrice,
 }: CalculateTabProps) {
   // Get last 5 entries for display
   const rateHistory = allHistory.slice(0, 5);
@@ -31,6 +33,9 @@ export default function CalculateTab({
   useEffect(() => {
     setGold21Rate(gold21Price?.toString() || "");
   }, [gold21Price]);
+  useEffect(() => {
+    setUsdRate(usdPrice?.toString() || "");
+  }, [usdPrice]);
   const [result, setResult] = useState<{
     total: number;
     breakdown: {
@@ -48,8 +53,8 @@ export default function CalculateTab({
   } | null>(null);
 
   const calculateTotal = () => {
-    const usdRateNum = parseFloat(usdRate) || 0;
-    const gold21RateNum = parseFloat(gold21Rate) || 0;
+    const usdRateNum = Number(usdRate) || 0;
+    const gold21RateNum = Number(gold21Rate) || 0;
     const gold18RateNum = gold21RateNum / 1.1667; // 18K is typically 75% of 21K
     const gold24RateNum = gold21RateNum / 0.875; // 24K is typically 114.3% of 21K
 
@@ -59,7 +64,20 @@ export default function CalculateTab({
     const gold21Value = savings.gold21Amount * gold21RateNum;
     const gold24Value = savings.gold24Amount * gold24RateNum;
 
-    const total = usdValue + egpValue + gold18Value + gold21Value + gold24Value;
+    const total = calculateHistorySum({
+      usdAmount: savings.usdAmount,
+      egpAmount: savings.egpAmount,
+      gold18Amount: savings.gold18Amount,
+      gold21Amount: savings.gold21Amount,
+      gold24Amount: savings.gold24Amount,
+      id: "",
+      timestamp: "",
+      usdRate: usdRateNum,
+      gold18Rate: gold18RateNum,
+      gold21Rate: gold21RateNum,
+      gold24Rate: gold24RateNum,
+      sum: 0,
+    });
 
     // Get previous total for comparison (before adding the new entry)
     const previousTotal = allHistory.length > 0 ? allHistory[0].sum : 0;

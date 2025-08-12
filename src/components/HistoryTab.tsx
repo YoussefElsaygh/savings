@@ -33,10 +33,6 @@ export default function HistoryTab({
     new Set()
   );
 
-  const clearHistory = () => {
-    setAllHistory([]);
-  };
-
   const deleteEntry = (index: number) => {
     const newHistory = allHistory.filter(
       (_: RateEntry, i: number) => i !== index
@@ -100,14 +96,8 @@ export default function HistoryTab({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center mb-6">
         <h2 className="text-2xl font-bold">Full Calculation History</h2>
-        <button
-          onClick={clearHistory}
-          className="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition-colors text-sm"
-        >
-          Clear History
-        </button>
       </div>
 
       <div className="space-y-4">
