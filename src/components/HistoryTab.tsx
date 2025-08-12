@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RateEntry, SavingsData } from "@/types";
+import { RateEntry } from "@/types";
 import {
   formatDate,
   formatSum,
@@ -213,25 +213,13 @@ export default function HistoryTab({
                           <span className="font-semibold">Total:</span>
                           <div className="flex items-center gap-2">
                             <span
-                              className={`font-bold text-lg ${
-                                comparisonClass === "increase"
-                                  ? "text-green-600"
-                                  : comparisonClass === "decrease"
-                                  ? "text-red-600"
-                                  : "text-gray-800"
-                              }`}
+                              className={`font-bold text-lg ${comparisonClass}`}
                             >
                               {formatSum(currentSum)} EGP
                             </span>
                             {comparisonIcon && (
                               <span
-                                className={`text-sm font-bold ${
-                                  comparisonClass === "increase"
-                                    ? "text-green-600"
-                                    : comparisonClass === "decrease"
-                                    ? "text-red-600"
-                                    : "text-gray-600"
-                                }`}
+                                className={`text-sm font-bold ${comparisonClass}`}
                               >
                                 {comparisonIcon}
                               </span>
@@ -242,15 +230,7 @@ export default function HistoryTab({
                         {previousSum > 0 && (
                           <div className="flex justify-between text-sm text-gray-600 mt-1">
                             <span>Change from previous:</span>
-                            <span
-                              className={`font-medium ${
-                                comparisonClass === "increase"
-                                  ? "text-green-600"
-                                  : comparisonClass === "decrease"
-                                  ? "text-red-600"
-                                  : "text-gray-600"
-                              }`}
-                            >
+                            <span className={`font-medium ${comparisonClass}`}>
                               {currentSum > previousSum ? "+" : ""}
                               {formatSum(currentSum - previousSum)} EGP
                             </span>

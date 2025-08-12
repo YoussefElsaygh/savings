@@ -34,11 +34,9 @@ export function formatSum(value: number): string {
 // Calculate sum for a history entry
 export function calculateHistorySum(entry: RateEntry): number {
   const usdValue = (entry?.usdAmount ?? 0) * (entry?.usdRate ?? 0);
-  const gold18Value =
-    (entry?.gold18Amount ?? 0) * (entry?.gold18Rate ?? 0 / 1.1667);
+  const gold18Value = (entry?.gold18Amount ?? 0) * (entry?.gold18Rate ?? 0);
   const gold21Value = (entry?.gold21Amount ?? 0) * (entry?.gold21Rate ?? 0);
-  const gold24Value =
-    (entry?.gold24Amount ?? 0) * (entry?.gold21Rate ?? 0 / 0.875);
+  const gold24Value = (entry?.gold24Amount ?? 0) * (entry?.gold24Rate ?? 0);
 
   return (
     usdValue + gold21Value + gold24Value + gold18Value + (entry?.egpAmount ?? 0)
