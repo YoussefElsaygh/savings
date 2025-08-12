@@ -6,7 +6,6 @@ import {
   formatDate,
   formatSum,
   formatNumber,
-  calculateHistorySum,
   getComparisonClass,
   getComparisonIcon,
 } from "@/lib/utils";
@@ -134,14 +133,12 @@ export default function HistoryTab({
               {!isCollapsed && (
                 <div className="p-4 space-y-3">
                   {monthData.entries.map((entry, index) => {
-                    const currentSum = calculateHistorySum(entry);
+                    const currentSum = entry.sum;
                     const previousEntry =
                       index < monthData.entries.length - 1
                         ? monthData.entries[index + 1]
                         : null;
-                    const previousSum = previousEntry
-                      ? calculateHistorySum(previousEntry)
-                      : 0;
+                    const previousSum = previousEntry ? previousEntry.sum : 0;
                     const comparisonClass = getComparisonClass(
                       currentSum,
                       previousSum
