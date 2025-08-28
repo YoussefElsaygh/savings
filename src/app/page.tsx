@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import {
   SavingsData,
@@ -16,6 +16,7 @@ import CalculateTab from "@/components/CalculateTab";
 import QuantityHistoryTab from "@/components/QuantityHistoryTab";
 import HistoryTab from "@/components/HistoryTab";
 import { PricesTab } from "@/components/PricesTab";
+import Gold21ChartTab from "@/components/Gold21ChartTab";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 
@@ -47,11 +48,15 @@ function HomeContent() {
   const [allHistory, setAllHistory, allHistoryLoaded] = useLocalStorage<
     RateEntry[]
   >(STORAGE_KEYS.ALL_HISTORY, []);
-  const setActiveTab = (tab: TabType) => {
-    setActiveTabProp(tab);
-    router.push(`/?tab=${tab}`);
-  };
   const router = useRouter();
+
+  const setActiveTab = useCallback(
+    (tab: TabType) => {
+      setActiveTabProp(tab);
+      router.push(`/?tab=${tab}`);
+    },
+    [router]
+  );
   const searchParams = useSearchParams();
   // Check if there are any savings and set the appropriate active tab (only on initial load)
   useEffect(() => {
@@ -63,11 +68,12 @@ function HomeContent() {
         savings.gold21Amount > 0 ||
         savings.gold24Amount > 0;
 
+      const urlTab = searchParams.get("tab");
       if (
-        isTabType(searchParams.get("tab")) &&
-        (hasSavings || activeTab === "prices")
+        isTabType(urlTab) &&
+        (hasSavings || urlTab === "prices" || urlTab === "gold21-chart")
       ) {
-        setActiveTab(searchParams.get("tab") as TabType);
+        setActiveTab(urlTab as TabType);
         return;
       }
       if (!hasSavings) {
@@ -76,7 +82,7 @@ function HomeContent() {
         setActiveTab("calculate");
       }
     }
-  }, [savingsLoaded, searchParams]); // Only depend on savingsLoaded, not savings
+  }, [savingsLoaded, searchParams, savings, setActiveTab]); // Include all dependencies
 
   // Function to switch to calculate tab after saving
   const handleAfterSave = () => {
@@ -95,13 +101,14 @@ function HomeContent() {
   // Redirect to edit tab if current tab becomes disabled
   useEffect(() => {
     if (savingsLoaded && !hasSavedAmounts && activeTab !== "edit") {
-      if (activeTab === "prices") {
-        setActiveTab("prices");
+      if (activeTab === "prices" || activeTab === "gold21-chart") {
+        // Keep the current tab if it's prices or gold21-chart (these don't require savings)
+        return;
       } else {
         setActiveTab("edit");
       }
     }
-  }, [hasSavedAmounts, activeTab, savingsLoaded]);
+  }, [hasSavedAmounts, activeTab, savingsLoaded, setActiveTab]);
   const getRates = () => {
     axios({
       method: "get",
@@ -120,6 +127,7 @@ function HomeContent() {
   const tabs = [
     { id: "edit" as TabType, label: "Savings Quantity", disabled: false },
     { id: "prices" as TabType, label: "Rates", disabled: false },
+    { id: "gold21-chart" as TabType, label: "Gold 21K Chart", disabled: false },
 
     {
       id: "calculate" as TabType,
@@ -204,6 +212,12 @@ function HomeContent() {
               goldPrices={goldPrices}
               usdPrice={usdPrices}
               refreshRates={getRates}
+            />
+          )}
+          {activeTab === "gold21-chart" && (
+            <Gold21ChartTab
+              currentGold21Price={goldPrices?.price_gram_21k}
+              allHistory={allHistory}
             />
           )}
         </div>
