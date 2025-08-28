@@ -2,14 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import {
-  SavingsData,
-  RateEntry,
-  TabType,
-  isTabType,
-  GoldPrice,
-  USDPrice,
-} from "@/types";
+import { SavingsData, RateEntry, TabType, isTabType } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
 import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";
@@ -18,7 +11,6 @@ import HistoryTab from "@/components/HistoryTab";
 
 import Gold21ChartTab from "@/components/Gold21ChartTab";
 import { useRouter, useSearchParams } from "next/navigation";
-import axios from "axios";
 
 const initialSavings: SavingsData = {
   usdAmount: 0,
@@ -35,11 +27,6 @@ export default function Home() {
   );
 }
 function HomeContent() {
-  const [goldPrices, setGoldPrices] = useState<GoldPrice | null>(null);
-  const [usdPrices, setUSDPrices] = useState<USDPrice | null>(null);
-  useEffect(() => {
-    getRates();
-  }, []);
   const [activeTab, setActiveTabProp] = useState<TabType | null>(null);
   const [savings, setSavings, savingsLoaded] = useLocalStorage<SavingsData>(
     STORAGE_KEYS.SAVINGS,
@@ -106,21 +93,7 @@ function HomeContent() {
       }
     }
   }, [hasSavedAmounts, activeTab, savingsLoaded, setActiveTab]);
-  const getRates = () => {
-    axios({
-      method: "get",
-      url: "https://www.goldapi.io/api/XAU/EGP",
-      headers: { "x-access-token": "goldapi-1cey8cmsme6905k5-io" },
-    }).then(function (response) {
-      setGoldPrices(response.data);
-    });
-    axios({
-      method: "get",
-      url: "https://api.fastforex.io/fetch-multi?api_key=9702d86e30-d813d4bc59-t0voml&from=USD&to=EGP",
-    }).then(function (response) {
-      setUSDPrices(response.data);
-    });
-  };
+
   const tabs = [
     { id: "edit" as TabType, label: "Savings Quantity", disabled: false },
     { id: "gold21-chart" as TabType, label: "Gold 21K Chart", disabled: false },
@@ -193,8 +166,6 @@ function HomeContent() {
               savings={savings}
               allHistory={allHistory}
               setAllHistory={setAllHistory}
-              gold21Price={goldPrices?.price_gram_21k}
-              usdPrice={usdPrices?.results.EGP}
             />
           )}
           {activeTab === "quantity-history" && (
@@ -205,10 +176,7 @@ function HomeContent() {
           )}
 
           {activeTab === "gold21-chart" && (
-            <Gold21ChartTab
-              currentGold21Price={goldPrices?.price_gram_21k}
-              allHistory={allHistory}
-            />
+            <Gold21ChartTab allHistory={allHistory} />
           )}
         </div>
       </div>

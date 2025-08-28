@@ -14,9 +14,9 @@ import {
 interface CalculateTabProps {
   savings: SavingsData;
   allHistory: RateEntry[];
-  gold21Price: number | undefined;
+  gold21Price?: number | undefined;
   setAllHistory: (history: RateEntry[]) => void;
-  usdPrice: number | undefined;
+  usdPrice?: number | undefined;
 }
 
 export default function CalculateTab({
