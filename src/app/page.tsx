@@ -15,7 +15,7 @@ import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";
 import QuantityHistoryTab from "@/components/QuantityHistoryTab";
 import HistoryTab from "@/components/HistoryTab";
-import { PricesTab } from "@/components/PricesTab";
+
 import Gold21ChartTab from "@/components/Gold21ChartTab";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
@@ -69,10 +69,7 @@ function HomeContent() {
         savings.gold24Amount > 0;
 
       const urlTab = searchParams.get("tab");
-      if (
-        isTabType(urlTab) &&
-        (hasSavings || urlTab === "prices" || urlTab === "gold21-chart")
-      ) {
+      if (isTabType(urlTab) && (hasSavings || urlTab === "gold21-chart")) {
         setActiveTab(urlTab as TabType);
         return;
       }
@@ -101,8 +98,8 @@ function HomeContent() {
   // Redirect to edit tab if current tab becomes disabled
   useEffect(() => {
     if (savingsLoaded && !hasSavedAmounts && activeTab !== "edit") {
-      if (activeTab === "prices" || activeTab === "gold21-chart") {
-        // Keep the current tab if it's prices or gold21-chart (these don't require savings)
+      if (activeTab === "gold21-chart") {
+        // Keep the current tab if it's gold21-chart (doesn't require savings)
         return;
       } else {
         setActiveTab("edit");
@@ -126,7 +123,6 @@ function HomeContent() {
   };
   const tabs = [
     { id: "edit" as TabType, label: "Savings Quantity", disabled: false },
-    { id: "prices" as TabType, label: "Rates", disabled: false },
     { id: "gold21-chart" as TabType, label: "Gold 21K Chart", disabled: false },
 
     {
@@ -207,13 +203,7 @@ function HomeContent() {
           {activeTab === "history" && (
             <HistoryTab allHistory={allHistory} setAllHistory={setAllHistory} />
           )}
-          {activeTab === "prices" && (
-            <PricesTab
-              goldPrices={goldPrices}
-              usdPrice={usdPrices}
-              refreshRates={getRates}
-            />
-          )}
+
           {activeTab === "gold21-chart" && (
             <Gold21ChartTab
               currentGold21Price={goldPrices?.price_gram_21k}
