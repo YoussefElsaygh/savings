@@ -79,56 +79,8 @@ export default function Gold21ChartTab({
     return true;
   });
 
-  // AI Analysis Functions
-  const calculateMovingAverage = (data: typeof chartData, period: number) => {
-    if (data.length < period) return null;
-    const recent = data.slice(-period);
-    const sum = recent.reduce((acc, curr) => acc + curr.price, 0);
-    return sum / period;
-  };
-
-  const calculateRSI = (data: typeof chartData, period: number = 14) => {
-    if (data.length < period + 1) return null;
-
-    const changes = data
-      .slice(-period - 1)
-      .map((curr, i, arr) => {
-        if (i === 0) return 0;
-        return curr.price - arr[i - 1].price;
-      })
-      .slice(1);
-
-    const gains = changes.filter((c) => c > 0);
-    const losses = changes.filter((c) => c < 0).map((l) => Math.abs(l));
-
-    const avgGain =
-      gains.length > 0 ? gains.reduce((a, b) => a + b, 0) / period : 0;
-    const avgLoss =
-      losses.length > 0 ? losses.reduce((a, b) => a + b, 0) / period : 0;
-
-    if (avgLoss === 0) return 100;
-    const rs = avgGain / avgLoss;
-    return 100 - 100 / (1 + rs);
-  };
-
-  const calculateTrendStrength = (data: typeof chartData) => {
-    if (data.length < 5) return { trend: "neutral", strength: 0 };
-
-    const recent = data.slice(-5);
-    const first = recent[0].price;
-    const last = recent[recent.length - 1].price;
-    const change = ((last - first) / first) * 100;
-
-    let trend: "bullish" | "bearish" | "neutral";
-    if (change > 1) trend = "bullish";
-    else if (change < -1) trend = "bearish";
-    else trend = "neutral";
-
-    return { trend, strength: Math.abs(change) };
-  };
-
   const getAIRecommendation = () => {
-    if (chartData.length < 20) {
+    if (chartData.length < 10) {
       return {
         action: "hold" as const,
         confidence: 0,
@@ -138,72 +90,132 @@ export default function Gold21ChartTab({
     }
 
     const currentPrice = chartData[chartData.length - 1].price;
-    const ma7 = calculateMovingAverage(chartData, 7);
-    const ma20 = calculateMovingAverage(chartData, 20);
-    const rsi = calculateRSI(chartData);
-    const trend = calculateTrendStrength(chartData);
+    const allPrices = chartData.map((d) => d.price);
+
+    // Calculate price percentiles
+    const minPrice = Math.min(...allPrices);
+    const maxPrice = Math.max(...allPrices);
+    const priceRange = maxPrice - minPrice;
+    const pricePercentile = ((currentPrice - minPrice) / priceRange) * 100;
+
+    // Calculate recent trend (last 3-5 data points)
+    const recentData = chartData.slice(-Math.min(5, chartData.length));
+    const recentTrend =
+      recentData.length > 1
+        ? ((recentData[recentData.length - 1].price - recentData[0].price) /
+            recentData[0].price) *
+          100
+        : 0;
 
     let score = 0;
     const signals = [];
 
-    // Moving Average Analysis
-    if (ma7 && ma20) {
-      if (currentPrice > ma7 && ma7 > ma20) {
-        score += 2;
-        signals.push("Price above short & long-term averages (Bullish)");
-      } else if (currentPrice < ma7 && ma7 < ma20) {
-        score -= 2;
-        signals.push("Price below short & long-term averages (Bearish)");
-      }
+    // Primary Strategy: Buy Low, Sell High based on price percentiles
+    if (pricePercentile <= 20) {
+      // Price is in bottom 20% - Strong BUY signal
+      score += 3;
+      signals.push(
+        `Price near historical lows (${pricePercentile.toFixed(
+          1
+        )}th percentile) - Excellent buying opportunity!`
+      );
+    } else if (pricePercentile <= 35) {
+      // Price is in bottom 35% - BUY signal
+      score += 2;
+      signals.push(
+        `Price below average (${pricePercentile.toFixed(
+          1
+        )}th percentile) - Good buying opportunity`
+      );
+    } else if (pricePercentile >= 80) {
+      // Price is in top 20% - Strong SELL signal
+      score -= 3;
+      signals.push(
+        `Price near historical highs (${pricePercentile.toFixed(
+          1
+        )}th percentile) - Excellent selling opportunity!`
+      );
+    } else if (pricePercentile >= 65) {
+      // Price is in top 35% - SELL signal
+      score -= 2;
+      signals.push(
+        `Price above average (${pricePercentile.toFixed(
+          1
+        )}th percentile) - Good selling opportunity`
+      );
     }
 
-    // RSI Analysis
-    if (rsi !== null) {
-      if (rsi < 30) {
-        score += 1;
-        signals.push(
-          `RSI oversold (${rsi.toFixed(1)}) - Potential buy opportunity`
-        );
-      } else if (rsi > 70) {
+    // Secondary: Recent momentum check (avoid catching falling knife or selling too early)
+    if (recentTrend < -5) {
+      // Strong downward momentum - be cautious about buying
+      if (score > 0) {
         score -= 1;
         signals.push(
-          `RSI overbought (${rsi.toFixed(1)}) - Potential sell opportunity`
+          `Recent sharp decline (${recentTrend.toFixed(
+            1
+          )}%) - Wait for stabilization before buying`
+        );
+      }
+    } else if (recentTrend > 5) {
+      // Strong upward momentum - be cautious about selling too early
+      if (score < 0) {
+        score += 1;
+        signals.push(
+          `Recent sharp rise (${recentTrend.toFixed(
+            1
+          )}%) - May continue higher, consider waiting`
         );
       }
     }
 
-    // Trend Analysis
-    if (trend.trend === "bullish" && trend.strength > 2) {
-      score += 1;
-      signals.push(`Strong upward trend (+${trend.strength.toFixed(1)}%)`);
-    } else if (trend.trend === "bearish" && trend.strength > 2) {
-      score -= 1;
-      signals.push(`Strong downward trend (-${trend.strength.toFixed(1)}%)`);
+    // Volatility check - be more confident in stable markets
+    const volatility = (priceRange / ((minPrice + maxPrice) / 2)) * 100;
+    if (volatility < 10) {
+      signals.push("Low volatility market - More reliable signals");
+    } else if (volatility > 25) {
+      signals.push("High volatility market - Exercise extra caution");
     }
 
-    // Support/Resistance
-    const prices = chartData.map((d) => d.price);
-    const support = Math.min(...prices.slice(-10));
-    const resistance = Math.max(...prices.slice(-10));
+    // Distance from extremes
+    const distanceFromMin = ((currentPrice - minPrice) / minPrice) * 100;
+    const distanceFromMax = ((maxPrice - currentPrice) / maxPrice) * 100;
 
-    if (currentPrice <= support * 1.02) {
+    if (distanceFromMin < 5) {
       score += 1;
-      signals.push("Price near support level - Good buying opportunity");
-    } else if (currentPrice >= resistance * 0.98) {
+      signals.push(
+        `Very close to historical minimum (+${distanceFromMin.toFixed(
+          1
+        )}% from lowest) - Prime buying level`
+      );
+    } else if (distanceFromMax < 5) {
       score -= 1;
-      signals.push("Price near resistance level - Consider selling");
+      signals.push(
+        `Very close to historical maximum (-${distanceFromMax.toFixed(
+          1
+        )}% from highest) - Prime selling level`
+      );
     }
 
+    // Determine final action and confidence
     let action: "buy" | "sell" | "hold";
-    let confidence = Math.min(Math.abs(score) * 20, 85);
+    let confidence: number;
 
-    if (score >= 2) {
+    if (score >= 3) {
       action = "buy";
-    } else if (score <= -2) {
+      confidence = Math.min(85, 60 + score * 5);
+    } else if (score <= -3) {
       action = "sell";
+      confidence = Math.min(85, 60 + Math.abs(score) * 5);
+    } else if (score >= 1) {
+      action = "buy";
+      confidence = Math.min(75, 45 + score * 10);
+    } else if (score <= -1) {
+      action = "sell";
+      confidence = Math.min(75, 45 + Math.abs(score) * 10);
     } else {
       action = "hold";
-      confidence = Math.max(60 - Math.abs(score) * 10, 30);
+      confidence = 40;
+      signals.push("Price in neutral zone - Wait for better opportunities");
     }
 
     return { action, confidence, reason: signals.join(". "), signals };
@@ -331,11 +343,11 @@ export default function Gold21ChartTab({
                 }`}
               >
                 {aiRecommendation.action === "buy" &&
-                  "📈 BUY - Good buying opportunity"}
+                  "📈 BUY - Price is relatively low, good time to buy"}
                 {aiRecommendation.action === "sell" &&
-                  "📉 SELL - Consider taking profits"}
+                  "📉 SELL - Price is relatively high, good time to sell"}
                 {aiRecommendation.action === "hold" &&
-                  "⏸️ HOLD - Wait for better signals"}
+                  "⏸️ HOLD - Price in neutral zone, wait for extremes"}
               </p>
               <div className="mt-2">
                 <p className="text-xs text-gray-600">Confidence Level</p>
@@ -377,10 +389,12 @@ export default function Gold21ChartTab({
 
           <div className="mt-3 pt-3 border-t border-purple-200">
             <p className="text-xs text-gray-500">
-              💡 This analysis uses technical indicators including moving
-              averages, RSI, trend analysis, and support/resistance levels.
-              Market conditions can change rapidly. Always consider multiple
-              factors before making investment decisions.
+              💡 This analysis uses a &quot;buy low, sell high&quot; strategy
+              based on historical price percentiles and recent momentum. It
+              identifies when prices are near historical lows (buy
+              opportunities) or highs (sell opportunities). Market conditions
+              can change rapidly. Always consider multiple factors before making
+              investment decisions.
             </p>
           </div>
         </div>
