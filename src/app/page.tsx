@@ -4,13 +4,13 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { SavingsData, RateEntry, TabType, isTabType } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
-import EditTab from "@/components/EditTab";
-import CalculateTab from "@/components/CalculateTab";
-import QuantityHistoryTab from "@/components/QuantityHistoryTab";
-import HistoryTab from "@/components/HistoryTab";
-import Navbar from "@/components/Navbar";
+import EditTab from "@/components/savings/EditTab";
+import CalculateTab from "@/components/savings/CalculateTab";
+import QuantityHistoryTab from "@/components/savings/QuantityHistoryTab";
+import HistoryTab from "@/components/savings/HistoryTab";
+import Navbar from "@/components/shared/Navbar";
 
-import Gold21ChartTab from "@/components/Gold21ChartTab";
+import Gold21ChartTab from "@/components/savings/Gold21ChartTab";
 import { useRouter, useSearchParams } from "next/navigation";
 
 const initialSavings: SavingsData = {
