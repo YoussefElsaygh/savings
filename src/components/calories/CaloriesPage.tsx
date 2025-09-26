@@ -26,7 +26,7 @@ export default function CaloriesPage() {
   
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
-    return new Date().toISOString().split('T')[0];
+    return new Intl.DateTimeFormat('en-CA').format(new Date());
   };
 
   // Ensure all daily data has exercise fields for backward compatibility
