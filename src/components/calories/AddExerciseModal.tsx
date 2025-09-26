@@ -106,7 +106,7 @@ export default function AddExerciseModal({ isOpen, onClose, onAddExercise }: Add
           <div className="flex items-center justify-between mb-6 p-6 sticky top-0 bg-white border-b border-gray-300">
             <h3 className="text-xl font-bold">Add Exercise</h3>
             <button
-              onClick={handleClose}
+              onClick={onClose}
               className="text-gray-400 hover:text-gray-600 text-2xl"
             >
               ×
