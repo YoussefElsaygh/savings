@@ -79,6 +79,22 @@ export const EXERCISE_CONSTANTS: ExerciseConstant[] = [
     description: 'Walking uphill or climbing stairs',
     intensityLevel: 'moderate',
   },
+  {
+    id: 'tennis-singles',
+    name: 'Tennis (Singles/Alone)',
+    caloriesPerHour: 580,
+    category: 'cardio',
+    description: 'Tennis singles match or practice alone',
+    intensityLevel: 'high',
+  },
+  {
+    id: 'tennis-doubles',
+    name: 'Tennis (Doubles/Team)',
+    caloriesPerHour: 420,
+    category: 'cardio',
+    description: 'Tennis doubles match with team',
+    intensityLevel: 'moderate',
+  },
 
   // Strength Training
   {
