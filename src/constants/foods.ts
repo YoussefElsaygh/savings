@@ -7,8 +7,8 @@ export interface FoodConstant {
   id: string;
   name: string;
   caloriesPerUnit: number;
-  unitType: 'piece' | '100g' | '100ml';
-  category: 'protein' | 'carbs' | 'dairy' | 'beverages' | 'unhealthy';
+  unitType: 'piece' | '100g' | '100ml' | '50g';
+  category: 'protein' | 'carbs' | 'dairy' | 'beverages' | 'unhealthy' | 'fruits';
   description: string;
 }
 
@@ -133,6 +133,14 @@ export const FOOD_CONSTANTS: FoodConstant[] = [
     description: 'Low-fat Greek yogurt (0-2% fat)',
   },
   {
+    id: 'protein-icecream',
+    name: 'Protein Icecream',
+    caloriesPerUnit: 80,
+    unitType: '100g',
+    category: 'dairy',
+    description: 'Protein icecream',
+  },
+  {
     id: 'greek-yogurt-regular',
     name: 'Regular Greek Yogurt',
     caloriesPerUnit: 97,
@@ -167,12 +175,12 @@ export const FOOD_CONSTANTS: FoodConstant[] = [
     description: 'Apple juice (unsweetened)',
   },
   {
-    id: 'grape-juice',
-    name: 'Grape Juice',
-    caloriesPerUnit: 60,
+    id: 'orange-peach-juice',
+    name: 'Orange Peach Juice',
+    caloriesPerUnit: 46,
     unitType: '100ml',
     category: 'beverages',
-    description: 'Grape juice (unsweetened)',
+    description: 'Orange peach juice (unsweetened)',
   },
   {
     id: 'cranberry-juice',
@@ -360,12 +368,53 @@ export const FOOD_CONSTANTS: FoodConstant[] = [
     category: 'unhealthy',
     description: 'Fried chicken breast with skin',
   },
+  {
+    id: 'pear',
+    name: 'Pear',
+    caloriesPerUnit: 40,
+    unitType: '100g',
+    category: 'fruits',
+    description: 'Pear',
+  },
+  {
+    id: 'tomato',
+    name: 'Tomato',
+    caloriesPerUnit: 18,
+    unitType: '100g',
+    category: 'fruits',
+    description: 'Tomato',
+  },
+  {
+    id: 'apple',
+    name: 'Apple',
+    caloriesPerUnit: 95,
+    unitType: '100g',
+    category: 'fruits',
+    description: 'Apple',
+  },
+  {
+    id: 'banana',
+    name: 'Banana',
+    caloriesPerUnit: 105,
+    unitType: '100g',
+    category: 'fruits',
+    description: 'Banana',
+  },
+  {
+    id: 'orange',
+    name: 'Orange',
+    caloriesPerUnit: 45,
+    unitType: '100g',
+    category: 'fruits',
+    description: 'Orange',
+  },
 ];
 
 export const FOOD_CATEGORIES = {
   protein: { name: 'Protein', color: 'bg-red-100 border-red-200' },
   carbs: { name: 'Carbs & Legumes', color: 'bg-yellow-100 border-yellow-200' },
   dairy: { name: 'Dairy', color: 'bg-blue-100 border-blue-200' },
+  fruits: { name: 'Fruits & Veggies', color: 'bg-green-100 border-green-200' },
   beverages: { name: 'Beverages', color: 'bg-teal-100 border-teal-200' },
   unhealthy: { name: '⚠️ Unhealthy Foods', color: 'bg-gray-100 border-gray-300' },
 } as const;
@@ -423,6 +472,10 @@ function getAverageWeightForFood(foodId: string): number {
     'chickpeas-raw': 100,
     'greek-yogurt-lite': 100,
     'greek-yogurt-regular': 100,
+    'apple': 100,
+    'tomato': 100,
+    'pear': 100,
+    'banana': 100,
   };
   
   return weights[foodId] || 100;

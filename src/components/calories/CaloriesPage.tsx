@@ -4,13 +4,13 @@ import { useState } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { CalorieGoal, FoodEntry, ExerciseEntry, DailyCalorieData } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
-import AddEntryModal from "@/components/calories/AddEntryModal";
 import CalorieGoalSection from "@/components/calories/CalorieGoalSection";
 import WeightLossJourneySection from "@/components/calories/WeightLossJourneySection";
 import TodayProgressSection from "@/components/calories/TodayProgressSection";
 import QuickActionsSection from "@/components/calories/QuickActionsSection";
 import TodayActivitySection from "@/components/calories/TodayActivitySection";
 import CalorieHistorySection from "@/components/calories/CalorieHistorySection";
+import AddFoodModal from "./AddFoodModal";
 
 export default function CaloriesPage() {
   // localStorage for calorie goal and daily data
@@ -23,8 +23,6 @@ export default function CaloriesPage() {
     []
   );
 
-  // Modal state
-  const [isModalOpen, setIsModalOpen] = useState(false);
   
   // Get today's date in YYYY-MM-DD format
   const getTodayDate = () => {
@@ -261,7 +259,8 @@ export default function CaloriesPage() {
         {/* Right Column - Quick Actions & Today's Activity */}
         <div className="space-y-6">
           <QuickActionsSection 
-            onOpenModal={() => setIsModalOpen(true)}
+          handleModalAddFood={handleModalAddFood}
+          handleModalAddExercise={handleModalAddExercise}
           />
 
           <TodayActivitySection 
@@ -280,12 +279,7 @@ export default function CaloriesPage() {
         getTodayDate={getTodayDate}
       />
 
-      <AddEntryModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onAddFood={handleModalAddFood}
-        onAddExercise={handleModalAddExercise}
-      />
+    
     </div>
   );
 }
