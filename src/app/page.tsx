@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { SavingsData, RateEntry, TabType, isTabType, CalorieGoal } from "@/types";
+import { SavingsData, RateEntry, TabType, isTabType } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
 import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";

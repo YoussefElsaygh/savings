@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { CalorieGoal, FoodEntry, ExerciseEntry, DailyCalorieData } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
-import { FOOD_CONSTANTS, FOOD_CATEGORIES, getFoodsByCategory, calculateCalories, type FoodConstant } from "@/constants/foods";
-import { EXERCISE_CONSTANTS, EXERCISE_CATEGORIES, getExercisesByCategory, calculateCaloriesBurned, COMMON_DURATIONS, type ExerciseConstant } from "@/constants/exercises";
+import { FOOD_CATEGORIES, getFoodsByCategory, calculateCalories, type FoodConstant } from "@/constants/foods";
+import { EXERCISE_CATEGORIES, getExercisesByCategory, calculateCaloriesBurned, COMMON_DURATIONS, type ExerciseConstant } from "@/constants/exercises";
 import { formatNumber, formatDate } from "@/lib/utils";
 
 export default function CaloriesTab() {
@@ -54,39 +54,7 @@ export default function CaloriesTab() {
     return new Date().toISOString().split('T')[0];
   };
 
-  // Get start of current week (Monday)
-  const getWeekStartDate = () => {
-    const today = new Date();
-    const day = today.getDay();
-    const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
-    const monday = new Date(today.setDate(diff));
-    return monday.toISOString().split('T')[0];
-  };
 
-  // Get this week's data
-  const getWeekData = () => {
-    const weekStart = getWeekStartDate();
-    const weekStartDate = new Date(weekStart);
-    
-    const thisWeekData = dailyData.filter(day => {
-      const dayDate = new Date(day.date);
-      return dayDate >= weekStartDate && dayDate <= new Date();
-    });
-    
-    const totalWeekDeficit = thisWeekData.reduce((sum, day) => 
-      sum + Math.max(day.remainingCalories, 0), 0
-    );
-    
-    const targetWeekDeficit = calorieGoal ? calorieGoal.targetWeightLoss * 7700 : 0;
-    
-    return {
-      thisWeekData,
-      totalWeekDeficit,
-      targetWeekDeficit,
-      daysInWeek: thisWeekData.length,
-      weekStartDate: weekStartDate.toDateString(),
-    };
-  };
 
   // Get today's data or create new one
   const getTodayData = (): DailyCalorieData => {
@@ -612,19 +580,19 @@ export default function CaloriesTab() {
             <div className="bg-green-100 border border-green-300 rounded p-4 text-center">
               <div className="text-2xl mb-2">🎉 🏆 🎉</div>
               <div className="text-green-800 font-bold text-lg">
-                Congratulations! You've reached your goal!
+                Congratulations! You&apos;ve reached your goal!
               </div>
               <div className="text-green-700 text-sm mt-1">
-                You've successfully created a deficit of {formatNumber(totalDeficitAchieved)} calories!
+                      You&apos;ve successfully created a deficit of {formatNumber(totalDeficitAchieved)} calories!
               </div>
             </div>
           )}
           
           {totalDeficitAchieved < calorieGoal.totalCaloriesToLose && (
             <div className="bg-blue-100 border border-blue-300 rounded p-3 text-center text-sm">
-              <strong>Keep going!</strong> You're {formatNumber(remainingCaloriesToLose)} calories away from your goal.
+              <strong>Keep going!</strong> You&apos;re {formatNumber(remainingCaloriesToLose)} calories away from your goal.
               <br />
-              At {formatNumber((calorieGoal.targetWeightLoss * 7700) / 7)} calories/day, you'll reach it in about {Math.ceil(remainingCaloriesToLose / ((calorieGoal.targetWeightLoss * 7700) / 7))} days.
+              At {formatNumber((calorieGoal.targetWeightLoss * 7700) / 7)} calories/day, you&apos;ll reach it in about {Math.ceil(remainingCaloriesToLose / ((calorieGoal.targetWeightLoss * 7700) / 7))} days.
             </div>
           )}
         </div>
@@ -633,7 +601,7 @@ export default function CaloriesTab() {
       {/* Today's Progress */}
       {calorieGoal && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold mb-4">Today's Progress</h3>
+          <h3 className="text-lg font-bold mb-4">Today&apos;s Progress</h3>
           
           <div className="grid gap-3 mb-4">
             <div className="flex justify-between">
@@ -657,7 +625,7 @@ export default function CaloriesTab() {
               </span>
             </div>
             <div className="flex justify-between">
-              <span>Today's Total Deficit:</span>
+              <span>Today&apos;s Total Deficit:</span>
               <span className={`font-bold ${
                 calorieGoal?.maintenanceCalories 
                   ? 'text-green-600' : 'text-red-600'
@@ -1064,7 +1032,7 @@ export default function CaloriesTab() {
       {/* Today's Food & Exercise Entries */}
       {(todayData.foodEntries.length > 0 || (todayData.exerciseEntries && todayData.exerciseEntries.length > 0)) && (
         <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-bold mb-4">Today's Activity</h3>
+          <h3 className="text-lg font-bold mb-4">Today&apos;s Activity</h3>
           
           {/* Food Entries */}
           {todayData.foodEntries.length > 0 && (
