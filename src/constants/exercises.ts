@@ -95,6 +95,14 @@ export const EXERCISE_CONSTANTS: ExerciseConstant[] = [
     description: 'Tennis doubles match with team',
     intensityLevel: 'moderate',
   },
+  {
+    id: 'padel-friends',
+    name: 'Padel with Friends',
+    caloriesPerHour: 480,
+    category: 'cardio',
+    description: 'Padel match or practice with friends',
+    intensityLevel: 'high',
+  },
 
   // Strength Training
   {

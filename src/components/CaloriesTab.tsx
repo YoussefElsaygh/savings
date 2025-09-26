@@ -33,7 +33,7 @@ export default function CaloriesTab() {
   const [foodEntryMode, setFoodEntryMode] = useState<'preset' | 'custom'>('preset');
   const [selectedFood, setSelectedFood] = useState<FoodConstant | null>(null);
   const [quantity, setQuantity] = useState("");
-  const [unit, setUnit] = useState<'pieces' | 'grams'>('grams');
+  const [unit, setUnit] = useState<'pieces' | 'grams' | 'ml'>('grams');
   const [customFoodName, setCustomFoodName] = useState("");
   const [customCalories, setCustomCalories] = useState("");
   const [calculatedCalories, setCalculatedCalories] = useState(0);
@@ -155,6 +155,8 @@ export default function CaloriesTab() {
         setUnit('pieces');
       } else if (selectedFood.unitType === '100g') {
         setUnit('grams');
+      } else if (selectedFood.unitType === '100ml') {
+        setUnit('ml');
       }
     }
   }, [selectedFood]);
@@ -199,7 +201,10 @@ export default function CaloriesTab() {
       if (qty > 0) {
         calories = calculateCalories(selectedFood, qty, unit);
         name = selectedFood.name;
-        description = `${qty} ${unit === 'pieces' ? (qty === 1 ? 'piece' : 'pieces') : 'g'}`;
+        description = `${qty} ${
+          unit === 'pieces' ? (qty === 1 ? 'piece' : 'pieces') : 
+          unit === 'ml' ? 'ml' : 'g'
+        }`;
       } else {
         return;
       }
@@ -772,11 +777,12 @@ export default function CaloriesTab() {
                     </label>
                     <select
                       value={unit}
-                      onChange={(e) => setUnit(e.target.value as 'pieces' | 'grams')}
+                      onChange={(e) => setUnit(e.target.value as 'pieces' | 'grams' | 'ml')}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     >
                       <option value="grams">Grams</option>
                       <option value="pieces">Pieces</option>
+                      <option value="ml">Milliliters (ml)</option>
                     </select>
                   </div>
                   

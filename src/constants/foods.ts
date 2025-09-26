@@ -7,8 +7,8 @@ export interface FoodConstant {
   id: string;
   name: string;
   caloriesPerUnit: number;
-  unitType: 'piece' | '100g';
-  category: 'protein' | 'carbs' | 'dairy';
+  unitType: 'piece' | '100g' | '100ml';
+  category: 'protein' | 'carbs' | 'dairy' | 'beverages';
   description: string;
 }
 
@@ -116,21 +116,140 @@ export const FOOD_CONSTANTS: FoodConstant[] = [
     category: 'dairy',
     description: 'Cottage cheese',
   },
+
+  // Beverages
+  {
+    id: 'orange-juice',
+    name: 'Orange Juice',
+    caloriesPerUnit: 45,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Fresh orange juice (unsweetened)',
+  },
+  {
+    id: 'apple-juice',
+    name: 'Apple Juice',
+    caloriesPerUnit: 46,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Apple juice (unsweetened)',
+  },
+  {
+    id: 'grape-juice',
+    name: 'Grape Juice',
+    caloriesPerUnit: 60,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Grape juice (unsweetened)',
+  },
+  {
+    id: 'cranberry-juice',
+    name: 'Cranberry Juice',
+    caloriesPerUnit: 46,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Cranberry juice cocktail',
+  },
+  {
+    id: 'coffee-black',
+    name: 'Coffee (Black)',
+    caloriesPerUnit: 2,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Black coffee, no additives',
+  },
+  {
+    id: 'coffee-milk',
+    name: 'Coffee with Milk',
+    caloriesPerUnit: 15,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Coffee with whole milk',
+  },
+  {
+    id: 'coffee-sugar',
+    name: 'Coffee with Sugar',
+    caloriesPerUnit: 20,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Black coffee with 1 tsp sugar',
+  },
+  {
+    id: 'coffee-milk-sugar',
+    name: 'Coffee with Milk & Sugar',
+    caloriesPerUnit: 35,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Coffee with milk and sugar',
+  },
+  {
+    id: 'tea-black',
+    name: 'Tea (Black)',
+    caloriesPerUnit: 1,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Black tea, no additives',
+  },
+  {
+    id: 'tea-milk',
+    name: 'Tea with Milk',
+    caloriesPerUnit: 12,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Tea with whole milk',
+  },
+  {
+    id: 'tea-sugar',
+    name: 'Tea with Sugar',
+    caloriesPerUnit: 17,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Black tea with 1 tsp sugar',
+  },
+  {
+    id: 'tea-milk-sugar',
+    name: 'Tea with Milk & Sugar',
+    caloriesPerUnit: 30,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Tea with milk and sugar',
+  },
+  {
+    id: 'green-tea',
+    name: 'Green Tea',
+    caloriesPerUnit: 0,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Plain green tea',
+  },
+  {
+    id: 'herbal-tea',
+    name: 'Herbal Tea',
+    caloriesPerUnit: 1,
+    unitType: '100ml',
+    category: 'beverages',
+    description: 'Herbal tea (chamomile, peppermint, etc.)',
+  },
 ];
 
 export const FOOD_CATEGORIES = {
   protein: { name: 'Protein', color: 'bg-red-100 border-red-200' },
   carbs: { name: 'Carbs & Legumes', color: 'bg-yellow-100 border-yellow-200' },
   dairy: { name: 'Dairy', color: 'bg-blue-100 border-blue-200' },
+  beverages: { name: 'Beverages', color: 'bg-teal-100 border-teal-200' },
 } as const;
 
 // Helper function to calculate calories based on quantity and unit type
-export function calculateCalories(food: FoodConstant, quantity: number, inputUnit: 'pieces' | 'grams'): number {
+export function calculateCalories(food: FoodConstant, quantity: number, inputUnit: 'pieces' | 'grams' | 'ml'): number {
   if (food.unitType === 'piece' && inputUnit === 'pieces') {
     return food.caloriesPerUnit * quantity;
   }
   
   if (food.unitType === '100g' && inputUnit === 'grams') {
+    return (food.caloriesPerUnit * quantity) / 100;
+  }
+
+  if (food.unitType === '100ml' && inputUnit === 'ml') {
     return (food.caloriesPerUnit * quantity) / 100;
   }
   
@@ -147,6 +266,13 @@ export function calculateCalories(food: FoodConstant, quantity: number, inputUni
     const avgWeight = getAverageWeightForFood(food.id);
     const totalGrams = quantity * avgWeight;
     return (food.caloriesPerUnit * totalGrams) / 100;
+  }
+
+  if (food.unitType === '100ml' && (inputUnit === 'pieces' || inputUnit === 'grams')) {
+    // For beverages, assume 1 piece = 250ml (1 cup)
+    const mlPerPiece = inputUnit === 'pieces' ? 250 : 1; // 1 gram ≈ 1 ml for liquids
+    const totalMl = quantity * mlPerPiece;
+    return (food.caloriesPerUnit * totalMl) / 100;
   }
   
   return 0;
