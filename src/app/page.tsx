@@ -2,12 +2,13 @@
 
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
-import { SavingsData, RateEntry, TabType, isTabType } from "@/types";
+import { SavingsData, RateEntry, TabType, isTabType, CalorieGoal } from "@/types";
 import { STORAGE_KEYS } from "@/constants/localStorage";
 import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";
 import QuantityHistoryTab from "@/components/QuantityHistoryTab";
 import HistoryTab from "@/components/HistoryTab";
+import CaloriesTab from "@/components/CaloriesTab";
 
 import Gold21ChartTab from "@/components/Gold21ChartTab";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -19,6 +20,7 @@ const initialSavings: SavingsData = {
   gold21Amount: 0,
   gold24Amount: 0,
 };
+
 export default function Home() {
   return (
     <Suspense>
@@ -32,6 +34,7 @@ function HomeContent() {
     STORAGE_KEYS.SAVINGS,
     initialSavings
   );
+  
   const [allHistory, setAllHistory, allHistoryLoaded] = useLocalStorage<
     RateEntry[]
   >(STORAGE_KEYS.ALL_HISTORY, []);
@@ -56,7 +59,7 @@ function HomeContent() {
         savings.gold24Amount > 0;
 
       const urlTab = searchParams.get("tab");
-      if (isTabType(urlTab) && (hasSavings || urlTab === "gold21-chart")) {
+      if (isTabType(urlTab) && (hasSavings || urlTab === "gold21-chart" || urlTab === "calories")) {
         setActiveTab(urlTab as TabType);
         return;
       }
@@ -85,8 +88,8 @@ function HomeContent() {
   // Redirect to edit tab if current tab becomes disabled
   useEffect(() => {
     if (savingsLoaded && !hasSavedAmounts && activeTab !== "edit") {
-      if (activeTab === "gold21-chart") {
-        // Keep the current tab if it's gold21-chart (doesn't require savings)
+      if (activeTab === "gold21-chart" || activeTab === "calories") {
+        // Keep the current tab if it's gold21-chart or calories (doesn't require savings)
         return;
       } else {
         setActiveTab("edit");
@@ -109,8 +112,10 @@ function HomeContent() {
       disabled: !hasSavedAmounts,
     },
     { id: "history" as TabType, label: "History", disabled: !hasSavedAmounts },
-  ];
+    { id: "calories" as TabType, label: "Calorie Tracker", disabled: false ,invisible: !window.localStorage.getItem(STORAGE_KEYS.SUPER_YOUSSEF)},
 
+  ];
+  console.log(window.localStorage.getItem(STORAGE_KEYS.SUPER_YOUSSEF));
   if (!savingsLoaded || !allHistoryLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -129,7 +134,7 @@ function HomeContent() {
         {/* Tabs */}
         <div className="flex flex-wrap gap-1 mb-6">
           {tabs.map((tab) => (
-            <button
+            tab.invisible?null:<button
               key={tab.id}
               onClick={() => !tab.disabled && setActiveTab(tab.id)}
               disabled={tab.disabled}
@@ -177,6 +182,9 @@ function HomeContent() {
 
           {activeTab === "gold21-chart" && (
             <Gold21ChartTab allHistory={allHistory} />
+          )}
+          {activeTab === "calories" && (
+            <CaloriesTab />
           )}
         </div>
       </div>

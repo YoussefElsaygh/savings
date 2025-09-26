@@ -3,12 +3,17 @@
  * Centralized storage keys to avoid typos and maintain consistency
  */
 
-export const STORAGE_KEYS = {
+export const  STORAGE_KEYS = {
+  SUPER_YOUSSEF: "superYoussef",
   // Main application data
   SAVINGS: "savings",
 
   // History data
   ALL_HISTORY: "allHistory",
+
+  // Calorie tracking data
+  CALORIE_GOAL: "calorieGoal",
+  DAILY_CALORIE_DATA: "dailyCalorieData",
 
   // Legacy keys (for backward compatibility with original app)
   USD_AMOUNT: "usdAmount",
