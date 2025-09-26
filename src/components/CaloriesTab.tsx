@@ -56,18 +56,23 @@ export default function CaloriesTab() {
 
 
 
+  // Ensure all daily data has exercise fields for backward compatibility
+  const normalizeData = (data: DailyCalorieData[]): DailyCalorieData[] => {
+    return data.map(day => ({
+      ...day,
+      totalCaloriesBurned: day.totalCaloriesBurned || 0,
+      exerciseEntries: day.exerciseEntries || [],
+    }));
+  };
+
   // Get today's data or create new one
   const getTodayData = (): DailyCalorieData => {
     const today = getTodayDate();
-    const existingData = dailyData.find(d => d.date === today);
+    const normalizedData = normalizeData(dailyData);
+    const existingData = normalizedData.find(d => d.date === today);
     
     if (existingData) {
-      // Ensure backward compatibility for existing data
-      return {
-        ...existingData,
-        totalCaloriesBurned: existingData.totalCaloriesBurned || 0,
-        exerciseEntries: existingData.exerciseEntries || [],
-      };
+      return existingData;
     }
     
     // Create new day data
@@ -100,7 +105,8 @@ export default function CaloriesTab() {
   const getTotalDeficitAchieved = () => {
     if (!calorieGoal?.maintenanceCalories) return 0;
     
-    return dailyData.reduce((total, day) => {
+    const normalizedData = normalizeData(dailyData);
+    return normalizedData.reduce((total, day) => {
       // Deficit = (maintenance calories - calories consumed) + calories burned from exercise
       const foodDeficit = Math.max(calorieGoal.maintenanceCalories - day.totalCalories, 0);
       const exerciseBonus = day.totalCaloriesBurned || 0;
@@ -1113,7 +1119,11 @@ export default function CaloriesTab() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-green-600">
-                {dailyData.filter(day => calorieGoal?.maintenanceCalories && day.totalCalories < calorieGoal.maintenanceCalories).length}
+                {normalizeData(dailyData).filter(day => {
+                  const foodDeficit = calorieGoal?.maintenanceCalories ? Math.max(calorieGoal.maintenanceCalories - day.totalCalories, 0) : 0;
+                  const exerciseBonus = day.totalCaloriesBurned || 0;
+                  return (foodDeficit + exerciseBonus) > 0;
+                }).length}
               </div>
               <div className="text-sm text-gray-600">Deficit Days</div>
             </div>
@@ -1123,7 +1133,7 @@ export default function CaloriesTab() {
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-orange-600">
-                {dailyData.reduce((sum, day) => sum + day.foodEntries.length + (day.exerciseEntries?.length || 0), 0)}
+                {normalizeData(dailyData).reduce((sum, day) => sum + day.foodEntries.length + (day.exerciseEntries?.length || 0), 0)}
               </div>
               <div className="text-sm text-gray-600">Total Activities</div>
             </div>
@@ -1131,7 +1141,7 @@ export default function CaloriesTab() {
 
           {/* Daily History List */}
           <div className="space-y-3 max-h-96 overflow-y-auto">
-            {dailyData
+            {normalizeData(dailyData)
               .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
               .map((day, index) => {
               const isToday = day.date === getTodayDate();
