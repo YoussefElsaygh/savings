@@ -8,7 +8,7 @@ export interface FoodConstant {
   name: string;
   caloriesPerUnit: number;
   unitType: 'piece' | '100g' | '100ml';
-  category: 'protein' | 'carbs' | 'dairy' | 'beverages';
+  category: 'protein' | 'carbs' | 'dairy' | 'beverages' | 'unhealthy';
   description: string;
 }
 
@@ -214,6 +214,120 @@ export const FOOD_CONSTANTS: FoodConstant[] = [
     category: 'beverages',
     description: 'Herbal tea (chamomile, peppermint, etc.)',
   },
+
+  // Unhealthy Foods
+  {
+    id: 'pizza-slice',
+    name: 'Pizza Slice',
+    caloriesPerUnit: 285,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Average pizza slice with cheese',
+  },
+  {
+    id: 'burger',
+    name: 'Burger',
+    caloriesPerUnit: 540,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Fast food burger with bun and condiments',
+  },
+  {
+    id: 'fries-small',
+    name: 'Fries (Small)',
+    caloriesPerUnit: 230,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Small portion of french fries',
+  },
+  {
+    id: 'fries-large',
+    name: 'Fries (Large)',
+    caloriesPerUnit: 430,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Large portion of french fries',
+  },
+  {
+    id: 'chocolate-bar',
+    name: 'Chocolate Bar',
+    caloriesPerUnit: 250,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Standard chocolate bar (45g)',
+  },
+  {
+    id: 'donut',
+    name: 'Donut',
+    caloriesPerUnit: 250,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Glazed donut',
+  },
+  {
+    id: 'ice-cream',
+    name: 'Ice Cream',
+    caloriesPerUnit: 207,
+    unitType: '100g',
+    category: 'unhealthy',
+    description: 'Vanilla ice cream',
+  },
+  {
+    id: 'cookies',
+    name: 'Cookies',
+    caloriesPerUnit: 50,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Chocolate chip cookie (medium)',
+  },
+  {
+    id: 'chips-bag',
+    name: 'Chips (Small Bag)',
+    caloriesPerUnit: 150,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Small bag of potato chips (28g)',
+  },
+  {
+    id: 'soda',
+    name: 'Soda',
+    caloriesPerUnit: 42,
+    unitType: '100ml',
+    category: 'unhealthy',
+    description: 'Regular cola or soft drink',
+  },
+  {
+    id: 'candy-bar',
+    name: 'Candy Bar',
+    caloriesPerUnit: 280,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Chocolate candy bar (50g)',
+  },
+  {
+    id: 'croissant',
+    name: 'Croissant',
+    caloriesPerUnit: 230,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Butter croissant',
+  },
+  {
+    id: 'muffin',
+    name: 'Muffin',
+    caloriesPerUnit: 350,
+    unitType: 'piece',
+    category: 'unhealthy',
+    description: 'Blueberry muffin (large)',
+  },
+  {
+    id: 'fried-chicken',
+    name: 'Fried Chicken',
+    caloriesPerUnit: 320,
+    unitType: '100g',
+    category: 'unhealthy',
+    description: 'Fried chicken breast with skin',
+  },
 ];
 
 export const FOOD_CATEGORIES = {
@@ -221,6 +335,7 @@ export const FOOD_CATEGORIES = {
   carbs: { name: 'Carbs & Legumes', color: 'bg-yellow-100 border-yellow-200' },
   dairy: { name: 'Dairy', color: 'bg-blue-100 border-blue-200' },
   beverages: { name: 'Beverages', color: 'bg-teal-100 border-teal-200' },
+  unhealthy: { name: '⚠️ Unhealthy Foods', color: 'bg-gray-100 border-gray-300' },
 } as const;
 
 // Helper function to calculate calories based on quantity and unit type
