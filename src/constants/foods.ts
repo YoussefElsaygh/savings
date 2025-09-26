@@ -89,6 +89,38 @@ export const FOOD_CONSTANTS: FoodConstant[] = [
     category: 'carbs',
     description: 'Cooked lupine',
   },
+  {
+    id: 'rice-cooked',
+    name: 'Rice (Cooked)',
+    caloriesPerUnit: 130,
+    unitType: '100g',
+    category: 'carbs',
+    description: 'Cooked white rice',
+  },
+  {
+    id: 'rice-brown-cooked',
+    name: 'Brown Rice (Cooked)',
+    caloriesPerUnit: 112,
+    unitType: '100g',
+    category: 'carbs',
+    description: 'Cooked brown rice',
+  },
+  {
+    id: 'macaroni-cooked',
+    name: 'Macaroni (Cooked)',
+    caloriesPerUnit: 158,
+    unitType: '100g',
+    category: 'carbs',
+    description: 'Cooked macaroni pasta',
+  },
+  {
+    id: 'pasta-cooked',
+    name: 'Pasta (Cooked)',
+    caloriesPerUnit: 160,
+    unitType: '100g',
+    category: 'carbs',
+    description: 'Cooked pasta (general)',
+  },
  
   
   // Dairy
