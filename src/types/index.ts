@@ -61,8 +61,7 @@ export type TabType =
   | "calculate"
   | "quantity-history"
   | "history"
-  | "gold21-chart"
-  | "calories";
+  | "gold21-chart";
 
 export function isTabType(value: unknown): value is TabType {
   return [
@@ -71,6 +70,5 @@ export function isTabType(value: unknown): value is TabType {
     "quantity-history",
     "history",
     "gold21-chart",
-    "calories",
   ].includes(value as TabType);
 }

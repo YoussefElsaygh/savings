@@ -8,7 +8,7 @@ import EditTab from "@/components/EditTab";
 import CalculateTab from "@/components/CalculateTab";
 import QuantityHistoryTab from "@/components/QuantityHistoryTab";
 import HistoryTab from "@/components/HistoryTab";
-import CaloriesTab from "@/components/CaloriesTab";
+import Navbar from "@/components/Navbar";
 
 import Gold21ChartTab from "@/components/Gold21ChartTab";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -59,7 +59,7 @@ function HomeContent() {
         savings.gold24Amount > 0;
 
       const urlTab = searchParams.get("tab");
-      if (isTabType(urlTab) && (hasSavings || urlTab === "gold21-chart" || urlTab === "calories")) {
+      if (isTabType(urlTab) && (hasSavings || urlTab === "gold21-chart")) {
         setActiveTab(urlTab as TabType);
         return;
       }
@@ -88,8 +88,8 @@ function HomeContent() {
   // Redirect to edit tab if current tab becomes disabled
   useEffect(() => {
     if (savingsLoaded && !hasSavedAmounts && activeTab !== "edit") {
-      if (activeTab === "gold21-chart" || activeTab === "calories") {
-        // Keep the current tab if it's gold21-chart or calories (doesn't require savings)
+      if (activeTab === "gold21-chart") {
+        // Keep the current tab if it's gold21-chart (doesn't require savings)
         return;
       } else {
         setActiveTab("edit");
@@ -112,7 +112,6 @@ function HomeContent() {
       disabled: !hasSavedAmounts,
     },
     { id: "history" as TabType, label: "History", disabled: !hasSavedAmounts },
-    { id: "calories" as TabType, label: "Calorie Tracker", disabled: false ,invisible: !window.localStorage.getItem(STORAGE_KEYS.SUPER_YOUSSEF)},
 
   ];
   console.log(window.localStorage.getItem(STORAGE_KEYS.SUPER_YOUSSEF));
@@ -125,16 +124,18 @@ function HomeContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 py-8">
-      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
-          Savings Calculator
-        </h1>
+    <div className="min-h-screen bg-gray-100">
+      <Navbar />
+      <div className="py-8">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+          <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
+            Savings Calculator
+          </h1>
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-1 mb-6">
           {tabs.map((tab) => (
-            tab.invisible?null:<button
+            <button
               key={tab.id}
               onClick={() => !tab.disabled && setActiveTab(tab.id)}
               disabled={tab.disabled}
@@ -183,9 +184,7 @@ function HomeContent() {
           {activeTab === "gold21-chart" && (
             <Gold21ChartTab allHistory={allHistory} />
           )}
-          {activeTab === "calories" && (
-            <CaloriesTab />
-          )}
+        </div>
         </div>
       </div>
     </div>
