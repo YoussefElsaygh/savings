@@ -114,7 +114,6 @@ function HomeContent() {
     { id: "history" as TabType, label: "History", disabled: !hasSavedAmounts },
 
   ];
-  console.log(window.localStorage.getItem(STORAGE_KEYS.SUPER_YOUSSEF));
   if (!savingsLoaded || !allHistoryLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center">

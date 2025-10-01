@@ -62,7 +62,7 @@ export default function CalorieHistorySection({
             .map((day, index) => {
             const isToday = day.date === getTodayDate();
             const foodDeficit = calorieGoal?.maintenanceCalories 
-              ? Math.max(calorieGoal.maintenanceCalories - day.totalCalories, 0) 
+              ? calorieGoal.maintenanceCalories - day.totalCalories
               : 0;
             const exerciseBonus = day.totalCaloriesBurned || 0;
             const totalDayDeficit = foodDeficit + exerciseBonus;
@@ -95,13 +95,9 @@ export default function CalorieHistorySection({
                       {formatNumber(day.totalCalories)} cal
                     </div>
                     <div className={`text-sm font-medium ${totalDayDeficit > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {totalDayDeficit > 0 ? `${formatNumber(totalDayDeficit)} deficit` : 'No deficit'}
+                    {formatNumber(totalDayDeficit)} {totalDayDeficit > 0 ? 'deficit' : 'gain'}
                     </div>
-                    {exerciseBonus > 0 && (
-                      <div className="text-xs text-orange-600">
-                        +{formatNumber(exerciseBonus)} from exercise
-                      </div>
-                    )}
+                    
                   </div>
                 </div>
 

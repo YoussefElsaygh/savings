@@ -71,7 +71,7 @@ export default function CaloriesPage() {
     const normalizedData = normalizeData(dailyData);
     return normalizedData.reduce((total, day) => {
       // Deficit = (maintenance calories - calories consumed) + calories burned from exercise
-      const foodDeficit = Math.max(calorieGoal.maintenanceCalories - day.totalCalories, 0);
+      const foodDeficit = calorieGoal.maintenanceCalories - day.totalCalories;
       const exerciseBonus = day.totalCaloriesBurned || 0;
       const totalDayDeficit = foodDeficit + exerciseBonus;
       return total + totalDayDeficit;
