@@ -9,6 +9,7 @@ interface CalorieHistorySectionProps {
   normalizeData: (data: DailyCalorieData[]) => DailyCalorieData[];
   getTotalDeficitAchieved: () => number;
   getTodayDate: () => string;
+  onEditDay: (date: string) => void;
 }
 
 export default function CalorieHistorySection({ 
@@ -16,7 +17,8 @@ export default function CalorieHistorySection({
   calorieGoal, 
   normalizeData, 
   getTotalDeficitAchieved,
-  getTodayDate
+  getTodayDate,
+  onEditDay
 }: CalorieHistorySectionProps) {
   if (dailyData.length === 0) return null;
 
@@ -89,6 +91,13 @@ export default function CalorieHistorySection({
                         Yesterday
                       </span>
                     )}
+                    <button
+                      onClick={() => onEditDay(day.date)}
+                      className="text-xs bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-800 px-2 py-1 rounded transition-colors duration-200 flex items-center gap-1"
+                      title="Edit this day"
+                    >
+                      ✏️ Edit
+                    </button>
                   </div>
                   <div className="text-right">
                     <div className="font-bold text-lg">

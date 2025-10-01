@@ -114,7 +114,7 @@ export default function AddEntryModal({ isOpen, onClose, onAddFood }: AddEntryMo
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-200 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-gray-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
         <div>
           {/* Modal Header */}

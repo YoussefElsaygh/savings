@@ -10,7 +10,7 @@ import TodayProgressSection from "@/components/calories/TodayProgressSection";
 import QuickActionsSection from "@/components/calories/QuickActionsSection";
 import TodayActivitySection from "@/components/calories/TodayActivitySection";
 import CalorieHistorySection from "@/components/calories/CalorieHistorySection";
-import AddFoodModal from "./AddFoodModal";
+import EditDayModal from "@/components/calories/EditDayModal";
 
 export default function CaloriesPage() {
   // localStorage for calorie goal and daily data
@@ -22,6 +22,10 @@ export default function CaloriesPage() {
     STORAGE_KEYS.DAILY_CALORIE_DATA,
     []
   );
+
+  // Edit Day Modal state
+  const [editDayModalOpen, setEditDayModalOpen] = useState(false);
+  const [dayToEdit, setDayToEdit] = useState<DailyCalorieData | null>(null);
 
   
   // Get today's date in YYYY-MM-DD format
@@ -226,6 +230,34 @@ export default function CaloriesPage() {
     }
   };
 
+  // Handle editing a specific day
+  const handleEditDay = (date: string) => {
+    const normalizedData = normalizeData(dailyData);
+    const dayData = normalizedData.find(d => d.date === date);
+    
+    if (dayData) {
+      setDayToEdit(dayData);
+      setEditDayModalOpen(true);
+    }
+  };
+
+  // Handle updating a day's data after editing
+  const handleUpdateDay = (updatedDay: DailyCalorieData) => {
+    const dayIndex = dailyData.findIndex(d => d.date === updatedDay.date);
+    
+    if (dayIndex >= 0) {
+      const updatedDailyData = [...dailyData];
+      updatedDailyData[dayIndex] = updatedDay;
+      setDailyData(updatedDailyData);
+    }
+  };
+
+  // Close edit day modal
+  const handleCloseEditDayModal = () => {
+    setEditDayModalOpen(false);
+    setDayToEdit(null);
+  };
+
   if (!calorieGoalLoaded || !dailyDataLoaded) {
     return <div>Loading...</div>;
   }
@@ -277,8 +309,19 @@ export default function CaloriesPage() {
         normalizeData={normalizeData}
         getTotalDeficitAchieved={getTotalDeficitAchieved}
         getTodayDate={getTodayDate}
+        onEditDay={handleEditDay}
       />
 
+      {/* Edit Day Modal */}
+      {dayToEdit && (
+        <EditDayModal
+          isOpen={editDayModalOpen}
+          onClose={handleCloseEditDayModal}
+          dayData={dayToEdit}
+          calorieGoal={calorieGoal}
+          onUpdateDay={handleUpdateDay}
+        />
+      )}
     
     </div>
   );
