@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { CalorieGoal, FoodEntry, ExerciseEntry, DailyCalorieData } from "@/types";
-import { STORAGE_KEYS } from "@/constants/localStorage";
+import { useCalorieGoalFirebase, useDailyCalorieDataFirebase } from "@/hooks/useFirebaseData";
 import CalorieGoalSection from "@/components/calories/CalorieGoalSection";
 import WeightLossJourneySection from "@/components/calories/WeightLossJourneySection";
 import TodayProgressSection from "@/components/calories/TodayProgressSection";
@@ -13,15 +12,9 @@ import CalorieHistorySection from "@/components/calories/CalorieHistorySection";
 import EditDayModal from "@/components/calories/EditDayModal";
 
 export default function CaloriesPage() {
-  // localStorage for calorie goal and daily data
-  const [calorieGoal, setCalorieGoal, calorieGoalLoaded] = useLocalStorage<CalorieGoal | null>(
-    STORAGE_KEYS.CALORIE_GOAL,
-    null
-  );
-  const [dailyData, setDailyData, dailyDataLoaded] = useLocalStorage<DailyCalorieData[]>(
-    STORAGE_KEYS.DAILY_CALORIE_DATA,
-    []
-  );
+  // Firebase hooks for calorie goal and daily data
+  const [calorieGoal, saveCalorieGoal, calorieGoalLoading, calorieGoalError] = useCalorieGoalFirebase();
+  const [dailyData, saveDailyData, dailyDataLoading, dailyDataError] = useDailyCalorieDataFirebase();
 
   // Edit Day Modal state
   const [editDayModalOpen, setEditDayModalOpen] = useState(false);
@@ -87,146 +80,166 @@ export default function CaloriesPage() {
     ? Math.max((calorieGoal?.totalCaloriesToLose || 0) - totalDeficitAchieved, 0) 
     : 0;
 
-  const handleSaveGoal = (newGoal: CalorieGoal) => {
-    setCalorieGoal(newGoal);
-    
-    // Update existing daily data with new calorie limit
-    const updatedDailyData = dailyData.map(day => ({
-      ...day,
-      calorieLimit: newGoal.dailyCalorieLimit,
-      remainingCalories: newGoal.dailyCalorieLimit - day.totalCalories,
-    }));
-    
-    setDailyData(updatedDailyData);
-  };
-
-  const handleModalAddFood = (foodData: { name: string; calories: number; description: string }) => {
-    const newFoodEntry: FoodEntry = {
-      id: Date.now().toString(),
-      name: foodData.name,
-      calories: foodData.calories,
-      timestamp: new Date().toISOString(),
-      date: getTodayDate(),
-    };
-    
-    const today = getTodayDate();
-    const existingDayIndex = dailyData.findIndex(d => d.date === today);
-    
-    let updatedDailyData: DailyCalorieData[];
-    
-    if (existingDayIndex >= 0) {
-      // Update existing day
-      updatedDailyData = [...dailyData];
-      const updatedDay = { 
-        ...updatedDailyData[existingDayIndex],
-        // Ensure backward compatibility
-        totalCaloriesBurned: updatedDailyData[existingDayIndex].totalCaloriesBurned || 0,
-        exerciseEntries: updatedDailyData[existingDayIndex].exerciseEntries || [],
-      };
-      updatedDay.foodEntries = [...updatedDay.foodEntries, newFoodEntry];
-      updatedDay.totalCalories += foodData.calories;
-      updatedDay.remainingCalories = updatedDay.calorieLimit - updatedDay.totalCalories;
-      updatedDailyData[existingDayIndex] = updatedDay;
-    } else {
-      // Create new day
-      const newDayData: DailyCalorieData = {
-        date: today,
-        totalCalories: foodData.calories,
-        totalCaloriesBurned: 0,
-        foodEntries: [newFoodEntry],
-        exerciseEntries: [],
-        remainingCalories: (calorieGoal?.dailyCalorieLimit || 2000) - foodData.calories,
-        calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
-      };
-      updatedDailyData = [newDayData, ...dailyData];
-    }
-    
-    setDailyData(updatedDailyData);
-  };
-
-  const handleModalAddExercise = (exerciseData: { name: string; caloriesBurned: number; durationMinutes: number; description: string }) => {
-    const newExerciseEntry: ExerciseEntry = {
-      id: Date.now().toString(),
-      name: exerciseData.name,
-      caloriesBurned: exerciseData.caloriesBurned,
-      durationMinutes: exerciseData.durationMinutes,
-      timestamp: new Date().toISOString(),
-      date: getTodayDate(),
-    };
-    
-    const today = getTodayDate();
-    const existingDayIndex = dailyData.findIndex(d => d.date === today);
-    
-    let updatedDailyData: DailyCalorieData[];
-    
-    if (existingDayIndex >= 0) {
-      // Update existing day
-      updatedDailyData = [...dailyData];
-      const updatedDay = { 
-        ...updatedDailyData[existingDayIndex],
-        // Ensure backward compatibility
-        totalCaloriesBurned: (updatedDailyData[existingDayIndex].totalCaloriesBurned || 0),
-        exerciseEntries: updatedDailyData[existingDayIndex].exerciseEntries || [],
-      };
-      updatedDay.exerciseEntries = [...updatedDay.exerciseEntries, newExerciseEntry];
-      updatedDay.totalCaloriesBurned += exerciseData.caloriesBurned;
-      updatedDailyData[existingDayIndex] = updatedDay;
-    } else {
-      // Create new day
-      const newDayData: DailyCalorieData = {
-        date: today,
-        totalCalories: 0,
-        totalCaloriesBurned: exerciseData.caloriesBurned,
-        foodEntries: [],
-        exerciseEntries: [newExerciseEntry],
-        remainingCalories: calorieGoal?.dailyCalorieLimit || 2000,
-        calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
-      };
-      updatedDailyData = [newDayData, ...dailyData];
-    }
-    
-    setDailyData(updatedDailyData);
-  };
-
-  const handleDeleteFood = (foodId: string) => {
-    const today = getTodayDate();
-    const dayIndex = dailyData.findIndex(d => d.date === today);
-    
-    if (dayIndex >= 0) {
-      const updatedDailyData = [...dailyData];
-      const dayData = { ...updatedDailyData[dayIndex] };
-      const foodToDelete = dayData.foodEntries.find(f => f.id === foodId);
+  const handleSaveGoal = async (newGoal: CalorieGoal) => {
+    try {
+      await saveCalorieGoal(newGoal);
       
-      if (foodToDelete) {
-        dayData.foodEntries = dayData.foodEntries.filter(f => f.id !== foodId);
-        dayData.totalCalories -= foodToDelete.calories;
-        dayData.remainingCalories = dayData.calorieLimit - dayData.totalCalories;
-        updatedDailyData[dayIndex] = dayData;
-        setDailyData(updatedDailyData);
-      }
+      // Update existing daily data with new calorie limit
+      const updatedDailyData = dailyData.map(day => ({
+        ...day,
+        calorieLimit: newGoal.dailyCalorieLimit,
+        remainingCalories: newGoal.dailyCalorieLimit - day.totalCalories,
+      }));
+      
+      await saveDailyData(updatedDailyData);
+    } catch (error) {
+      console.error('Error saving calorie goal:', error);
     }
   };
 
-  const handleDeleteExercise = (exerciseId: string) => {
-    const today = getTodayDate();
-    const dayIndex = dailyData.findIndex(d => d.date === today);
-    
-    if (dayIndex >= 0) {
-      const updatedDailyData = [...dailyData];
-      const dayData = { 
-        ...updatedDailyData[dayIndex],
-        // Ensure backward compatibility
-        totalCaloriesBurned: updatedDailyData[dayIndex].totalCaloriesBurned || 0,
-        exerciseEntries: updatedDailyData[dayIndex].exerciseEntries || [],
+  const handleModalAddFood = async (foodData: { name: string; calories: number; description: string }) => {
+    try {
+      const newFoodEntry: FoodEntry = {
+        id: Date.now().toString(),
+        name: foodData.name,
+        calories: foodData.calories,
+        timestamp: new Date().toISOString(),
+        date: getTodayDate(),
       };
-      const exerciseToDelete = dayData.exerciseEntries.find(e => e.id === exerciseId);
       
-      if (exerciseToDelete) {
-        dayData.exerciseEntries = dayData.exerciseEntries.filter(e => e.id !== exerciseId);
-        dayData.totalCaloriesBurned -= exerciseToDelete.caloriesBurned;
-        updatedDailyData[dayIndex] = dayData;
-        setDailyData(updatedDailyData);
+      const today = getTodayDate();
+      const existingDayIndex = dailyData.findIndex(d => d.date === today);
+      
+      let updatedDailyData: DailyCalorieData[];
+      
+      if (existingDayIndex >= 0) {
+        // Update existing day
+        updatedDailyData = [...dailyData];
+        const updatedDay = { 
+          ...updatedDailyData[existingDayIndex],
+          // Ensure backward compatibility
+          totalCaloriesBurned: updatedDailyData[existingDayIndex].totalCaloriesBurned || 0,
+          exerciseEntries: updatedDailyData[existingDayIndex].exerciseEntries || [],
+        };
+        updatedDay.foodEntries = [...updatedDay.foodEntries, newFoodEntry];
+        updatedDay.totalCalories += foodData.calories;
+        updatedDay.remainingCalories = updatedDay.calorieLimit - updatedDay.totalCalories;
+        updatedDailyData[existingDayIndex] = updatedDay;
+      } else {
+        // Create new day
+        const newDayData: DailyCalorieData = {
+          date: today,
+          totalCalories: foodData.calories,
+          totalCaloriesBurned: 0,
+          foodEntries: [newFoodEntry],
+          exerciseEntries: [],
+          remainingCalories: (calorieGoal?.dailyCalorieLimit || 2000) - foodData.calories,
+          calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
+        };
+        updatedDailyData = [newDayData, ...dailyData];
       }
+      
+      await saveDailyData(updatedDailyData);
+    } catch (error) {
+      console.error('Error adding food entry:', error);
+    }
+  };
+
+  const handleModalAddExercise = async (exerciseData: { name: string; caloriesBurned: number; durationMinutes: number; description: string }) => {
+    try {
+      const newExerciseEntry: ExerciseEntry = {
+        id: Date.now().toString(),
+        name: exerciseData.name,
+        caloriesBurned: exerciseData.caloriesBurned,
+        durationMinutes: exerciseData.durationMinutes,
+        timestamp: new Date().toISOString(),
+        date: getTodayDate(),
+      };
+      
+      const today = getTodayDate();
+      const existingDayIndex = dailyData.findIndex(d => d.date === today);
+      
+      let updatedDailyData: DailyCalorieData[];
+      
+      if (existingDayIndex >= 0) {
+        // Update existing day
+        updatedDailyData = [...dailyData];
+        const updatedDay = { 
+          ...updatedDailyData[existingDayIndex],
+          // Ensure backward compatibility
+          totalCaloriesBurned: (updatedDailyData[existingDayIndex].totalCaloriesBurned || 0),
+          exerciseEntries: updatedDailyData[existingDayIndex].exerciseEntries || [],
+        };
+        updatedDay.exerciseEntries = [...updatedDay.exerciseEntries, newExerciseEntry];
+        updatedDay.totalCaloriesBurned += exerciseData.caloriesBurned;
+        updatedDailyData[existingDayIndex] = updatedDay;
+      } else {
+        // Create new day
+        const newDayData: DailyCalorieData = {
+          date: today,
+          totalCalories: 0,
+          totalCaloriesBurned: exerciseData.caloriesBurned,
+          foodEntries: [],
+          exerciseEntries: [newExerciseEntry],
+          remainingCalories: calorieGoal?.dailyCalorieLimit || 2000,
+          calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
+        };
+        updatedDailyData = [newDayData, ...dailyData];
+      }
+      
+      await saveDailyData(updatedDailyData);
+    } catch (error) {
+      console.error('Error adding exercise entry:', error);
+    }
+  };
+
+  const handleDeleteFood = async (foodId: string) => {
+    try {
+      const today = getTodayDate();
+      const dayIndex = dailyData.findIndex(d => d.date === today);
+      
+      if (dayIndex >= 0) {
+        const updatedDailyData = [...dailyData];
+        const dayData = { ...updatedDailyData[dayIndex] };
+        const foodToDelete = dayData.foodEntries.find(f => f.id === foodId);
+        
+        if (foodToDelete) {
+          dayData.foodEntries = dayData.foodEntries.filter(f => f.id !== foodId);
+          dayData.totalCalories -= foodToDelete.calories;
+          dayData.remainingCalories = dayData.calorieLimit - dayData.totalCalories;
+          updatedDailyData[dayIndex] = dayData;
+          await saveDailyData(updatedDailyData);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting food entry:', error);
+    }
+  };
+
+  const handleDeleteExercise = async (exerciseId: string) => {
+    try {
+      const today = getTodayDate();
+      const dayIndex = dailyData.findIndex(d => d.date === today);
+      
+      if (dayIndex >= 0) {
+        const updatedDailyData = [...dailyData];
+        const dayData = { 
+          ...updatedDailyData[dayIndex],
+          // Ensure backward compatibility
+          totalCaloriesBurned: updatedDailyData[dayIndex].totalCaloriesBurned || 0,
+          exerciseEntries: updatedDailyData[dayIndex].exerciseEntries || [],
+        };
+        const exerciseToDelete = dayData.exerciseEntries.find(e => e.id === exerciseId);
+        
+        if (exerciseToDelete) {
+          dayData.exerciseEntries = dayData.exerciseEntries.filter(e => e.id !== exerciseId);
+          dayData.totalCaloriesBurned -= exerciseToDelete.caloriesBurned;
+          updatedDailyData[dayIndex] = dayData;
+          await saveDailyData(updatedDailyData);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting exercise entry:', error);
     }
   };
 
@@ -242,13 +255,17 @@ export default function CaloriesPage() {
   };
 
   // Handle updating a day's data after editing
-  const handleUpdateDay = (updatedDay: DailyCalorieData) => {
-    const dayIndex = dailyData.findIndex(d => d.date === updatedDay.date);
-    
-    if (dayIndex >= 0) {
-      const updatedDailyData = [...dailyData];
-      updatedDailyData[dayIndex] = updatedDay;
-      setDailyData(updatedDailyData);
+  const handleUpdateDay = async (updatedDay: DailyCalorieData) => {
+    try {
+      const dayIndex = dailyData.findIndex(d => d.date === updatedDay.date);
+      
+      if (dayIndex >= 0) {
+        const updatedDailyData = [...dailyData];
+        updatedDailyData[dayIndex] = updatedDay;
+        await saveDailyData(updatedDailyData);
+      }
+    } catch (error) {
+      console.error('Error updating day data:', error);
     }
   };
 
@@ -258,8 +275,34 @@ export default function CaloriesPage() {
     setDayToEdit(null);
   };
 
-  if (!calorieGoalLoaded || !dailyDataLoaded) {
-    return <div>Loading...</div>;
+  // Show loading state
+  if (calorieGoalLoading || dailyDataLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your data...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (calorieGoalError || dailyDataError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center p-6 bg-red-50 rounded-lg border border-red-200">
+          <div className="text-4xl mb-4">⚠️</div>
+          <h2 className="text-xl font-bold text-red-800 mb-2">Connection Error</h2>
+          <p className="text-red-600 mb-4">
+            {calorieGoalError || dailyDataError}
+          </p>
+          <p className="text-sm text-gray-600">
+            Please check your internet connection and Firebase configuration.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
