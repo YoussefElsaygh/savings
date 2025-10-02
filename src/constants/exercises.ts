@@ -95,6 +95,7 @@ export const EXERCISE_CONSTANTS: ExerciseConstant[] = [
     description: 'Tennis doubles match with team',
     intensityLevel: 'moderate',
   },
+  
   {
     id: 'padel-friends',
     name: 'Padel with Friends',
