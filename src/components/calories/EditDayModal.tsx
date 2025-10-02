@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DailyCalorieData, FoodEntry, ExerciseEntry, CalorieGoal } from "@/types";
 import { formatNumber } from "@/lib/utils";
 import AddFoodModal from "./AddFoodModal";
@@ -24,7 +24,12 @@ export default function EditDayModal({
   const [currentDayData, setCurrentDayData] = useState<DailyCalorieData>(dayData);
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
-
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, []);
   if (!isOpen) return null;
 
   const handleAddFood = (foodData: { name: string; calories: number; description: string }) => {
@@ -105,11 +110,11 @@ export default function EditDayModal({
     : 0;
   const exerciseBonus = currentDayData.totalCaloriesBurned || 0;
   const totalDayDeficit = foodDeficit + exerciseBonus;
-
+  
   return (
     <>
-      <div className="fixed inset-0 bg-gray-50 flex items-center justify-center p-4 z-40">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <div className="fixed inset-0 bg-gray-50 flex items-center justify-center p-4 z-40 ">
+        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col min-h-[75vh]">
           {/* Header */}
           <div className="flex justify-between items-center p-6 border-b">
             <div>
@@ -176,7 +181,7 @@ export default function EditDayModal({
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="space-y-2 overflow-y-auto">
                   {currentDayData.foodEntries.length > 0 ? (
                     currentDayData.foodEntries
                       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
@@ -227,7 +232,7 @@ export default function EditDayModal({
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-60 overflow-y-auto">
+                <div className="space-y-2 overflow-y-auto">
                   {(currentDayData.exerciseEntries || []).length > 0 ? (
                     (currentDayData.exerciseEntries || [])
                       .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
