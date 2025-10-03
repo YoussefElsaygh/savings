@@ -144,8 +144,8 @@ export default function MigrationModal({ isOpen, onClose }: MigrationModalProps)
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <h4 className="font-medium text-blue-900 mb-2">Calorie Goal Preview:</h4>
                   <p className="text-sm text-blue-700">
-                    Daily: {dataPreview.calorieGoal.dailyCalories} cal | 
-                    Weekly Loss: {dataPreview.calorieGoal.weeklyWeightLoss} lbs
+                    Daily: {dataPreview.calorieGoal.dailyCalorieLimit} cal | 
+                    Weekly Loss: {dataPreview.calorieGoal.targetWeightLoss} kg
                   </p>
                 </div>
               )}
