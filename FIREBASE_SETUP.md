@@ -24,8 +24,11 @@ Your calorie tracking app has been updated to use Firebase for cloud data storag
 1. Go to **Build** > **Authentication**
 2. Click "Get started"
 3. Go to the **Sign-in method** tab
-4. Enable **Anonymous** authentication
-5. Click "Save"
+4. Enable **Google** authentication:
+   - Click on "Google" from the providers list
+   - Toggle the "Enable" switch
+   - Add your project's support email (required)
+   - Click "Save"
 
 ### 4. Get Your Firebase Configuration
 
@@ -62,10 +65,10 @@ For better security, update your Firestore rules:
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow users to read/write their own data
-    match /calorieData/{userId}_{document=**} {
+    // Allow authenticated users to read/write their own calorie data
+    match /calorieData/{docId} {
       allow read, write: if request.auth != null && 
-        request.auth.uid == resource.data.userId;
+        docId.matches(request.auth.uid + '_.*');
     }
   }
 }
@@ -79,16 +82,18 @@ With Firebase integration, you now have:
 
 - **☁️ Cloud Storage**: Your data is safely stored in the cloud
 - **🔄 Real-time Sync**: Data updates instantly across devices
-- **📱 Cross-device Access**: Access your data from anywhere
-- **🔒 Secure**: Anonymous authentication keeps your data private
+- **📱 Cross-device Access**: Access your data from anywhere using your Google account
+- **🔒 Secure**: Google authentication ensures your data is private and secure
 - **💾 Automatic Backup**: Never lose your calorie tracking data
+- **👤 Profile Integration**: Sign in with your Google account for personalized experience
 
 ## 🚀 How It Works
 
-1. **Anonymous Login**: The app automatically creates an anonymous user account
+1. **Google Sign-In**: Sign in with your Google account for secure access
 2. **Data Sync**: All your calorie goals and daily entries are saved to Firebase
 3. **Real-time Updates**: Changes are immediately synced to the cloud
-4. **Offline Support**: The app works offline and syncs when you're back online
+4. **Cross-device Access**: Sign in from any device to access your data
+5. **Offline Support**: The app works offline and syncs when you're back online
 
 ## 🔧 Troubleshooting
 
@@ -98,8 +103,11 @@ With Firebase integration, you now have:
 - Make sure Firestore is enabled in your Firebase project
 
 ### Authentication Issues  
-- Ensure Anonymous authentication is enabled
+- Ensure Google authentication is enabled in Firebase Console
+- Check that your domain is authorized (for production deployments)
+- Verify your Google OAuth configuration
 - Check browser console for detailed error messages
+- Make sure pop-ups are not blocked in your browser
 
 ### Data Not Saving
 - Verify Firestore security rules allow your operations

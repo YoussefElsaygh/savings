@@ -10,15 +10,25 @@ import QuickActionsSection from "@/components/calories/QuickActionsSection";
 import TodayActivitySection from "@/components/calories/TodayActivitySection";
 import CalorieHistorySection from "@/components/calories/CalorieHistorySection";
 import EditDayModal from "@/components/calories/EditDayModal";
+import MigrationModal from "@/components/calories/MigrationModal";
+import { hasCalorieDataInLocalStorage } from "@/utils/migration";
+import GoogleSignIn from "@/components/auth/GoogleSignIn";
 
 export default function CaloriesPage() {
   // Firebase hooks for calorie goal and daily data
-  const [calorieGoal, saveCalorieGoal, calorieGoalLoading, calorieGoalError] = useCalorieGoalFirebase();
-  const [dailyData, saveDailyData, dailyDataLoading, dailyDataError] = useDailyCalorieDataFirebase();
+  const [calorieGoal, saveCalorieGoal, calorieGoalLoading, calorieGoalError, calorieGoalUser, signInCalorieGoal] = useCalorieGoalFirebase();
+  const [dailyData, saveDailyData, dailyDataLoading, dailyDataError, dailyDataUser, signInDailyData] = useDailyCalorieDataFirebase();
+
+  // Use the user from either hook (they should be the same)
+  const user = calorieGoalUser || dailyDataUser;
+  const signIn = signInCalorieGoal || signInDailyData;
 
   // Edit Day Modal state
   const [editDayModalOpen, setEditDayModalOpen] = useState(false);
   const [dayToEdit, setDayToEdit] = useState<DailyCalorieData | null>(null);
+  
+  // Migration Modal state
+  const [migrationModalOpen, setMigrationModalOpen] = useState(false);
 
   
   // Get today's date in YYYY-MM-DD format
@@ -287,8 +297,11 @@ export default function CaloriesPage() {
     );
   }
 
-  // Show error state
-  if (calorieGoalError || dailyDataError) {
+  // Show error state (but not authentication errors)
+  const isAuthError = (calorieGoalError && calorieGoalError.includes('sign in')) || 
+                      (dailyDataError && dailyDataError.includes('sign in'));
+  
+  if ((calorieGoalError || dailyDataError) && !isAuthError) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center p-6 bg-red-50 rounded-lg border border-red-200">
@@ -305,9 +318,47 @@ export default function CaloriesPage() {
     );
   }
 
+  // Show sign-in interface if user is not authenticated
+  if (!user) {
+    return (
+      <div className="w-full max-w-md mx-auto mt-8">
+        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Calorie Tracker</h1>
+        <GoogleSignIn 
+          user={user}
+          isLoading={calorieGoalLoading || dailyDataLoading}
+          error={calorieGoalError || dailyDataError}
+          onSignIn={signIn}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
-      <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">Calorie Tracker</h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-3xl font-bold text-gray-800">Calorie Tracker</h1>
+        
+        <div className="flex items-center space-x-4">
+          {/* Show migration button if localStorage data exists */}
+          {hasCalorieDataInLocalStorage() && (
+            <button
+              onClick={() => setMigrationModalOpen(true)}
+              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm transition-colors flex items-center gap-2"
+              title="Migrate your localStorage data to Firebase for cloud sync"
+            >
+              📦 Migrate Data
+            </button>
+          )}
+          
+          {/* User profile display */}
+          <GoogleSignIn 
+            user={user}
+            isLoading={false}
+            error={null}
+            onSignIn={signIn}
+          />
+        </div>
+      </div>
       
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
         {/* Left Column - Goal & Progress */}
@@ -365,6 +416,12 @@ export default function CaloriesPage() {
           onUpdateDay={handleUpdateDay}
         />
       )}
+
+      {/* Migration Modal */}
+      <MigrationModal
+        isOpen={migrationModalOpen}
+        onClose={() => setMigrationModalOpen(false)}
+      />
     
     </div>
   );
