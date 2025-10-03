@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { User } from 'firebase/auth';
 import { signOutUser } from '@/lib/firebase';
+import Image from 'next/image';
 
 interface GoogleSignInProps {
   user: User | null;
@@ -44,9 +45,11 @@ export default function GoogleSignIn({ user, isLoading, error, onSignIn }: Googl
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             {user.photoURL && (
-              <img
+              <Image
                 src={user.photoURL}
                 alt="Profile"
+                width={32}
+                height={32}
                 className="w-8 h-8 rounded-full"
               />
             )}

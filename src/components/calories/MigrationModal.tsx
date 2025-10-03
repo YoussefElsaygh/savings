@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useCalorieGoalFirebase, useDailyCalorieDataFirebase } from '@/hooks/useFirebaseData';
+import { CalorieGoal } from '@/types';
 import { 
   migrateCalorieDataToFirebase, 
   clearMigratedLocalStorageData,
@@ -18,7 +19,7 @@ export default function MigrationModal({ isOpen, onClose }: MigrationModalProps)
   const [migrationStatus, setMigrationStatus] = useState<'idle' | 'checking' | 'migrating' | 'completed' | 'error'>('idle');
   const [migrationResult, setMigrationResult] = useState<MigrationResult | null>(null);
   const [dataPreview, setDataPreview] = useState<{
-    calorieGoal: any;
+    calorieGoal: CalorieGoal | null;
     dailyDataCount: number;
     found: { calorieGoal: boolean; dailyCalorieData: boolean };
   } | null>(null);
