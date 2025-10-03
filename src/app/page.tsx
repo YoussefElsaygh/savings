@@ -1,25 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
-import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { SavingsData, RateEntry, TabType, isTabType } from "@/types";
-import { STORAGE_KEYS } from "@/constants/localStorage";
+import { useSavingsDataFirebase, useRateHistoryFirebase } from "@/hooks/useFirebaseData";
+import { hasSavingsDataInLocalStorage } from "@/utils/migration";
 import EditTab from "@/components/savings/EditTab";
 import CalculateTab from "@/components/savings/CalculateTab";
 import QuantityHistoryTab from "@/components/savings/QuantityHistoryTab";
 import HistoryTab from "@/components/savings/HistoryTab";
 import Navbar from "@/components/shared/Navbar";
+import GoogleSignIn from "@/components/auth/GoogleSignIn";
+import SavingsMigrationModal from "@/components/savings/SavingsMigrationModal";
 
 import Gold21ChartTab from "@/components/savings/Gold21ChartTab";
 import { useRouter, useSearchParams } from "next/navigation";
 
-const initialSavings: SavingsData = {
-  usdAmount: 0,
-  egpAmount: 0,
-  gold18Amount: 0,
-  gold21Amount: 0,
-  gold24Amount: 0,
-};
 
 export default function Home() {
   return (
@@ -30,14 +25,12 @@ export default function Home() {
 }
 function HomeContent() {
   const [activeTab, setActiveTabProp] = useState<TabType | null>(null);
-  const [savings, setSavings, savingsLoaded] = useLocalStorage<SavingsData>(
-    STORAGE_KEYS.SAVINGS,
-    initialSavings
-  );
+  const [showMigrationModal, setShowMigrationModal] = useState(false);
   
-  const [allHistory, setAllHistory, allHistoryLoaded] = useLocalStorage<
-    RateEntry[]
-  >(STORAGE_KEYS.ALL_HISTORY, []);
+  // Firebase hooks
+  const [savings, setSavings, savingsLoading, savingsError, user, signIn] = useSavingsDataFirebase();
+  const [allHistory, setAllHistory, historyLoading, historyError] = useRateHistoryFirebase();
+  
   const router = useRouter();
 
   const setActiveTab = useCallback(
@@ -48,9 +41,18 @@ function HomeContent() {
     [router]
   );
   const searchParams = useSearchParams();
+  // Check for localStorage data and show migration modal
+  useEffect(() => {
+    if (user && !savingsLoading) {
+      if (hasSavingsDataInLocalStorage()) {
+        setShowMigrationModal(true);
+      }
+    }
+  }, [user, savingsLoading]);
+
   // Check if there are any savings and set the appropriate active tab (only on initial load)
   useEffect(() => {
-    if (savingsLoaded) {
+    if (!savingsLoading && user) {
       const hasSavings =
         savings.usdAmount > 0 ||
         savings.egpAmount > 0 ||
@@ -69,7 +71,7 @@ function HomeContent() {
         setActiveTab("calculate");
       }
     }
-  }, [savingsLoaded, searchParams, savings, setActiveTab]); // Include all dependencies
+  }, [savingsLoading, user, searchParams, savings, setActiveTab]); // Include all dependencies
 
   // Function to switch to calculate tab after saving
   const handleAfterSave = () => {
@@ -87,7 +89,7 @@ function HomeContent() {
     savings.gold24Amount > 0;
   // Redirect to edit tab if current tab becomes disabled
   useEffect(() => {
-    if (savingsLoaded && !hasSavedAmounts && activeTab !== "edit") {
+    if (!savingsLoading && user && !hasSavedAmounts && activeTab !== "edit") {
       if (activeTab === "gold21-chart") {
         // Keep the current tab if it's gold21-chart (doesn't require savings)
         return;
@@ -95,7 +97,7 @@ function HomeContent() {
         setActiveTab("edit");
       }
     }
-  }, [hasSavedAmounts, activeTab, savingsLoaded, setActiveTab]);
+  }, [hasSavedAmounts, activeTab, savingsLoading, user, setActiveTab]);
 
   const tabs = [
     { id: "edit" as TabType, label: "Savings Quantity", disabled: false },
@@ -114,10 +116,30 @@ function HomeContent() {
     { id: "history" as TabType, label: "History", disabled: !hasSavedAmounts },
 
   ];
-  if (!savingsLoaded || !allHistoryLoaded) {
+  // Show sign-in interface if user is not authenticated
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-100">
+        <Navbar />
+        <div className="py-8">
+          <div className="max-w-md mx-auto">
+            <GoogleSignIn 
+              user={user} 
+              isLoading={savingsLoading} 
+              error={savingsError} 
+              onSignIn={signIn} 
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading while Firebase data is loading
+  if (savingsLoading || historyLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">Loading your savings data...</div>
       </div>
     );
   }
@@ -127,9 +149,31 @@ function HomeContent() {
       <Navbar />
       <div className="py-8">
         <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+          {/* User info */}
+          <div className="mb-6">
+            <GoogleSignIn 
+              user={user} 
+              isLoading={false} 
+              error={null} 
+              onSignIn={signIn} 
+            />
+          </div>
+          
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">
             Savings Calculator
           </h1>
+
+          {/* Show migration button if localStorage data exists */}
+          {hasSavingsDataInLocalStorage() && (
+            <div className="mb-4">
+              <button
+                onClick={() => setShowMigrationModal(true)}
+                className="w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+              >
+                📦 Migrate LocalStorage Data to Firebase
+              </button>
+            </div>
+          )}
 
         {/* Tabs */}
         <div className="flex flex-wrap gap-1 mb-6">
@@ -186,6 +230,12 @@ function HomeContent() {
         </div>
         </div>
       </div>
+      
+      {/* Migration Modal */}
+      <SavingsMigrationModal
+        isOpen={showMigrationModal}
+        onClose={() => setShowMigrationModal(false)}
+      />
     </div>
   );
 }

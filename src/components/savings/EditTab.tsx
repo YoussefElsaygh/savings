@@ -5,7 +5,7 @@ import { SavingsData } from "@/types";
 
 interface EditTabProps {
   savings: SavingsData;
-  setSavings: (savings: SavingsData) => void;
+  setSavings: (savings: SavingsData) => Promise<void>;
   onAfterSave?: () => void;
 }
 
@@ -15,6 +15,8 @@ export default function EditTab({
   onAfterSave,
 }: EditTabProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [formData, setFormData] = useState<SavingsData>(savings);
 
   // Update form data when savings prop changes (on initial load)
@@ -27,17 +29,27 @@ export default function EditTab({
     setFormData({ ...formData, [field]: numValue });
   };
 
-  const handleSave = () => {
-    // Save to localStorage
-    setSavings(formData);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError(null);
+    
+    try {
+      // Save to Firebase
+      await setSavings(formData);
 
-    // Show confirmation
-    setShowConfirmation(true);
-    setTimeout(() => setShowConfirmation(false), 3000);
+      // Show confirmation
+      setShowConfirmation(true);
+      setTimeout(() => setShowConfirmation(false), 3000);
 
-    // Switch to calculate tab if callback provided
-    if (onAfterSave) {
-      onAfterSave();
+      // Switch to calculate tab if callback provided
+      if (onAfterSave) {
+        onAfterSave();
+      }
+    } catch (error) {
+      console.error('Error saving savings data:', error);
+      setSaveError(error instanceof Error ? error.message : 'Failed to save data');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -156,13 +168,22 @@ export default function EditTab({
         <div className="flex gap-3">
           <button
             onClick={handleSave}
-            className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md transition-colors"
+            disabled={isSaving}
+            className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-md transition-colors"
           >
-            Save Amounts
+            {isSaving ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white inline-block mr-2"></div>
+                Saving...
+              </>
+            ) : (
+              'Save Amounts'
+            )}
           </button>
           <button
             onClick={handleReset}
-            className="bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-6 rounded-md transition-colors"
+            disabled={isSaving}
+            className="bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium py-2 px-6 rounded-md transition-colors"
           >
             Reset
           </button>
@@ -170,7 +191,13 @@ export default function EditTab({
 
         {showConfirmation && (
           <p className="mt-2 text-green-600 font-medium">
-            Savings saved successfully!
+            ✅ Savings saved successfully to Firebase!
+          </p>
+        )}
+        
+        {saveError && (
+          <p className="mt-2 text-red-600 font-medium">
+            ❌ Error: {saveError}
           </p>
         )}
       </div>

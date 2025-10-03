@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { doc, setDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { db, auth, signInWithGoogle } from '@/lib/firebase';
-import { CalorieGoal, DailyCalorieData } from '@/types';
+import { CalorieGoal, DailyCalorieData, SavingsData, RateEntry } from '@/types';
 
 export function useFirebaseData<T>(
   collectionName: string,
@@ -106,6 +106,14 @@ export function useFirebaseData<T>(
 // Stable default values to prevent unnecessary re-renders
 const DEFAULT_CALORIE_GOAL = null;
 const DEFAULT_DAILY_DATA: DailyCalorieData[] = [];
+const DEFAULT_SAVINGS_DATA: SavingsData = {
+  usdAmount: 0,
+  egpAmount: 0,
+  gold18Amount: 0,
+  gold21Amount: 0,
+  gold24Amount: 0,
+};
+const DEFAULT_RATE_ENTRIES: RateEntry[] = [];
 
 // Specialized hook for calorie goal
 export function useCalorieGoalFirebase() {
@@ -115,4 +123,14 @@ export function useCalorieGoalFirebase() {
 // Specialized hook for daily calorie data
 export function useDailyCalorieDataFirebase() {
   return useFirebaseData<DailyCalorieData[]>('calorieData', 'dailyData', DEFAULT_DAILY_DATA);
+}
+
+// Specialized hook for savings data
+export function useSavingsDataFirebase() {
+  return useFirebaseData<SavingsData>('savingsData', 'savings', DEFAULT_SAVINGS_DATA);
+}
+
+// Specialized hook for rate history/all history
+export function useRateHistoryFirebase() {
+  return useFirebaseData<RateEntry[]>('savingsData', 'rateHistory', DEFAULT_RATE_ENTRIES);
 }

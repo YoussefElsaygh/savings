@@ -15,7 +15,7 @@ interface CalculateTabProps {
   savings: SavingsData;
   allHistory: RateEntry[];
   gold21Price?: number | undefined;
-  setAllHistory: (history: RateEntry[]) => void;
+  setAllHistory: (history: RateEntry[]) => Promise<void>;
   usdPrice?: number | undefined;
 }
 
@@ -52,7 +52,7 @@ export default function CalculateTab({
     };
   } | null>(null);
 
-  const calculateTotal = () => {
+  const calculateTotal = async () => {
     const usdRateNum = Number(usdRate) || 0;
     const gold21RateNum = Number(gold21Rate) || 0;
     const gold18RateNum = gold21RateNum / 1.1667; // 18K is typically 75% of 21K
@@ -119,7 +119,11 @@ export default function CalculateTab({
 
       // Add to full history (allHistory contains everything)
       const updatedAllHistory = [newEntry, ...allHistory];
-      setAllHistory(updatedAllHistory);
+      try {
+        await setAllHistory(updatedAllHistory);
+      } catch (error) {
+        console.error('Error saving calculation to history:', error);
+      }
     }
   };
 
@@ -171,7 +175,7 @@ export default function CalculateTab({
       </div>
 
       <button
-        onClick={calculateTotal}
+        onClick={() => calculateTotal()}
         className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md transition-colors mb-6"
       >
         Calculate Total Savings

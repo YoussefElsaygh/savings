@@ -12,7 +12,7 @@ import {
 
 interface HistoryTabProps {
   allHistory: RateEntry[];
-  setAllHistory: (history: RateEntry[]) => void;
+  setAllHistory: (history: RateEntry[]) => Promise<void>;
 }
 
 interface MonthGroup {
@@ -32,11 +32,15 @@ export default function HistoryTab({
     new Set()
   );
 
-  const deleteEntry = (index: number) => {
+  const deleteEntry = async (index: number) => {
     const newHistory = allHistory.filter(
       (_: RateEntry, i: number) => i !== index
     );
-    setAllHistory(newHistory);
+    try {
+      await setAllHistory(newHistory);
+    } catch (error) {
+      console.error('Error deleting history entry:', error);
+    }
   };
 
   const toggleMonth = (monthKey: string) => {
