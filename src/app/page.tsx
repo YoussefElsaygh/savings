@@ -40,8 +40,7 @@ function HomeContent() {
 
   const [savings, setSavings, savingsLoading, savingsError, user, signIn] =
     useSavingsDataFirebase();
-  const [allHistory, setAllHistory, historyLoading] =
-    useRateHistoryFirebase();
+  const [allHistory, setAllHistory, historyLoading] = useRateHistoryFirebase();
 
   const router = useRouter();
 
