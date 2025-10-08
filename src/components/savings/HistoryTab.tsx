@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react";
 import { RateEntry } from "@/types";
 import {
   formatDate,
   formatSum,
   formatNumber,
-  getComparisonClass,
   getComparisonIcon,
 } from "@/lib/utils";
 import { Card, Space, Typography, Button, Empty, Collapse, Tag } from "antd";

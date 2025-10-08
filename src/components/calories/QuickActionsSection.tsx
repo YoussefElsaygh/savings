@@ -10,7 +10,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface QuickActionsSectionProps {
   handleModalAddFood: (foodData: {

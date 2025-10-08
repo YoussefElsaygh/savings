@@ -9,7 +9,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface TodayProgressSectionProps {
   calorieGoal: CalorieGoal | null;
@@ -35,7 +35,7 @@ export default function TodayProgressSection({
       title={
         <Space>
           <CheckCircleOutlined style={{ fontSize: "18px" }} />
-          <span>Today's Progress</span>
+          <span>{"Today's Progress"}</span>
         </Space>
       }
     >
@@ -115,7 +115,7 @@ export default function TodayProgressSection({
           >
             <Space>
               <FireOutlined style={{ fontSize: "20px", color: "#faad14" }} />
-              <Text strong>Today's Total Deficit:</Text>
+              <Text strong>{"Today's Total Deficit:"}</Text>
             </Space>
             <Text strong style={{ fontSize: "18px", color: "#52c41a" }}>
               {formatNumber(todayDeficit)} cal

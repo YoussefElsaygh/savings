@@ -29,13 +29,12 @@ import {
   RobotOutlined,
   RiseOutlined,
   FallOutlined,
-  MinusOutlined,
   ReloadOutlined,
   GoldOutlined,
 } from "@ant-design/icons";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 interface Gold21ChartTabProps {
@@ -281,7 +280,9 @@ export default function Gold21ChartTab({
         <Title level={2}>
           <GoldOutlined style={{ color: "#faad14" }} /> Gold 21K Price Chart
         </Title>
-        <Text type="secondary">Track and analyze gold price trends over time</Text>
+        <Text type="secondary">
+          Track and analyze gold price trends over time
+        </Text>
       </div>
 
       {/* Date Range Filters */}
@@ -289,11 +290,7 @@ export default function Gold21ChartTab({
         <Space wrap align="center">
           <Text strong>Date Range:</Text>
           <RangePicker
-            value={
-              fromDate && toDate
-                ? [dayjs(fromDate), dayjs(toDate)]
-                : null
-            }
+            value={fromDate && toDate ? [dayjs(fromDate), dayjs(toDate)] : null}
             onChange={(dates) => {
               if (dates) {
                 setFromDate(dates[0]?.format("YYYY-MM-DD") || "");
@@ -382,14 +379,22 @@ export default function Gold21ChartTab({
             </Col>
 
             <Col xs={24} md={12}>
-              <Space direction="vertical" size="small" style={{ width: "100%" }}>
+              <Space
+                direction="vertical"
+                size="small"
+                style={{ width: "100%" }}
+              >
                 <Text strong>Analysis Signals</Text>
                 <div style={{ maxHeight: "120px", overflowY: "auto" }}>
                   {aiRecommendation.signals.map((signal, index) => (
                     <Text
                       key={index}
                       type="secondary"
-                      style={{ fontSize: "12px", display: "block", marginBottom: "4px" }}
+                      style={{
+                        fontSize: "12px",
+                        display: "block",
+                        marginBottom: "4px",
+                      }}
                     >
                       • {signal}
                     </Text>
@@ -402,13 +407,19 @@ export default function Gold21ChartTab({
             </Col>
           </Row>
 
-          <div style={{ marginTop: "16px", paddingTop: "16px", borderTop: "1px solid #e0d9ff" }}>
+          <div
+            style={{
+              marginTop: "16px",
+              paddingTop: "16px",
+              borderTop: "1px solid #e0d9ff",
+            }}
+          >
             <Text type="secondary" style={{ fontSize: "11px" }}>
-              💡 This analysis uses a "buy low, sell high" strategy based on
-              historical price percentiles and recent momentum. It identifies when
-              prices are near historical lows (buy opportunities) or highs (sell
-              opportunities). Market conditions can change rapidly. Always consider
-              multiple factors before making investment decisions.
+              💡 This analysis uses a &quot;buy low, sell high&quot; strategy based on
+              historical price percentiles and recent momentum. It identifies
+              when prices are near historical lows (buy opportunities) or highs
+              (sell opportunities). Market conditions can change rapidly. Always
+              consider multiple factors before making investment decisions.
             </Text>
           </div>
         </Card>
@@ -432,8 +443,8 @@ export default function Gold21ChartTab({
             <Space direction="vertical">
               <Text>No price history available yet.</Text>
               <Text type="secondary" style={{ fontSize: "13px" }}>
-                Price history will be automatically recorded when you visit the app
-                and prices are fetched.
+                Price history will be automatically recorded when you visit the
+                app and prices are fetched.
               </Text>
             </Space>
           }
@@ -441,7 +452,10 @@ export default function Gold21ChartTab({
         />
       ) : (
         <Card>
-          <Text type="secondary" style={{ display: "block", marginBottom: "16px" }}>
+          <Text
+            type="secondary"
+            style={{ display: "block", marginBottom: "16px" }}
+          >
             Showing {chartData.length} price point
             {chartData.length !== 1 ? "s" : ""} over time
           </Text>
@@ -489,27 +503,40 @@ export default function Gold21ChartTab({
           {chartData.length > 1 && (
             <Row gutter={[16, 16]} style={{ marginTop: "24px" }}>
               <Col xs={12} sm={6}>
-                <Card size="small" style={{ background: "#e6f4ff", borderColor: "#91caff" }}>
+                <Card
+                  size="small"
+                  style={{ background: "#e6f4ff", borderColor: "#91caff" }}
+                >
                   <Statistic
                     title="Highest Price"
-                    value={Math.max(...chartData.map((d) => d.price)).toFixed(3)}
+                    value={Math.max(...chartData.map((d) => d.price)).toFixed(
+                      3
+                    )}
                     suffix="EGP/gram"
                     valueStyle={{ fontSize: "16px", color: "#1677ff" }}
                   />
                 </Card>
               </Col>
               <Col xs={12} sm={6}>
-                <Card size="small" style={{ background: "#fff1f0", borderColor: "#ffccc7" }}>
+                <Card
+                  size="small"
+                  style={{ background: "#fff1f0", borderColor: "#ffccc7" }}
+                >
                   <Statistic
                     title="Lowest Price"
-                    value={Math.min(...chartData.map((d) => d.price)).toFixed(3)}
+                    value={Math.min(...chartData.map((d) => d.price)).toFixed(
+                      3
+                    )}
                     suffix="EGP/gram"
                     valueStyle={{ fontSize: "16px", color: "#ff4d4f" }}
                   />
                 </Card>
               </Col>
               <Col xs={12} sm={6}>
-                <Card size="small" style={{ background: "#fffbe6", borderColor: "#ffe58f" }}>
+                <Card
+                  size="small"
+                  style={{ background: "#fffbe6", borderColor: "#ffe58f" }}
+                >
                   <Statistic
                     title="Price Range"
                     value={(
@@ -522,7 +549,10 @@ export default function Gold21ChartTab({
                 </Card>
               </Col>
               <Col xs={12} sm={6}>
-                <Card size="small" style={{ background: "#f6ffed", borderColor: "#b7eb8f" }}>
+                <Card
+                  size="small"
+                  style={{ background: "#f6ffed", borderColor: "#b7eb8f" }}
+                >
                   <Statistic
                     title="Price Change"
                     value={
@@ -538,7 +568,8 @@ export default function Gold21ChartTab({
                     suffix="%"
                     prefix={
                       chartData.length > 1 &&
-                      chartData[chartData.length - 1].price > chartData[0].price ? (
+                      chartData[chartData.length - 1].price >
+                        chartData[0].price ? (
                         <RiseOutlined />
                       ) : (
                         <FallOutlined />
@@ -548,7 +579,8 @@ export default function Gold21ChartTab({
                       fontSize: "16px",
                       color:
                         chartData.length > 1 &&
-                        chartData[chartData.length - 1].price > chartData[0].price
+                        chartData[chartData.length - 1].price >
+                          chartData[0].price
                           ? "#52c41a"
                           : "#ff4d4f",
                     }}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, Suspense } from "react";
-import { SavingsData, RateEntry, TabType, isTabType } from "@/types";
+import { TabType, isTabType } from "@/types";
 import {
   useSavingsDataFirebase,
   useRateHistoryFirebase,
@@ -40,7 +40,7 @@ function HomeContent() {
 
   const [savings, setSavings, savingsLoading, savingsError, user, signIn] =
     useSavingsDataFirebase();
-  const [allHistory, setAllHistory, historyLoading, historyError] =
+  const [allHistory, setAllHistory, historyLoading] =
     useRateHistoryFirebase();
 
   const router = useRouter();

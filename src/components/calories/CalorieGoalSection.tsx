@@ -6,7 +6,6 @@ import { formatNumber } from "@/lib/utils";
 import {
   Card,
   Button,
-  Input,
   InputNumber,
   Space,
   Typography,
@@ -20,7 +19,7 @@ import {
   TrophyOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface CalorieGoalSectionProps {
   calorieGoal: CalorieGoal | null;

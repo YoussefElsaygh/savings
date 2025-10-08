@@ -24,7 +24,7 @@ import {
 } from "antd";
 import { SaveOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface EditDayModalProps {
   isOpen: boolean;

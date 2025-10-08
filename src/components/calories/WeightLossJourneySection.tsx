@@ -5,7 +5,7 @@ import { formatNumber } from "@/lib/utils";
 import { Card, Progress, Space, Typography, Alert, Row, Col, Statistic } from "antd";
 import { TrophyOutlined, RiseOutlined, FireOutlined } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface WeightLossJourneySectionProps {
   calorieGoal: CalorieGoal | null;
@@ -103,13 +103,13 @@ export default function WeightLossJourneySection({
                   🎉 🏆 🎉
                 </div>
                 <Text strong style={{ fontSize: "16px" }}>
-                  Congratulations! You've reached your goal!
+                  Congratulations! You&apos;ve reached your goal!
                 </Text>
               </div>
             }
             description={
               <div style={{ textAlign: "center" }}>
-                You've successfully created a deficit of{" "}
+                You&apos;ve successfully created a deficit of{" "}
                 {formatNumber(totalDeficitAchieved)} calories!
               </div>
             }
@@ -120,14 +120,14 @@ export default function WeightLossJourneySection({
           <Alert
             message={
               <Text strong>
-                Keep going! You're {formatNumber(remainingCaloriesToLose)}{" "}
+                Keep going! You&apos;re {formatNumber(remainingCaloriesToLose)}{" "}
                 calories away from your goal.
               </Text>
             }
             description={
               <Text>
                 At {formatNumber((calorieGoal.targetWeightLoss * 7700) / 7)}{" "}
-                calories/day, you'll reach it in about {daysToGoal} days.
+                calories/day, you&apos;ll reach it in about {daysToGoal} days.
               </Text>
             }
             type="info"

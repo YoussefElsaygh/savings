@@ -11,19 +11,15 @@ import {
   Statistic,
   Row,
   Col,
-  Badge,
-  Collapse,
 } from "antd";
 import {
   CalendarOutlined,
   EditOutlined,
-  TrophyOutlined,
   FireOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
-const { Panel } = Collapse;
+const { Text } = Typography;
 
 interface CalorieHistorySectionProps {
   dailyData: DailyCalorieData[];
