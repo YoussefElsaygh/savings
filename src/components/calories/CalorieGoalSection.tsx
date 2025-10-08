@@ -2,21 +2,41 @@
 
 import { useState, useEffect } from "react";
 import { CalorieGoal } from "@/types";
-import { formatNumber, formatDate } from "@/lib/utils";
+import { formatNumber } from "@/lib/utils";
+import {
+  Card,
+  Button,
+  Input,
+  InputNumber,
+  Space,
+  Typography,
+  Row,
+  Col,
+} from "antd";
+import {
+  EditOutlined,
+  SaveOutlined,
+  CloseOutlined,
+  TrophyOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 interface CalorieGoalSectionProps {
   calorieGoal: CalorieGoal | null;
   onSaveGoal: (goal: CalorieGoal) => void;
 }
 
-export default function CalorieGoalSection({ calorieGoal, onSaveGoal }: CalorieGoalSectionProps) {
+export default function CalorieGoalSection({
+  calorieGoal,
+  onSaveGoal,
+}: CalorieGoalSectionProps) {
   const [showGoalForm, setShowGoalForm] = useState(false);
   const [maintenanceCalories, setMaintenanceCalories] = useState("");
   const [dailyLimit, setDailyLimit] = useState("");
   const [targetWeightLoss, setTargetWeightLoss] = useState("");
   const [totalCaloriesToLose, setTotalCaloriesToLose] = useState("");
 
-  // Initialize goal form when editing
   useEffect(() => {
     if (calorieGoal && showGoalForm) {
       setMaintenanceCalories(calorieGoal.maintenanceCalories?.toString() || "");
@@ -31,7 +51,7 @@ export default function CalorieGoalSection({ calorieGoal, onSaveGoal }: CalorieG
     const limit = parseFloat(dailyLimit);
     const weightLoss = parseFloat(targetWeightLoss);
     const totalCalories = parseFloat(totalCaloriesToLose);
-    
+
     if (maintenance > 0 && limit > 0 && weightLoss > 0 && totalCalories > 0) {
       const newGoal: CalorieGoal = {
         maintenanceCalories: maintenance,
@@ -40,7 +60,7 @@ export default function CalorieGoalSection({ calorieGoal, onSaveGoal }: CalorieG
         totalCaloriesToLose: totalCalories,
         createdAt: new Date().toISOString(),
       };
-      
+
       onSaveGoal(newGoal);
       setShowGoalForm(false);
       setMaintenanceCalories("");
@@ -59,127 +79,157 @@ export default function CalorieGoalSection({ calorieGoal, onSaveGoal }: CalorieG
   };
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold">Calorie Goal</h3>
-        <button
+    <Card
+      style={{ background: "#e6f4ff", borderColor: "#91caff" }}
+      title={
+        <Space>
+          <TrophyOutlined style={{ fontSize: "18px" }} />
+          <span>Calorie Goal</span>
+        </Space>
+      }
+      extra={
+        <Button
+          icon={<EditOutlined />}
           onClick={() => setShowGoalForm(!showGoalForm)}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md transition-colors"
+          style={{
+            borderColor: "#000000",
+            color: "#000000",
+            borderWidth: "2px",
+          }}
         >
           {calorieGoal ? "Edit Goal" : "Set Goal"}
-        </button>
-      </div>
-      
+        </Button>
+      }
+    >
       {calorieGoal && !showGoalForm && (
-        <div className="grid gap-2 text-sm">
-          <div className="flex justify-between">
-            <span>Maintenance Calories:</span>
-            <span className="font-medium">{formatNumber(calorieGoal.maintenanceCalories || 0)} calories</span>
+        <Space direction="vertical" size="small" style={{ width: "100%" }}>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Text>Maintenance Calories:</Text>
+            <Text strong>
+              {formatNumber(calorieGoal.maintenanceCalories || 0)} cal
+            </Text>
           </div>
-          <div className="flex justify-between">
-            <span>Daily Target:</span>
-            <span className="font-medium">{formatNumber(calorieGoal.dailyCalorieLimit)} calories</span>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Text>Daily Target:</Text>
+            <Text strong>
+              {formatNumber(calorieGoal.dailyCalorieLimit)} cal
+            </Text>
           </div>
-          <div className="flex justify-between">
-            <span>Total Calories to Lose:</span>
-            <span className="font-medium">{formatNumber(calorieGoal.totalCaloriesToLose)} calories</span>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Text>Target Weight Loss:</Text>
+            <Text strong>{calorieGoal.targetWeightLoss} kg</Text>
           </div>
-          <div className="flex justify-between">
-            <span>Target Weight Loss:</span>
-            <span className="font-medium">{calorieGoal.targetWeightLoss} kg/week</span>
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <Text>Total Calories to Lose:</Text>
+            <Text strong>
+              {formatNumber(calorieGoal.totalCaloriesToLose || 0)} cal
+            </Text>
           </div>
-          <div className="flex justify-between text-gray-600">
-            <span>Goal Set:</span>
-            <span>{formatDate(calorieGoal.createdAt)}</span>
-          </div>
-        </div>
+        </Space>
       )}
-      
+
+      {!calorieGoal && !showGoalForm && (
+        <Text type="secondary">
+          Set your calorie goal to start tracking your progress
+        </Text>
+      )}
+
       {showGoalForm && (
-        <div className="grid gap-4 md:grid-cols-2">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Maintenance Calories
-            </label>
-            <input
-              type="number"
-              step="1"
-              placeholder="e.g. 1600"
-              value={maintenanceCalories}
-              onChange={(e) => setMaintenanceCalories(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Calories needed to maintain current weight
-            </p>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Daily Target Calories
-            </label>
-            <input
-              type="number"
-              step="1"
-              placeholder="e.g. 1500"
-              value={dailyLimit}
-              onChange={(e) => setDailyLimit(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Target calories to eat for weight loss
-            </p>
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Target Weight Loss (kg/week)
-            </label>
-            <input
-              type="number"
-              step="0.1"
-              placeholder="e.g. 0.5"
-              value={targetWeightLoss}
-              onChange={(e) => setTargetWeightLoss(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Total Calories to Lose
-            </label>
-            <input
-              type="number"
-              step="1000"
-              placeholder="e.g. 77000"
-              value={totalCaloriesToLose}
-              onChange={(e) => setTotalCaloriesToLose(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
-          </div>
-          
-          <div className="md:col-span-2 bg-blue-50 p-3 rounded text-sm">
-            <strong>Example:</strong> If your maintenance is 1600 calories and you eat 1500 calories, 
-            you create a 100-calorie deficit that gets subtracted from your total goal.
-          </div>
-          
-          <div className="md:col-span-2 flex gap-2">
-            <button
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Maintenance Calories
+              </Text>
+              <InputNumber
+                style={{ width: "100%" }}
+                placeholder="e.g. 2000"
+                value={
+                  maintenanceCalories ? parseFloat(maintenanceCalories) : null
+                }
+                onChange={(val) =>
+                  setMaintenanceCalories(val?.toString() || "")
+                }
+                min={0}
+                step={50}
+                size="large"
+              />
+            </Col>
+            <Col span={12}>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Daily Calorie Limit
+              </Text>
+              <InputNumber
+                style={{ width: "100%" }}
+                placeholder="e.g. 1500"
+                value={dailyLimit ? parseFloat(dailyLimit) : null}
+                onChange={(val) => setDailyLimit(val?.toString() || "")}
+                min={0}
+                step={50}
+                size="large"
+              />
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Target Weight Loss (kg)
+              </Text>
+              <InputNumber
+                style={{ width: "100%" }}
+                placeholder="e.g. 10"
+                value={targetWeightLoss ? parseFloat(targetWeightLoss) : null}
+                onChange={(val) => setTargetWeightLoss(val?.toString() || "")}
+                min={0}
+                step={0.5}
+                size="large"
+              />
+            </Col>
+            <Col span={12}>
+              <Text strong style={{ display: "block", marginBottom: 8 }}>
+                Total Calories to Lose
+              </Text>
+              <InputNumber
+                style={{ width: "100%" }}
+                placeholder="e.g. 77000"
+                value={
+                  totalCaloriesToLose ? parseFloat(totalCaloriesToLose) : null
+                }
+                onChange={(val) =>
+                  setTotalCaloriesToLose(val?.toString() || "")
+                }
+                min={0}
+                step={1000}
+                size="large"
+              />
+            </Col>
+          </Row>
+
+          <Space>
+            <Button
+              icon={<SaveOutlined />}
               onClick={handleSaveGoal}
-              className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors"
+              disabled={
+                !maintenanceCalories ||
+                !dailyLimit ||
+                !targetWeightLoss ||
+                !totalCaloriesToLose
+              }
+              style={{
+                borderColor: "#52c41a",
+                color: "#52c41a",
+                borderWidth: "2px",
+              }}
             >
               Save Goal
-            </button>
-            <button
-              onClick={handleCancel}
-              className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors"
-            >
+            </Button>
+            <Button icon={<CloseOutlined />} onClick={handleCancel}>
               Cancel
-            </button>
-          </div>
-        </div>
+            </Button>
+          </Space>
+        </Space>
       )}
-    </div>
+    </Card>
   );
 }

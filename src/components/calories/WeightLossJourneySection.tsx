@@ -2,6 +2,10 @@
 
 import { CalorieGoal } from "@/types";
 import { formatNumber } from "@/lib/utils";
+import { Card, Progress, Space, Typography, Alert, Row, Col, Statistic } from "antd";
+import { TrophyOutlined, RiseOutlined, FireOutlined } from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 interface WeightLossJourneySectionProps {
   calorieGoal: CalorieGoal | null;
@@ -9,76 +13,129 @@ interface WeightLossJourneySectionProps {
   remainingCaloriesToLose: number;
 }
 
-export default function WeightLossJourneySection({ 
-  calorieGoal, 
-  totalDeficitAchieved, 
-  remainingCaloriesToLose 
+export default function WeightLossJourneySection({
+  calorieGoal,
+  totalDeficitAchieved,
+  remainingCaloriesToLose,
 }: WeightLossJourneySectionProps) {
   if (!calorieGoal?.totalCaloriesToLose) return null;
 
+  const progressPercent =
+    calorieGoal.totalCaloriesToLose > 0
+      ? (totalDeficitAchieved / calorieGoal.totalCaloriesToLose) * 100
+      : 0;
+
+  const isGoalReached = totalDeficitAchieved >= calorieGoal.totalCaloriesToLose;
+  const daysToGoal = Math.ceil(
+    remainingCaloriesToLose / ((calorieGoal.targetWeightLoss * 7700) / 7)
+  );
+
   return (
-    <div className="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-6">
-      <h3 className="text-xl font-bold mb-6 text-center">🎯 Your Weight Loss Journey</h3>
-      
-      <div className="grid gap-4 mb-6">
-        <div className="flex justify-between items-center">
-          <span className="text-lg">Goal:</span>
-          <span className="text-lg font-bold text-purple-600">
-            {formatNumber(calorieGoal.totalCaloriesToLose)} calories to lose
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-lg">Achieved:</span>
-          <span className="text-lg font-bold text-green-600">
-            {formatNumber(totalDeficitAchieved)} calories
-          </span>
-        </div>
-        <div className="flex justify-between items-center">
-          <span className="text-lg">Remaining:</span>
-          <span className="text-lg font-bold text-orange-600">
-            {formatNumber(remainingCaloriesToLose)} calories
-          </span>
-        </div>
-      </div>
-      
-      {/* Progress Bar */}
-      <div className="mb-4">
-        <div className="flex justify-between text-sm mb-2">
-          <span>Progress:</span>
-          <span className="font-medium">
-            {calorieGoal.totalCaloriesToLose > 0 ? 
-              ((totalDeficitAchieved / calorieGoal.totalCaloriesToLose) * 100).toFixed(1) : 0}% Complete
-          </span>
-        </div>
-        <div className="w-full bg-gray-200 rounded-full h-4">
-          <div 
-            className="h-4 rounded-full transition-all duration-500 bg-gradient-to-r from-purple-500 to-green-500"
-            style={{ 
-              width: `${Math.min((totalDeficitAchieved / calorieGoal.totalCaloriesToLose) * 100, 100)}%` 
+    <Card
+      style={{
+        background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)",
+        borderColor: "#c4b5fd",
+      }}
+      title={
+        <Space>
+          <TrophyOutlined style={{ fontSize: "20px" }} />
+          <span>🎯 Your Weight Loss Journey</span>
+        </Space>
+      }
+    >
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Row gutter={[16, 16]}>
+          <Col span={8}>
+            <Statistic
+              title="Goal"
+              value={formatNumber(calorieGoal.totalCaloriesToLose)}
+              suffix="cal"
+              valueStyle={{ fontSize: "16px", color: "#8b5cf6" }}
+            />
+          </Col>
+          <Col span={8}>
+            <Statistic
+              title="Achieved"
+              value={formatNumber(totalDeficitAchieved)}
+              suffix="cal"
+              prefix={<FireOutlined />}
+              valueStyle={{ fontSize: "16px", color: "#52c41a" }}
+            />
+          </Col>
+          <Col span={8}>
+            <Statistic
+              title="Remaining"
+              value={formatNumber(remainingCaloriesToLose)}
+              suffix="cal"
+              valueStyle={{ fontSize: "16px", color: "#fa8c16" }}
+            />
+          </Col>
+        </Row>
+
+        <div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: 8,
             }}
-          ></div>
-        </div>
-      </div>
-      
-      {totalDeficitAchieved >= calorieGoal.totalCaloriesToLose && (
-        <div className="bg-green-100 border border-green-300 rounded p-4 text-center">
-          <div className="text-2xl mb-2">🎉 🏆 🎉</div>
-          <div className="text-green-800 font-bold text-lg">
-            Congratulations! You&apos;ve reached your goal!
+          >
+            <Text strong>Progress:</Text>
+            <Text strong style={{ color: "#8b5cf6" }}>
+              {progressPercent.toFixed(1)}% Complete
+            </Text>
           </div>
-          <div className="text-green-700 text-sm mt-1">
-            You&apos;ve successfully created a deficit of {formatNumber(totalDeficitAchieved)} calories!
-          </div>
+          <Progress
+            percent={Math.min(progressPercent, 100)}
+            strokeColor={{
+              "0%": "#8b5cf6",
+              "100%": "#52c41a",
+            }}
+            strokeWidth={16}
+          />
         </div>
-      )}
-      
-      {totalDeficitAchieved < calorieGoal.totalCaloriesToLose && (
-        <div className="bg-blue-100 border border-blue-300 rounded p-3 text-center text-sm">
-          <strong>Keep going!</strong> You&apos;re {formatNumber(remainingCaloriesToLose)} calories away from your goal.
-          <br />
-          At {formatNumber((calorieGoal.targetWeightLoss * 7700) / 7)} calories/day, you&apos;ll reach it in about {Math.ceil(remainingCaloriesToLose / ((calorieGoal.targetWeightLoss * 7700) / 7))} days.
-        </div>
-      )}
-    </div>
+
+        {isGoalReached ? (
+          <Alert
+            message={
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: "24px", marginBottom: "8px" }}>
+                  🎉 🏆 🎉
+                </div>
+                <Text strong style={{ fontSize: "16px" }}>
+                  Congratulations! You've reached your goal!
+                </Text>
+              </div>
+            }
+            description={
+              <div style={{ textAlign: "center" }}>
+                You've successfully created a deficit of{" "}
+                {formatNumber(totalDeficitAchieved)} calories!
+              </div>
+            }
+            type="success"
+            showIcon={false}
+          />
+        ) : (
+          <Alert
+            message={
+              <Text strong>
+                Keep going! You're {formatNumber(remainingCaloriesToLose)}{" "}
+                calories away from your goal.
+              </Text>
+            }
+            description={
+              <Text>
+                At {formatNumber((calorieGoal.targetWeightLoss * 7700) / 7)}{" "}
+                calories/day, you'll reach it in about {daysToGoal} days.
+              </Text>
+            }
+            type="info"
+            showIcon
+            icon={<RiseOutlined />}
+          />
+        )}
+      </Space>
+    </Card>
   );
 }

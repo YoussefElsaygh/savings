@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from 'react';
-import { User } from 'firebase/auth';
-import { signOutUser } from '@/lib/firebase';
-import Image from 'next/image';
+import { useState } from "react";
+import { User } from "firebase/auth";
+import { signOutUser } from "@/lib/firebase";
+import Image from "next/image";
 
 interface GoogleSignInProps {
   user: User | null;
@@ -12,7 +12,12 @@ interface GoogleSignInProps {
   onSignIn: () => Promise<void>;
 }
 
-export default function GoogleSignIn({ user, isLoading, error, onSignIn }: GoogleSignInProps) {
+export default function GoogleSignIn({
+  user,
+  isLoading,
+  error,
+  onSignIn,
+}: GoogleSignInProps) {
   const [signingIn, setSigningIn] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
@@ -21,7 +26,7 @@ export default function GoogleSignIn({ user, isLoading, error, onSignIn }: Googl
     try {
       await onSignIn();
     } catch (error) {
-      console.error('Sign in failed:', error);
+      console.error("Sign in failed:", error);
     } finally {
       setSigningIn(false);
     }
@@ -32,7 +37,7 @@ export default function GoogleSignIn({ user, isLoading, error, onSignIn }: Googl
     try {
       await signOutUser();
     } catch (error) {
-      console.error('Sign out failed:', error);
+      console.error("Sign out failed:", error);
     } finally {
       setSigningOut(false);
     }
@@ -55,7 +60,7 @@ export default function GoogleSignIn({ user, isLoading, error, onSignIn }: Googl
             )}
             <div>
               <p className="text-sm font-medium text-gray-900">
-                {user.displayName || 'User'}
+                {user.displayName || "User"}
               </p>
               <p className="text-xs text-gray-500">{user.email}</p>
             </div>
@@ -65,7 +70,7 @@ export default function GoogleSignIn({ user, isLoading, error, onSignIn }: Googl
             disabled={signingOut}
             className="text-sm text-gray-600 hover:text-gray-800 disabled:opacity-50"
           >
-            {signingOut ? '...' : 'Sign Out'}
+            {signingOut ? "..." : "Sign Out"}
           </button>
         </div>
       </div>
@@ -77,7 +82,9 @@ export default function GoogleSignIn({ user, isLoading, error, onSignIn }: Googl
     <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm text-center">
       <div className="mb-4">
         <div className="text-3xl mb-2">🔐</div>
-        <h2 className="text-lg font-semibold text-gray-900">Sign in Required</h2>
+        <h2 className="text-lg font-semibold text-gray-900">
+          Sign in Required
+        </h2>
         <p className="text-sm text-gray-600 mt-1">
           Please sign in with Google to access your calorie tracking data
         </p>

@@ -1,45 +1,72 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { FOOD_CATEGORIES, getFoodsByCategory, calculateCalories, type FoodConstant } from "@/constants/foods";
+import {
+  FOOD_CATEGORIES,
+  getFoodsByCategory,
+  calculateCalories,
+  type FoodConstant,
+} from "@/constants/foods";
+import {
+  Modal,
+  Button,
+  Input,
+  Select,
+  InputNumber,
+  Tabs,
+  Card,
+  Row,
+  Col,
+} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+
+const { TabPane } = Tabs;
 
 interface AddEntryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddFood: (food: { name: string; calories: number; description: string }) => void;
+  onAddFood: (food: {
+    name: string;
+    calories: number;
+    description: string;
+  }) => void;
 }
 
-export default function AddEntryModal({ isOpen, onClose, onAddFood }: AddEntryModalProps) {
-
+export default function AddEntryModal({
+  isOpen,
+  onClose,
+  onAddFood,
+}: AddEntryModalProps) {
   // Food entry states
-  const [foodEntryMode, setFoodEntryMode] = useState<'preset' | 'custom'>('preset');
+  const [foodEntryMode, setFoodEntryMode] = useState<"preset" | "custom">(
+    "preset"
+  );
   const [selectedFood, setSelectedFood] = useState<FoodConstant | null>(null);
   const [quantity, setQuantity] = useState("");
-  const [unit, setUnit] = useState<'pieces' | 'grams' | 'ml'>('grams');
+  const [unit, setUnit] = useState<"pieces" | "grams" | "ml">("grams");
   const [customFoodName, setCustomFoodName] = useState("");
   const [customCalories, setCustomCalories] = useState("");
   const [calculatedCalories, setCalculatedCalories] = useState(0);
-  
-  
+
   const foodsByCategory = getFoodsByCategory();
 
   // Set appropriate unit when food is selected
   useEffect(() => {
     if (selectedFood) {
       // Auto-set unit based on food type
-      if (selectedFood.unitType === 'piece') {
-        setUnit('pieces');
-      } else if (selectedFood.unitType === '100g') {
-        setUnit('grams');
-      } else if (selectedFood.unitType === '100ml') {
-        setUnit('ml');
+      if (selectedFood.unitType === "piece") {
+        setUnit("pieces");
+      } else if (selectedFood.unitType === "100g") {
+        setUnit("grams");
+      } else if (selectedFood.unitType === "100ml") {
+        setUnit("ml");
       }
     }
   }, [selectedFood]);
 
   // Calculate calories when preset food selection changes
   useEffect(() => {
-    if (foodEntryMode === 'preset' && selectedFood && quantity) {
+    if (foodEntryMode === "preset" && selectedFood && quantity) {
       const qty = parseFloat(quantity);
       if (qty > 0) {
         const calories = calculateCalories(selectedFood, qty, unit);
@@ -56,20 +83,25 @@ export default function AddEntryModal({ isOpen, onClose, onAddFood }: AddEntryMo
     let calories: number;
     let name: string;
     let description: string;
-    
-    if (foodEntryMode === 'preset' && selectedFood && quantity) {
+
+    if (foodEntryMode === "preset" && selectedFood && quantity) {
       const qty = parseFloat(quantity);
       if (qty > 0) {
         calories = calculateCalories(selectedFood, qty, unit);
         name = selectedFood.name;
         description = `${qty} ${
-          unit === 'pieces' ? (qty === 1 ? 'piece' : 'pieces') : 
-          unit === 'ml' ? 'ml' : 'g'
+          unit === "pieces"
+            ? qty === 1
+              ? "piece"
+              : "pieces"
+            : unit === "ml"
+            ? "ml"
+            : "g"
         }`;
       } else {
         return;
       }
-    } else if (foodEntryMode === 'custom') {
+    } else if (foodEntryMode === "custom") {
       const customCals = parseFloat(customCalories);
       const customName = customFoodName.trim();
       if (!customName || customCals <= 0) {
@@ -77,25 +109,23 @@ export default function AddEntryModal({ isOpen, onClose, onAddFood }: AddEntryMo
       }
       calories = customCals;
       name = customName;
-      description = 'custom entry';
+      description = "custom entry";
     } else {
       return;
     }
-    
+
     if (calories > 0) {
       onAddFood({
         name: `${name} (${description})`,
         calories: Math.round(calories),
         description,
       });
-      
+
       // Reset form and close modal
       resetFoodForm();
       onClose();
     }
   };
-
-  
 
   const resetFoodForm = () => {
     setQuantity("");
@@ -105,202 +135,267 @@ export default function AddEntryModal({ isOpen, onClose, onAddFood }: AddEntryMo
     setCalculatedCalories(0);
   };
 
-  
-
   const handleClose = () => {
     resetFoodForm();
+    onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-gray-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <div>
-          {/* Modal Header */}
-          <div className="flex items-center justify-between mb-6 p-6 sticky top-0 bg-white border-b border-gray-300">
-            <h3 className="text-xl font-bold">Add Food</h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              ×
-            </button>
-          </div>
+    <Modal
+      open={isOpen}
+      onCancel={handleClose}
+      title="🍎 Add Food"
+      width={1100}
+      style={{ top: 20 }}
+      footer={[
+        <Button key="cancel" onClick={handleClose} size="large">
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          onClick={handleAddFood}
+          icon={<PlusOutlined />}
+          size="large"
+          style={{
+            borderColor: "#52c41a",
+            color: "#52c41a",
+            borderWidth: "2px",
+          }}
+          disabled={
+            (foodEntryMode === "preset" &&
+              (!selectedFood || !quantity || parseFloat(quantity) <= 0)) ||
+            (foodEntryMode === "custom" &&
+              (!customFoodName.trim() ||
+                !customCalories ||
+                parseFloat(customCalories) <= 0))
+          }
+        >
+          Add Food
+        </Button>,
+      ]}
+    >
+      <div>
+        <Tabs
+          activeKey={foodEntryMode}
+          onChange={(key) => {
+            setFoodEntryMode(key as "preset" | "custom");
+            if (key === "custom") {
+              setSelectedFood(null);
+              setQuantity("");
+              setUnit("grams");
+              setCalculatedCalories(0);
+            }
+          }}
+          size="large"
+        >
+          <TabPane tab="🍏 Preset Foods" key="preset">
+            {foodEntryMode === "preset" && (
+              <div>
+                {selectedFood && (
+                  <Card
+                    size="small"
+                    title={`Selected: ${selectedFood.name}`}
+                    style={{ marginBottom: 16, background: "#f6ffed" }}
+                  >
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: 8,
+                            fontWeight: 500,
+                          }}
+                        >
+                          Quantity
+                        </label>
+                        <InputNumber
+                          style={{ width: "100%" }}
+                          placeholder="e.g. 1, 150"
+                          value={quantity ? parseFloat(quantity) : null}
+                          onChange={(val) => setQuantity(val?.toString() || "")}
+                          min={0}
+                          step={0.1}
+                          size="large"
+                        />
+                      </Col>
+                      <Col span={8}>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: 8,
+                            fontWeight: 500,
+                          }}
+                        >
+                          Unit
+                        </label>
+                        <Select
+                          style={{ width: "100%" }}
+                          value={unit}
+                          onChange={(val) => setUnit(val)}
+                          size="large"
+                        >
+                          <Select.Option value="grams">Grams</Select.Option>
+                          <Select.Option value="pieces">Pieces</Select.Option>
+                          <Select.Option value="ml">
+                            Milliliters (ml)
+                          </Select.Option>
+                        </Select>
+                      </Col>
+                      <Col span={8}>
+                        <label
+                          style={{
+                            display: "block",
+                            marginBottom: 8,
+                            fontWeight: 500,
+                          }}
+                        >
+                          Calculated Calories
+                        </label>
+                        <div
+                          style={{
+                            padding: "8px 12px",
+                            background: "#52c41a",
+                            color: "white",
+                            borderRadius: "8px",
+                            fontSize: "16px",
+                            fontWeight: 600,
+                            textAlign: "center",
+                            height: "40px",
+                            lineHeight: "24px",
+                          }}
+                        >
+                          {calculatedCalories} cal
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card>
+                )}
+                <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                  {Object.entries(foodsByCategory).map(([category, foods]) => {
+                    const categoryColors: Record<
+                      string,
+                      { bg: string; border: string }
+                    > = {
+                      protein: { bg: "#fff1f0", border: "#ffa39e" },
+                      carbs: { bg: "#fff7e6", border: "#ffd591" },
+                      vegetables: { bg: "#f6ffed", border: "#b7eb8f" },
+                      fruits: { bg: "#fff0f6", border: "#ffadd2" },
+                      dairy: { bg: "#e6f4ff", border: "#91caff" },
+                      snacks: { bg: "#fcffe6", border: "#eaff8f" },
+                      drinks: { bg: "#f9f0ff", border: "#d3adf7" },
+                    };
 
-          
-          
-            <div>
-              {/* Food Entry Type Selection */}
-              <div className="flex gap-2 mb-6 px-6">
-                <button
-                  onClick={() => setFoodEntryMode('preset')}
-                  className={`px-4 py-2 rounded-md transition-colors ${
-                    foodEntryMode === 'preset'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Preset Foods
-                </button>
-                <button
-                  onClick={() => {setFoodEntryMode('custom');
-                    setSelectedFood(null);
-                    setQuantity("");
-                    setUnit('grams');
-                    setCalculatedCalories(0);
-                  }}
-                  className={`px-4 py-2 rounded-md transition-colors ${
-                    foodEntryMode === 'custom'
-                      ? 'bg-green-500 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Custom Entry
-                </button>
-              </div>
-              {/* Preset Foods Mode */}
-              {foodEntryMode === 'preset' && (
-                <div className="space-y-4 px-6">
-                  {/* Food Categories */}
-                  <div className="space-y-4 mb-3">
-                    {Object.entries(foodsByCategory).map(([category, foods]) => (
-                      <div key={category} className={`border rounded-lg p-4 ${FOOD_CATEGORIES[category as keyof typeof FOOD_CATEGORIES].color}`}>
-                        <h4 className="font-medium mb-3">{FOOD_CATEGORIES[category as keyof typeof FOOD_CATEGORIES].name}</h4>
-                        <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    const colors = categoryColors[category] || {
+                      bg: "#fafafa",
+                      border: "#d9d9d9",
+                    };
+
+                    return (
+                      <Card
+                        key={category}
+                        size="small"
+                        title={
+                          FOOD_CATEGORIES[
+                            category as keyof typeof FOOD_CATEGORIES
+                          ].name
+                        }
+                        style={{
+                          marginBottom: 16,
+                          background: colors.bg,
+                          borderColor: colors.border,
+                          borderWidth: 2,
+                        }}
+                      >
+                        <Row gutter={[8, 8]}>
                           {foods.map((food) => (
-                            <button
-                              key={food.id}
-                              onClick={() => setSelectedFood(food)}
-                              className={`text-left p-3 rounded border transition-colors ${
-                                selectedFood?.id === food.id
-                                  ? 'bg-green-100 border-green-300'
-                                  : 'bg-white border-gray-200 hover:border-gray-300'
-                              }`}
-                            >
-                              <div className="font-medium text-sm">{food.name}</div>
-                              <div className="text-xs text-gray-600">
-                                {food.caloriesPerUnit} cal/{food.unitType}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1">
-                                {food.description}
-                              </div>
-                            </button>
+                            <Col key={food.id} xs={12} sm={8} md={6} lg={4}>
+                              <Card
+                                size="small"
+                                hoverable
+                                onClick={() => setSelectedFood(food)}
+                                style={{
+                                  background:
+                                    selectedFood?.id === food.id
+                                      ? "#d9f7be"
+                                      : "#fff",
+                                  borderColor:
+                                    selectedFood?.id === food.id
+                                      ? "#52c41a"
+                                      : "#d9d9d9",
+                                  borderWidth:
+                                    selectedFood?.id === food.id ? 2 : 1,
+                                }}
+                              >
+                                <div
+                                  style={{ fontSize: "13px", fontWeight: 500 }}
+                                >
+                                  {food.name}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "11px",
+                                    color: "#8c8c8c",
+                                    marginTop: 4,
+                                  }}
+                                >
+                                  {food.caloriesPerUnit} cal/{food.unitType}
+                                </div>
+                              </Card>
+                            </Col>
                           ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  
+                        </Row>
+                      </Card>
+                    );
+                  })}
                 </div>
-              )}
-
-              {/* Custom Food Entry Mode */}
-              {foodEntryMode === 'custom' && (
-                <div className="grid gap-4 md:grid-cols-3 px-6">
-                  <div className="md:col-span-2 mb-4">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Food Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Homemade pasta, Restaurant meal, etc."
-                      value={customFoodName}
-                      onChange={(e) => setCustomFoodName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Calories
-                    </label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="0"
-                      placeholder="e.g. 250"
-                      value={customCalories}
-                      onChange={(e) => setCustomCalories(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              )}
-              <footer className="sticky bottom-0 p-6 bg-white border-t border-gray-300 space-y-4">
-              {/* Quantity Input */}
-              {selectedFood && (
-                    <div className="bg-white border rounded-lg p-4">
-                      <h4 className="font-medium mb-3">Selected: {selectedFood.name}</h4>
-                      
-                      <div className="grid gap-4 md:grid-cols-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Quantity
-                          </label>
-                          <input
-                            type="number"
-                            step="0.1"
-                            min="0"
-                            placeholder="e.g. 1, 150, etc."
-                            value={quantity}
-                            onChange={(e) => setQuantity(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Unit
-                          </label>
-                          <select
-                            value={unit}
-                            onChange={(e) => setUnit(e.target.value as 'pieces' | 'grams' | 'ml')}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                          >
-                            <option value="grams">Grams</option>
-                            <option value="pieces">Pieces</option>
-                            <option value="ml">Milliliters (ml)</option>
-                          </select>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Calculated Calories
-                          </label>
-                          <div className="px-3 py-2 bg-green-50 border border-green-200 rounded-md font-medium text-green-700">
-                            {calculatedCalories} calories
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleAddFood}
-                  disabled={
-                    (foodEntryMode === 'preset' && (!selectedFood || !quantity || parseFloat(quantity) <= 0)) ||
-                    (foodEntryMode === 'custom' && (!customFoodName.trim() || !customCalories || parseFloat(customCalories) <= 0))
-                  }
-                  className="bg-green-500 hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md transition-colors"
-                >
-                  Add Food
-                </button>
-                <button
-                  onClick={handleClose}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
               </div>
-              </footer>
-            </div>
-          
-
-          
-        </div>
+            )}
+          </TabPane>
+          <TabPane tab="✏️ Custom Entry" key="custom">
+            {foodEntryMode === "custom" && (
+              <Row gutter={16}>
+                <Col span={16}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 8,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Food Name
+                  </label>
+                  <Input
+                    placeholder="e.g. Homemade pasta, Restaurant meal"
+                    value={customFoodName}
+                    onChange={(e) => setCustomFoodName(e.target.value)}
+                    size="large"
+                  />
+                </Col>
+                <Col span={8}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 8,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Calories
+                  </label>
+                  <InputNumber
+                    style={{ width: "100%" }}
+                    placeholder="e.g. 250"
+                    value={customCalories ? parseFloat(customCalories) : null}
+                    onChange={(val) => setCustomCalories(val?.toString() || "")}
+                    min={0}
+                    step={1}
+                    size="large"
+                  />
+                </Col>
+              </Row>
+            )}
+          </TabPane>
+        </Tabs>
       </div>
-    </div>
+    </Modal>
   );
 }

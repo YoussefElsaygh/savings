@@ -1,10 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { DailyCalorieData, FoodEntry, ExerciseEntry, CalorieGoal } from "@/types";
+import { useState } from "react";
+import {
+  DailyCalorieData,
+  FoodEntry,
+  ExerciseEntry,
+  CalorieGoal,
+} from "@/types";
 import { formatNumber } from "@/lib/utils";
 import AddFoodModal from "./AddFoodModal";
 import AddExerciseModal from "./AddExerciseModal";
+import {
+  Modal,
+  Button,
+  Progress,
+  Tag,
+  Space,
+  Typography,
+  Card,
+  Empty,
+  Row,
+  Col,
+} from "antd";
+import { SaveOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+
+const { Text, Title } = Typography;
 
 interface EditDayModalProps {
   isOpen: boolean;
@@ -14,25 +34,23 @@ interface EditDayModalProps {
   onUpdateDay: (updatedDay: DailyCalorieData) => void;
 }
 
-export default function EditDayModal({ 
-  isOpen, 
-  onClose, 
-  dayData, 
-  calorieGoal, 
-  onUpdateDay 
+export default function EditDayModal({
+  isOpen,
+  onClose,
+  dayData,
+  calorieGoal,
+  onUpdateDay,
 }: EditDayModalProps) {
-  const [currentDayData, setCurrentDayData] = useState<DailyCalorieData>(dayData);
+  const [currentDayData, setCurrentDayData] =
+    useState<DailyCalorieData>(dayData);
   const [showAddFoodModal, setShowAddFoodModal] = useState(false);
   const [showAddExerciseModal, setShowAddExerciseModal] = useState(false);
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, []);
-  if (!isOpen) return null;
 
-  const handleAddFood = (foodData: { name: string; calories: number; description: string }) => {
+  const handleAddFood = (foodData: {
+    name: string;
+    calories: number;
+    description: string;
+  }) => {
     const newFoodEntry: FoodEntry = {
       id: Date.now().toString(),
       name: foodData.name,
@@ -46,12 +64,18 @@ export default function EditDayModal({
       foodEntries: [...currentDayData.foodEntries, newFoodEntry],
       totalCalories: currentDayData.totalCalories + foodData.calories,
     };
-    
-    updatedDay.remainingCalories = updatedDay.calorieLimit - updatedDay.totalCalories;
+
+    updatedDay.remainingCalories =
+      updatedDay.calorieLimit - updatedDay.totalCalories;
     setCurrentDayData(updatedDay);
   };
 
-  const handleAddExercise = (exerciseData: { name: string; caloriesBurned: number; durationMinutes: number; description: string }) => {
+  const handleAddExercise = (exerciseData: {
+    name: string;
+    caloriesBurned: number;
+    durationMinutes: number;
+    description: string;
+  }) => {
     const newExerciseEntry: ExerciseEntry = {
       id: Date.now().toString(),
       name: exerciseData.name,
@@ -63,33 +87,46 @@ export default function EditDayModal({
 
     const updatedDay = {
       ...currentDayData,
-      exerciseEntries: [...(currentDayData.exerciseEntries || []), newExerciseEntry],
-      totalCaloriesBurned: (currentDayData.totalCaloriesBurned || 0) + exerciseData.caloriesBurned,
+      exerciseEntries: [
+        ...(currentDayData.exerciseEntries || []),
+        newExerciseEntry,
+      ],
+      totalCaloriesBurned:
+        (currentDayData.totalCaloriesBurned || 0) + exerciseData.caloriesBurned,
     };
-    
+
     setCurrentDayData(updatedDay);
   };
 
   const handleDeleteFood = (foodId: string) => {
-    const foodToDelete = currentDayData.foodEntries.find(f => f.id === foodId);
+    const foodToDelete = currentDayData.foodEntries.find(
+      (f) => f.id === foodId
+    );
     if (foodToDelete) {
       const updatedDay = {
         ...currentDayData,
-        foodEntries: currentDayData.foodEntries.filter(f => f.id !== foodId),
+        foodEntries: currentDayData.foodEntries.filter((f) => f.id !== foodId),
         totalCalories: currentDayData.totalCalories - foodToDelete.calories,
       };
-      updatedDay.remainingCalories = updatedDay.calorieLimit - updatedDay.totalCalories;
+      updatedDay.remainingCalories =
+        updatedDay.calorieLimit - updatedDay.totalCalories;
       setCurrentDayData(updatedDay);
     }
   };
 
   const handleDeleteExercise = (exerciseId: string) => {
-    const exerciseToDelete = currentDayData.exerciseEntries?.find(e => e.id === exerciseId);
+    const exerciseToDelete = currentDayData.exerciseEntries?.find(
+      (e) => e.id === exerciseId
+    );
     if (exerciseToDelete) {
       const updatedDay = {
         ...currentDayData,
-        exerciseEntries: (currentDayData.exerciseEntries || []).filter(e => e.id !== exerciseId),
-        totalCaloriesBurned: (currentDayData.totalCaloriesBurned || 0) - exerciseToDelete.caloriesBurned,
+        exerciseEntries: (currentDayData.exerciseEntries || []).filter(
+          (e) => e.id !== exerciseId
+        ),
+        totalCaloriesBurned:
+          (currentDayData.totalCaloriesBurned || 0) -
+          exerciseToDelete.caloriesBurned,
       };
       setCurrentDayData(updatedDay);
     }
@@ -101,204 +138,297 @@ export default function EditDayModal({
   };
 
   const handleCancel = () => {
-    setCurrentDayData(dayData); // Reset to original data
+    setCurrentDayData(dayData);
     onClose();
   };
 
-  const foodDeficit = calorieGoal?.maintenanceCalories 
+  const foodDeficit = calorieGoal?.maintenanceCalories
     ? calorieGoal.maintenanceCalories - currentDayData.totalCalories
     : 0;
   const exerciseBonus = currentDayData.totalCaloriesBurned || 0;
   const totalDayDeficit = foodDeficit + exerciseBonus;
-  
+
+  const progressPercent =
+    (currentDayData.totalCalories / currentDayData.calorieLimit) * 100;
+
   return (
     <>
-      <div className="fixed inset-0 bg-gray-50 flex items-center justify-center p-4 z-40 ">
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col min-h-[75vh]">
-          {/* Header */}
-          <div className="flex justify-between items-center p-6 border-b">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800">
-                📝 Edit Day - {new Date(currentDayData.date).toLocaleDateString('en-US', { 
-                  weekday: 'long', 
-                  month: 'long', 
-                  day: 'numeric', 
-                  year: 'numeric' 
-                })}
-              </h2>
-              <div className="flex items-center gap-4 mt-2 text-sm">
-                <span className="text-gray-600">
-                  {formatNumber(currentDayData.totalCalories)} cal consumed
-                </span>
-                <span className="text-gray-600">
-                  {formatNumber(currentDayData.totalCaloriesBurned || 0)} cal burned
-                </span>
-                <span className={`font-medium ${totalDayDeficit > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {formatNumber(totalDayDeficit)} {totalDayDeficit > 0 ? 'deficit' : 'surplus'}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={handleCancel}
-              className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+      <Modal
+        open={isOpen}
+        onCancel={handleCancel}
+        title={`📝 Edit Day - ${new Date(
+          currentDayData.date
+        ).toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        })}`}
+        width={900}
+        style={{ top: 20 }}
+        footer={[
+          <Button key="cancel" onClick={handleCancel} size="large">
+            Cancel
+          </Button>,
+          <Button
+            key="save"
+            onClick={handleSave}
+            icon={<SaveOutlined />}
+            size="large"
+            style={{
+              borderColor: "#52c41a",
+              color: "#52c41a",
+              borderWidth: "2px",
+            }}
+          >
+            Save Changes
+          </Button>,
+        ]}
+      >
+        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+          {/* Stats Header */}
+          <Space wrap>
+            <Text type="secondary">
+              🍽️ {formatNumber(currentDayData.totalCalories)} cal consumed
+            </Text>
+            <Text type="secondary">
+              🔥 {formatNumber(currentDayData.totalCaloriesBurned || 0)} cal
+              burned
+            </Text>
+            <Tag color={totalDayDeficit > 0 ? "success" : "error"}>
+              {formatNumber(totalDayDeficit)}{" "}
+              {totalDayDeficit > 0 ? "deficit" : "surplus"}
+            </Tag>
+          </Space>
+
+          {/* Progress Bar */}
+          <div>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                marginBottom: 8,
+              }}
             >
-              ×
-            </button>
+              <Text type="secondary">
+                vs Target ({formatNumber(currentDayData.calorieLimit)} cal)
+              </Text>
+              <Text strong>{progressPercent.toFixed(0)}%</Text>
+            </div>
+            <Progress
+              percent={Math.min(progressPercent, 100)}
+              strokeColor={
+                currentDayData.totalCalories <= currentDayData.calorieLimit
+                  ? "#52c41a"
+                  : "#ff4d4f"
+              }
+              showInfo={false}
+            />
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-auto p-6">
-            {/* Progress Bar */}
-            <div className="mb-6">
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>vs Target ({formatNumber(currentDayData.calorieLimit)} cal)</span>
-                <span>{((currentDayData.totalCalories / currentDayData.calorieLimit) * 100).toFixed(0)}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
-                <div 
-                  className={`h-3 rounded-full transition-all duration-300 ${
-                    currentDayData.totalCalories <= currentDayData.calorieLimit ? 'bg-green-500' : 'bg-red-500'
-                  }`}
-                  style={{ 
-                    width: `${Math.min((currentDayData.totalCalories / currentDayData.calorieLimit) * 100, 100)}%` 
-                  }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Food Entries */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                    🍎 Food Entries ({currentDayData.foodEntries.length})
-                  </h3>
-                  <button
+          <Row gutter={[16, 16]}>
+            {/* Food Entries */}
+            <Col xs={24} md={12}>
+              <Card
+                size="small"
+                title={`🍎 Food Entries (${currentDayData.foodEntries.length})`}
+                extra={
+                  <Button
+                    size="small"
+                    icon={<PlusOutlined />}
                     onClick={() => setShowAddFoodModal(true)}
-                    className="px-3 py-1 bg-green-500 text-white rounded-lg hover:bg-green-600 text-sm"
+                    style={{
+                      borderColor: "#52c41a",
+                      color: "#52c41a",
+                      borderWidth: "2px",
+                    }}
                   >
-                    + Add Food
-                  </button>
-                </div>
-
-                <div className="space-y-2 overflow-y-auto">
+                    Add Food
+                  </Button>
+                }
+              >
+                <Space
+                  direction="vertical"
+                  size="small"
+                  style={{
+                    width: "100%",
+                    maxHeight: "400px",
+                    overflowY: "auto",
+                  }}
+                >
                   {currentDayData.foodEntries.length > 0 ? (
                     currentDayData.foodEntries
-                      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+                      .sort(
+                        (a, b) =>
+                          new Date(a.timestamp).getTime() -
+                          new Date(b.timestamp).getTime()
+                      )
                       .map((entry) => (
-                        <div key={entry.id} className="flex justify-between items-center p-3 bg-green-50 rounded-lg border border-green-100">
-                          <div>
-                            <div className="font-medium text-gray-800">{entry.name}</div>
-                            <div className="text-xs text-gray-500">
-                              {new Date(entry.timestamp).toLocaleTimeString('en-US', { 
-                                hour: '2-digit', 
-                                minute: '2-digit' 
-                              })}
+                        <Card
+                          key={entry.id}
+                          size="small"
+                          style={{
+                            background: "#f6ffed",
+                            borderColor: "#b7eb8f",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div>
+                              <Text strong>{entry.name}</Text>
+                              <br />
+                              <Text
+                                type="secondary"
+                                style={{ fontSize: "12px" }}
+                              >
+                                {new Date(entry.timestamp).toLocaleTimeString(
+                                  "en-US",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </Text>
                             </div>
+                            <Space>
+                              <Text strong>
+                                {formatNumber(entry.calories)} cal
+                              </Text>
+                              <Button
+                                type="text"
+                                danger
+                                size="small"
+                                icon={<DeleteOutlined />}
+                                onClick={() => handleDeleteFood(entry.id)}
+                              />
+                            </Space>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-gray-900">
-                              {formatNumber(entry.calories)} cal
-                            </span>
-                            <button
-                              onClick={() => handleDeleteFood(entry.id)}
-                              className="text-red-500 hover:text-red-700 text-sm px-2 py-1"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
+                        </Card>
                       ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <div className="text-3xl mb-2">🍽️</div>
-                      <p>No food entries yet</p>
-                    </div>
+                    <Empty
+                      image={<div style={{ fontSize: "48px" }}>🍽️</div>}
+                      description="No food entries yet"
+                      imageStyle={{ height: "auto" }}
+                    />
                   )}
-                </div>
-              </div>
+                </Space>
+              </Card>
+            </Col>
 
-              {/* Exercise Entries */}
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                    🏃 Exercise Entries ({(currentDayData.exerciseEntries || []).length})
-                  </h3>
-                  <button
+            {/* Exercise Entries */}
+            <Col xs={24} md={12}>
+              <Card
+                size="small"
+                title={`🏃 Exercise Entries (${
+                  (currentDayData.exerciseEntries || []).length
+                })`}
+                extra={
+                  <Button
+                    size="small"
+                    icon={<PlusOutlined />}
                     onClick={() => setShowAddExerciseModal(true)}
-                    className="px-3 py-1 bg-orange-500 text-white rounded-lg hover:bg-orange-600 text-sm"
+                    style={{
+                      borderColor: "#fa8c16",
+                      color: "#fa8c16",
+                      borderWidth: "2px",
+                    }}
                   >
-                    + Add Exercise
-                  </button>
-                </div>
-
-                <div className="space-y-2 overflow-y-auto">
+                    Add Exercise
+                  </Button>
+                }
+              >
+                <Space
+                  direction="vertical"
+                  size="small"
+                  style={{
+                    width: "100%",
+                    maxHeight: "400px",
+                    overflowY: "auto",
+                  }}
+                >
                   {(currentDayData.exerciseEntries || []).length > 0 ? (
                     (currentDayData.exerciseEntries || [])
-                      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+                      .sort(
+                        (a, b) =>
+                          new Date(a.timestamp).getTime() -
+                          new Date(b.timestamp).getTime()
+                      )
                       .map((entry) => (
-                        <div key={entry.id} className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border border-orange-100">
-                          <div>
-                            <div className="font-medium text-gray-800">{entry.name}</div>
-                            <div className="text-xs text-gray-500 flex gap-2">
-                              <span>
-                                {new Date(entry.timestamp).toLocaleTimeString('en-US', { 
-                                  hour: '2-digit', 
-                                  minute: '2-digit' 
-                                })}
-                              </span>
-                              <span>• {entry.durationMinutes}min</span>
+                        <Card
+                          key={entry.id}
+                          size="small"
+                          style={{
+                            background: "#fff7e6",
+                            borderColor: "#ffd591",
+                          }}
+                        >
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <div>
+                              <Text strong>{entry.name}</Text>
+                              <br />
+                              <Text
+                                type="secondary"
+                                style={{ fontSize: "12px" }}
+                              >
+                                {entry.durationMinutes} min •{" "}
+                                {new Date(entry.timestamp).toLocaleTimeString(
+                                  "en-US",
+                                  {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  }
+                                )}
+                              </Text>
                             </div>
+                            <Space>
+                              <Text strong style={{ color: "#fa8c16" }}>
+                                -{formatNumber(entry.caloriesBurned)} cal
+                              </Text>
+                              <Button
+                                type="text"
+                                danger
+                                size="small"
+                                icon={<DeleteOutlined />}
+                                onClick={() => handleDeleteExercise(entry.id)}
+                              />
+                            </Space>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-orange-700">
-                              +{formatNumber(entry.caloriesBurned)} cal
-                            </span>
-                            <button
-                              onClick={() => handleDeleteExercise(entry.id)}
-                              className="text-red-500 hover:text-red-700 text-sm px-2 py-1"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        </div>
+                        </Card>
                       ))
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <div className="text-3xl mb-2">💪</div>
-                      <p>No exercise entries yet</p>
-                    </div>
+                    <Empty
+                      image={<div style={{ fontSize: "48px" }}>🏃</div>}
+                      description="No exercise entries yet"
+                      imageStyle={{ height: "auto" }}
+                    />
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
+                </Space>
+              </Card>
+            </Col>
+          </Row>
+        </Space>
+      </Modal>
 
-          {/* Footer */}
-          <div className="flex justify-end gap-3 p-6 border-t">
-            <button
-              onClick={handleCancel}
-              className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-            >
-              Save Changes
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Sub-modals */}
+      {/* Add Food Modal */}
       <AddFoodModal
         isOpen={showAddFoodModal}
         onClose={() => setShowAddFoodModal(false)}
         onAddFood={handleAddFood}
       />
 
+      {/* Add Exercise Modal */}
       <AddExerciseModal
         isOpen={showAddExerciseModal}
         onClose={() => setShowAddExerciseModal(false)}

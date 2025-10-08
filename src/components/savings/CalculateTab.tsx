@@ -7,9 +7,21 @@ import {
   formatSum,
   formatDate,
   getComparisonClass,
-  getComparisonIcon,
+  getComparisonIcon as getComparisonIconString,
   calculateHistorySum,
 } from "@/lib/utils";
+import { Button, Card, Input, Tag, Space, Typography, Divider } from "antd";
+import {
+  DollarOutlined,
+  GoldOutlined,
+  RiseOutlined,
+  FallOutlined,
+  MinusOutlined,
+  StarOutlined,
+  CalculatorOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 interface CalculateTabProps {
   savings: SavingsData;
@@ -30,12 +42,15 @@ export default function CalculateTab({
   const rateHistory = allHistory.slice(0, 5);
   const [usdRate, setUsdRate] = useState("");
   const [gold21Rate, setGold21Rate] = useState("");
+
   useEffect(() => {
     setGold21Rate(gold21Price?.toString() || "");
   }, [gold21Price]);
+
   useEffect(() => {
     setUsdRate(usdPrice?.toString() || "");
   }, [usdPrice]);
+
   const [result, setResult] = useState<{
     total: number;
     breakdown: {
@@ -55,8 +70,8 @@ export default function CalculateTab({
   const calculateTotal = async () => {
     const usdRateNum = Number(usdRate) || 0;
     const gold21RateNum = Number(gold21Rate) || 0;
-    const gold18RateNum = gold21RateNum / 1.1667; // 18K is typically 75% of 21K
-    const gold24RateNum = gold21RateNum / 0.875; // 24K is typically 114.3% of 21K
+    const gold18RateNum = gold21RateNum / 1.1667;
+    const gold24RateNum = gold21RateNum / 0.875;
 
     const usdValue = savings.usdAmount * usdRateNum;
     const egpValue = savings.egpAmount;
@@ -79,10 +94,9 @@ export default function CalculateTab({
       sum: 0,
     });
 
-    // Get previous total for comparison (before adding the new entry)
     const previousTotal = allHistory.length > 0 ? allHistory[0].sum : 0;
     const comparisonClass = getComparisonClass(total, previousTotal);
-    const comparisonIcon = getComparisonIcon(total, previousTotal);
+    const comparisonIcon = getComparisonIconString(total, previousTotal);
 
     setResult({
       total,
@@ -100,7 +114,6 @@ export default function CalculateTab({
       },
     });
 
-    // Add to rate history
     if (usdRateNum > 0 || gold21RateNum > 0) {
       const newEntry: RateEntry = {
         id: Date.now().toString(),
@@ -117,12 +130,11 @@ export default function CalculateTab({
         usdAmount: savings.usdAmount,
       };
 
-      // Add to full history (allHistory contains everything)
       const updatedAllHistory = [newEntry, ...allHistory];
       try {
         await setAllHistory(updatedAllHistory);
       } catch (error) {
-        console.error('Error saving calculation to history:', error);
+        console.error("Error saving calculation to history:", error);
       }
     }
   };
@@ -132,156 +144,249 @@ export default function CalculateTab({
     setGold21Rate(entry.gold21Rate.toString());
   };
 
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-6">Calculate Total Savings</h2>
-      {/* Rate Input Forms */}
-      <div className="grid gap-4 md:grid-cols-2 mb-6">
-        <div>
-          <label
-            htmlFor="usd-rate"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            USD Exchange Rate (1 USD = ? EGP)
-          </label>
-          <input
-            type="number"
-            id="usd-rate"
-            step="0.01"
-            placeholder="Enter USD exchange rate"
-            value={usdRate}
-            onChange={(e) => setUsdRate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          />
-        </div>
+  const getTagColor = (icon: string) => {
+    if (icon === "↑") return "success";
+    if (icon === "↓") return "error";
+    return "warning";
+  };
 
-        <div>
-          <label
-            htmlFor="gold21-rate"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            21K Gold Price per gram (EGP)
-          </label>
-          <input
-            type="number"
-            id="gold21-rate"
-            step="0.01"
-            placeholder="Enter 21K gold price per gram"
-            value={gold21Rate}
-            onChange={(e) => setGold21Rate(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-          />
-        </div>
+  const getComparisonIcon = (icon: string) => {
+    if (icon === "↑") return <RiseOutlined />;
+    if (icon === "↓") return <FallOutlined />;
+    if (icon === "→") return <MinusOutlined />;
+    return <StarOutlined />;
+  };
+
+  return (
+    <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <div>
+        <Title level={2}>Calculate Total Savings</Title>
+        <Text type="secondary">
+          Enter current exchange rates to calculate your total savings value
+        </Text>
       </div>
 
-      <button
+      {/* Rate Input Forms */}
+      <div
+        style={{
+          display: "grid",
+          gap: "24px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+        }}
+      >
+        <Card
+          title={
+            <Space>
+              <DollarOutlined style={{ fontSize: "20px" }} />
+              <span>USD Exchange Rate</span>
+            </Space>
+          }
+        >
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Text>1 USD = ? EGP</Text>
+            <Input
+              type="number"
+              step={0.01}
+              placeholder="Enter USD exchange rate"
+              value={usdRate}
+              onChange={(e) => setUsdRate(e.target.value)}
+              size="large"
+              prefix={<DollarOutlined />}
+            />
+          </Space>
+        </Card>
+
+        <Card
+          title={
+            <Space>
+              <GoldOutlined style={{ fontSize: "20px", color: "#faad14" }} />
+              <span>Gold Price (21K)</span>
+            </Space>
+          }
+        >
+          <Space direction="vertical" style={{ width: "100%" }}>
+            <Text>Price per gram (EGP)</Text>
+            <Input
+              type="number"
+              step={0.01}
+              placeholder="Enter 21K gold price"
+              value={gold21Rate}
+              onChange={(e) => setGold21Rate(e.target.value)}
+              size="large"
+              prefix={<GoldOutlined />}
+            />
+          </Space>
+        </Card>
+      </div>
+
+      <Button
+        size="large"
+        icon={<CalculatorOutlined />}
         onClick={() => calculateTotal()}
-        className="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-6 rounded-md transition-colors mb-6"
+        style={{
+          minWidth: "200px",
+          borderColor: "#000000",
+          color: "#000000",
+          borderWidth: "2px",
+        }}
       >
         Calculate Total Savings
-      </button>
+      </Button>
 
       {/* Results */}
       {result && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-3">
-          <h3 className="text-lg font-bold mb-4">Calculation Results</h3>
-
-          <div className="grid gap-3 mb-4">
+        <Card
+          style={{ background: "#f6ffed", borderColor: "#b7eb8f" }}
+          title={<Text strong>Calculation Results</Text>}
+        >
+          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
             {savings.usdAmount > 0 && (
-              <div className="flex justify-between">
-                <span>USD ({formatNumber(savings.usdAmount)} $):</span>
-                <span className="font-medium">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "8px 0",
+                  borderBottom: "1px solid #f0f0f0",
+                }}
+              >
+                <Text type="secondary">
+                  USD ({formatNumber(savings.usdAmount)} $)
+                </Text>
+                <Text strong style={{ fontSize: "16px" }}>
                   {formatNumber(result.breakdown.usd)} EGP
-                </span>
+                </Text>
               </div>
             )}
             {savings.egpAmount > 0 && (
-              <div className="flex justify-between">
-                <span>EGP ({formatNumber(savings.egpAmount)} EGP):</span>
-                <span className="font-medium">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "8px 0",
+                  borderBottom: "1px solid #f0f0f0",
+                }}
+              >
+                <Text type="secondary">
+                  EGP ({formatNumber(savings.egpAmount)} EGP)
+                </Text>
+                <Text strong style={{ fontSize: "16px" }}>
                   {formatNumber(result.breakdown.egp)} EGP
-                </span>
+                </Text>
               </div>
             )}
             {savings.gold18Amount > 0 && (
-              <div className="flex justify-between">
-                <span>18K Gold ({formatNumber(savings.gold18Amount)} g):</span>
-                <span className="font-medium">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "8px 0",
+                  borderBottom: "1px solid #f0f0f0",
+                }}
+              >
+                <Text type="secondary">
+                  18K Gold ({formatNumber(savings.gold18Amount)} g)
+                </Text>
+                <Text strong style={{ fontSize: "16px" }}>
                   {formatNumber(result.breakdown.gold18)} EGP
-                </span>
+                </Text>
               </div>
             )}
             {savings.gold21Amount > 0 && (
-              <div className="flex justify-between">
-                <span>21K Gold ({formatNumber(savings.gold21Amount)} g):</span>
-                <span className="font-medium">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "8px 0",
+                  borderBottom: "1px solid #f0f0f0",
+                }}
+              >
+                <Text type="secondary">
+                  21K Gold ({formatNumber(savings.gold21Amount)} g)
+                </Text>
+                <Text strong style={{ fontSize: "16px" }}>
                   {formatNumber(result.breakdown.gold21)} EGP
-                </span>
+                </Text>
               </div>
             )}
             {savings.gold24Amount > 0 && (
-              <div className="flex justify-between">
-                <span>24K Gold ({formatNumber(savings.gold24Amount)} g):</span>
-                <span className="font-medium">
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  padding: "8px 0",
+                  borderBottom: "1px solid #f0f0f0",
+                }}
+              >
+                <Text type="secondary">
+                  24K Gold ({formatNumber(savings.gold24Amount)} g)
+                </Text>
+                <Text strong style={{ fontSize: "16px" }}>
                   {formatNumber(result.breakdown.gold24)} EGP
-                </span>
+                </Text>
               </div>
             )}
-          </div>
 
-          <div className="border-t border-green-300 pt-3">
-            <div className="flex justify-between text-lg font-bold">
-              <span>Total Value:</span>
-              <div className="flex items-center gap-2">
-                <span className={result.comparison?.comparisonClass || ""}>
-                  {result.comparison?.comparisonIcon &&
-                  result.comparison.comparisonIcon !== "" ? (
-                    <span className="mr-1 font-bold">
-                      {result.comparison.comparisonIcon}
-                    </span>
-                  ) : result.comparison?.previousTotal === 0 ? (
-                    <span
-                      className="mr-1 font-bold"
-                      style={{ color: "#2563eb" }}
-                      title="First calculation"
-                    >
-                      ✨
-                    </span>
-                  ) : null}
+            <Divider style={{ margin: "8px 0" }} />
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <Text strong style={{ fontSize: "18px" }}>
+                Total Value
+              </Text>
+              <Space>
+                {result.comparison &&
+                  getComparisonIcon(result.comparison.comparisonIcon)}
+                <Text
+                  strong
+                  style={{
+                    fontSize: "22px",
+                    color: result.comparison?.comparisonClass.includes("green")
+                      ? "#52c41a"
+                      : result.comparison?.comparisonClass.includes("red")
+                      ? "#ff4d4f"
+                      : "#faad14",
+                  }}
+                >
                   {formatSum(result.total)} EGP
-                </span>
-              </div>
+                </Text>
+              </Space>
             </div>
 
             {result.comparison?.previousTotal &&
               result.comparison.previousTotal > 0 && (
-                <div className="flex justify-between text-sm text-gray-600 mt-1">
-                  <span>Change from previous:</span>
-                  <span
-                    className={`font-medium ${
-                      result.comparison?.comparisonClass || ""
-                    }`}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
+                  <Text type="secondary">Change from previous</Text>
+                  <Tag
+                    color={getTagColor(result.comparison.comparisonIcon)}
+                    style={{ fontSize: "14px", padding: "4px 8px" }}
                   >
                     {result.total > result.comparison.previousTotal ? "+" : ""}
                     {formatSum(
                       result.total - result.comparison.previousTotal
                     )}{" "}
                     EGP
-                  </span>
+                  </Tag>
                 </div>
               )}
-          </div>
-        </div>
+          </Space>
+        </Card>
       )}
+
       {/* Rate History */}
       {rateHistory.length > 0 && (
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="font-medium text-gray-700">
-              Last 5 Rate Entries
-            </span>
-          </div>
-          <div className="space-y-2">
+        <Card title={<Text strong>Recent Calculations</Text>}>
+          <Space direction="vertical" size="small" style={{ width: "100%" }}>
             {rateHistory.map((entry: RateEntry, index: number) => {
               const currentSum = calculateHistorySum(entry);
               const previousEntry =
@@ -289,57 +394,54 @@ export default function CalculateTab({
               const previousSum = previousEntry
                 ? calculateHistorySum(previousEntry)
                 : 0;
-              const comparisonClass = getComparisonClass(
+              const comparisonIcon = getComparisonIconString(
                 currentSum,
                 previousSum
               );
 
-              const comparisonIcon = getComparisonIcon(currentSum, previousSum);
-
               return (
-                <div
+                <Card
                   key={entry.id}
-                  className="flex items-center justify-between bg-white p-3 rounded border cursor-pointer hover:bg-gray-50"
+                  size="small"
+                  hoverable
                   onClick={() => loadFromHistory(entry)}
+                  style={{ cursor: "pointer" }}
                 >
-                  <div className="text-sm">
-                    <div className="font-medium">
-                      {formatDate(entry.timestamp)}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div>
+                      <Text strong>{formatDate(entry.timestamp)}</Text>
+                      <br />
+                      <Text type="secondary" style={{ fontSize: "12px" }}>
+                        USD: {formatNumber(entry.usdRate)} • EGP:{" "}
+                        {formatNumber(entry.egpAmount)} • Gold 21K:{" "}
+                        {formatNumber(entry.gold21Rate)}
+                      </Text>
                     </div>
-                    <div className="text-gray-600">
-                      USD: {formatNumber(entry.usdRate)} | EGP:{" "}
-                      {formatNumber(entry.egpAmount)} | Gold 18K:{" "}
-                      {formatNumber(entry.gold18Rate)} | Gold 21K:{" "}
-                      {formatNumber(entry.gold21Rate)} | Gold 24K:{" "}
-                      {formatNumber(entry.gold24Rate)}
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div
-                      className={`font-bold flex items-center gap-1 ${
-                        comparisonClass || ""
-                      }`}
-                    >
-                      {comparisonIcon && comparisonIcon !== "" && (
-                        <span className="change-indicator">
-                          {comparisonIcon}
-                        </span>
+                    <Space direction="vertical" align="end">
+                      <Space>
+                        {getComparisonIcon(comparisonIcon)}
+                        <Text strong>{formatSum(currentSum)} EGP</Text>
+                      </Space>
+                      {previousSum > 0 && (
+                        <Tag color={getTagColor(comparisonIcon)}>
+                          {currentSum > previousSum ? "+" : ""}
+                          {formatSum(currentSum - previousSum)} EGP
+                        </Tag>
                       )}
-                      {formatSum(currentSum)} EGP
-                    </div>
-                    {previousSum > 0 && (
-                      <div className={`text-xs mt-1 ${comparisonClass || ""}`}>
-                        {currentSum > previousSum ? "+" : ""}
-                        {formatSum(currentSum - previousSum)} EGP
-                      </div>
-                    )}
+                    </Space>
                   </div>
-                </div>
+                </Card>
               );
             })}
-          </div>
-        </div>
+          </Space>
+        </Card>
       )}
-    </div>
+    </Space>
   );
 }

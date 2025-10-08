@@ -2,58 +2,65 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Menu, Typography } from "antd";
+import type { MenuProps } from "antd";
+import { DollarOutlined, AppleOutlined } from "@ant-design/icons";
+
+const { Text } = Typography;
 
 export default function Navbar() {
   const pathname = usePathname();
 
-  const navItems = [
+  const items: MenuProps["items"] = [
     {
-      label: "💰 Savings",
-      href: "/",
-      description: "Track your savings in USD, EGP, and Gold",
+      key: "/",
+      icon: <DollarOutlined />,
+      label: <Link href="/">Savings</Link>,
     },
     {
-      label: "🍎 Calories",
-      href: "/calories",
-      description: "Track your calorie intake and weight loss journey",
+      key: "/calories",
+      icon: <AppleOutlined />,
+      label: <Link href="/calories">Calories</Link>,
     },
   ];
 
-  return (
-    <nav className="bg-white shadow-lg border-b border-gray-200">
-      <div className="max-w-4xl mx-auto px-6">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo/Brand */}
-          <div className="flex items-center">
-            <h1 className="text-xl font-bold text-gray-800">
-              Personal Tracker
-            </h1>
-          </div>
+  const selectedKey = pathname === "/calories" ? "/calories" : "/";
 
-          {/* Navigation Links */}
-          <div className="flex space-x-1">
-            {navItems.map((item) => {
-              const isActive = 
-                (item.href === "/" && pathname === "/") ||
-                (item.href !== "/" && pathname.startsWith(item.href));
-              
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-blue-100 text-blue-700 border border-blue-200"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                  }`}
-                  title={item.description}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
+  return (
+    <nav
+      style={{
+        borderBottom: "1px solid #f0f0f0",
+        background: "#fff",
+        position: "sticky",
+        top: 0,
+        zIndex: 1000,
+        boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+      }}
+    >
+      <div
+        style={{
+          maxWidth: "1280px",
+          margin: "0 auto",
+          padding: "0 16px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <Text strong style={{ fontSize: "18px", padding: "16px 0" }}>
+          Personal Tracker
+        </Text>
+        <Menu
+          mode="horizontal"
+          selectedKeys={[selectedKey]}
+          items={items}
+          style={{
+            border: "none",
+            flex: 1,
+            justifyContent: "flex-end",
+            minWidth: 0,
+          }}
+        />
       </div>
     </nav>
   );

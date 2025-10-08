@@ -1,32 +1,67 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { EXERCISE_CATEGORIES, getExercisesByCategory, calculateCaloriesBurned, COMMON_DURATIONS, type ExerciseConstant } from "@/constants/exercises";
+import {
+  EXERCISE_CATEGORIES,
+  getExercisesByCategory,
+  calculateCaloriesBurned,
+  COMMON_DURATIONS,
+  type ExerciseConstant,
+} from "@/constants/exercises";
+import {
+  Modal,
+  Button,
+  Input,
+  InputNumber,
+  Tabs,
+  Card,
+  Row,
+  Col,
+  Tag,
+  Space,
+} from "antd";
+import { PlusOutlined, ThunderboltOutlined } from "@ant-design/icons";
+
+const { TabPane } = Tabs;
 
 interface AddExerciseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddExercise: (exercise: { name: string; caloriesBurned: number; durationMinutes: number; description: string }) => void;
+  onAddExercise: (exercise: {
+    name: string;
+    caloriesBurned: number;
+    durationMinutes: number;
+    description: string;
+  }) => void;
 }
 
-export default function AddExerciseModal({ isOpen, onClose, onAddExercise }: AddExerciseModalProps) {
-  
+export default function AddExerciseModal({
+  isOpen,
+  onClose,
+  onAddExercise,
+}: AddExerciseModalProps) {
   // Exercise entry states
-  const [exerciseEntryMode, setExerciseEntryMode] = useState<'preset' | 'custom'>('preset');
-  const [selectedExercise, setSelectedExercise] = useState<ExerciseConstant | null>(null);
+  const [exerciseEntryMode, setExerciseEntryMode] = useState<
+    "preset" | "custom"
+  >("preset");
+  const [selectedExercise, setSelectedExercise] =
+    useState<ExerciseConstant | null>(null);
   const [duration, setDuration] = useState("");
   const [customExerciseName, setCustomExerciseName] = useState("");
   const [customCaloriesBurned, setCustomCaloriesBurned] = useState("");
   const [calculatedCaloriesBurned, setCalculatedCaloriesBurned] = useState(0);
-  
+
   const exercisesByCategory = getExercisesByCategory();
 
   // Calculate calories burned when preset exercise selection changes
   useEffect(() => {
-    if (exerciseEntryMode === 'preset' && selectedExercise && duration) {
+    if (exerciseEntryMode === "preset" && selectedExercise && duration) {
       const durationNum = parseFloat(duration);
       if (durationNum > 0) {
-        const caloriesBurned = calculateCaloriesBurned(selectedExercise, durationNum);
+        const caloriesBurned = calculateCaloriesBurned(
+          selectedExercise,
+          durationNum
+        );
         setCalculatedCaloriesBurned(Math.round(caloriesBurned));
       } else {
         setCalculatedCaloriesBurned(0);
@@ -36,14 +71,13 @@ export default function AddExerciseModal({ isOpen, onClose, onAddExercise }: Add
     }
   }, [selectedExercise, duration, exerciseEntryMode]);
 
-
   const handleAddExercise = () => {
     let caloriesBurned: number;
     let name: string;
     let durationMins: number;
     let description: string;
-    
-    if (exerciseEntryMode === 'preset' && selectedExercise && duration) {
+
+    if (exerciseEntryMode === "preset" && selectedExercise && duration) {
       const durationNum = parseFloat(duration);
       if (durationNum > 0) {
         caloriesBurned = calculateCaloriesBurned(selectedExercise, durationNum);
@@ -53,7 +87,7 @@ export default function AddExerciseModal({ isOpen, onClose, onAddExercise }: Add
       } else {
         return;
       }
-    } else if (exerciseEntryMode === 'custom') {
+    } else if (exerciseEntryMode === "custom") {
       const customBurned = parseFloat(customCaloriesBurned);
       const customName = customExerciseName.trim();
       const durationNum = parseFloat(duration);
@@ -63,11 +97,11 @@ export default function AddExerciseModal({ isOpen, onClose, onAddExercise }: Add
       caloriesBurned = customBurned;
       name = customName;
       durationMins = durationNum;
-      description = 'custom entry';
+      description = "custom entry";
     } else {
       return;
     }
-    
+
     if (caloriesBurned > 0) {
       onAddExercise({
         name: `${name} (${description})`,
@@ -75,14 +109,12 @@ export default function AddExerciseModal({ isOpen, onClose, onAddExercise }: Add
         durationMinutes: durationMins,
         description,
       });
-      
+
       // Reset form and close modal
       resetExerciseForm();
       onClose();
     }
   };
-
-  
 
   const resetExerciseForm = () => {
     setDuration("");
@@ -94,222 +126,303 @@ export default function AddExerciseModal({ isOpen, onClose, onAddExercise }: Add
 
   const handleClose = () => {
     resetExerciseForm();
+    onClose();
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 bg-gray-200 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <div>
-          {/* Modal Header */}
-          <div className="flex items-center justify-between mb-6 p-6 sticky top-0 bg-white border-b border-gray-300">
-            <h3 className="text-xl font-bold">Add Exercise</h3>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl"
-            >
-              ×
-            </button>
-          </div>
-          
-          {/* Exercise Entry Mode */}
+    <Modal
+      open={isOpen}
+      onCancel={handleClose}
+      title="🏃 Add Exercise"
+      width={1100}
+      style={{ top: 20 }}
+      footer={[
+        <Button key="cancel" onClick={handleClose} size="large">
+          Cancel
+        </Button>,
+        <Button
+          key="submit"
+          onClick={handleAddExercise}
+          icon={<PlusOutlined />}
+          size="large"
+          disabled={
+            (exerciseEntryMode === "preset" &&
+              (!selectedExercise || !duration || parseFloat(duration) <= 0)) ||
+            (exerciseEntryMode === "custom" &&
+              (!customExerciseName.trim() ||
+                !customCaloriesBurned ||
+                parseFloat(customCaloriesBurned) <= 0 ||
+                !duration ||
+                parseFloat(duration) <= 0))
+          }
+          style={{
+            borderColor: "#fa8c16",
+            color: "#fa8c16",
+            borderWidth: "2px",
+          }}
+        >
+          Add Exercise
+        </Button>,
+      ]}
+    >
+      <Tabs
+        activeKey={exerciseEntryMode}
+        onChange={(key) => {
+          setExerciseEntryMode(key as "preset" | "custom");
+          if (key === "custom") {
+            setSelectedExercise(null);
+            setDuration("");
+            setCalculatedCaloriesBurned(0);
+          }
+        }}
+        size="large"
+      >
+        <TabPane tab="🏃 Preset Exercises" key="preset">
+          {exerciseEntryMode === "preset" && (
             <div>
-              {/* Exercise Entry Type Selection */}
-              <div className="flex gap-2 mb-6 px-6">
-                <button
-                  onClick={() => setExerciseEntryMode('preset')}
-                  className={`px-4 py-2 rounded-md transition-colors ${
-                    exerciseEntryMode === 'preset'
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
+              {selectedExercise && (
+                <Card
+                  size="small"
+                  title={`Selected: ${selectedExercise.name}`}
+                  style={{ marginBottom: 16, background: "#fff7e6" }}
                 >
-                  Preset Exercises
-                </button>
-                <button
-                  onClick={() => setExerciseEntryMode('custom')}
-                  className={`px-4 py-2 rounded-md transition-colors ${
-                    exerciseEntryMode === 'custom'
-                      ? 'bg-orange-500 text-white'
-                      : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                  }`}
-                >
-                  Custom Entry
-                </button>
-              </div>
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: 8,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Duration (minutes)
+                      </label>
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        placeholder="e.g. 30"
+                        value={duration ? parseFloat(duration) : null}
+                        onChange={(val) => setDuration(val?.toString() || "")}
+                        min={0}
+                        step={1}
+                        size="large"
+                      />
+                    </Col>
+                    <Col span={8}>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: 8,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Quick Select
+                      </label>
+                      <Space wrap>
+                        {COMMON_DURATIONS.map((dur) => (
+                          <Tag
+                            key={dur.value}
+                            onClick={() => setDuration(dur.value.toString())}
+                            style={{
+                              cursor: "pointer",
+                              padding: "4px 12px",
+                              background:
+                                duration === dur.value.toString()
+                                  ? "#fa8c16"
+                                  : "#fff",
+                              color:
+                                duration === dur.value.toString()
+                                  ? "#fff"
+                                  : "#000",
+                              border:
+                                duration === dur.value.toString()
+                                  ? "1px solid #fa8c16"
+                                  : "1px solid #d9d9d9",
+                            }}
+                          >
+                            {dur.label}
+                          </Tag>
+                        ))}
+                      </Space>
+                    </Col>
+                    <Col span={8}>
+                      <label
+                        style={{
+                          display: "block",
+                          marginBottom: 8,
+                          fontWeight: 500,
+                        }}
+                      >
+                        Calories Burned
+                      </label>
+                      <div
+                        style={{
+                          padding: "8px 12px",
+                          background: "#fa8c16",
+                          color: "white",
+                          borderRadius: "8px",
+                          fontSize: "16px",
+                          fontWeight: 600,
+                          textAlign: "center",
+                          height: "40px",
+                          lineHeight: "24px",
+                        }}
+                      >
+                        <ThunderboltOutlined /> {calculatedCaloriesBurned} cal
+                      </div>
+                    </Col>
+                  </Row>
+                </Card>
+              )}
+              <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                {Object.entries(exercisesByCategory).map(
+                  ([category, exercises]) => {
+                    const categoryColors: Record<
+                      string,
+                      { bg: string; border: string }
+                    > = {
+                      cardio: { bg: "#fff1f0", border: "#ffa39e" },
+                      strength: { bg: "#e6f4ff", border: "#91caff" },
+                      flexibility: { bg: "#f6ffed", border: "#b7eb8f" },
+                      sports: { bg: "#fff7e6", border: "#ffd591" },
+                      daily: { bg: "#f9f0ff", border: "#d3adf7" },
+                    };
 
-              {/* Preset Exercises Mode */}
-              {exerciseEntryMode === 'preset' && (
-                <div className="space-y-4 px-6 mb-4">
-                  {/* Exercise Categories */}
-                  <div className="space-y-4">
-                    {Object.entries(exercisesByCategory).map(([category, exercises]) => (
-                      <div key={category} className={`border rounded-lg p-4 ${EXERCISE_CATEGORIES[category as keyof typeof EXERCISE_CATEGORIES].color}`}>
-                        <h4 className="font-medium mb-3 flex items-center gap-2">
-                          <span>{EXERCISE_CATEGORIES[category as keyof typeof EXERCISE_CATEGORIES].icon}</span>
-                          {EXERCISE_CATEGORIES[category as keyof typeof EXERCISE_CATEGORIES].name}
-                        </h4>
-                        <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                    const colors = categoryColors[category] || {
+                      bg: "#fafafa",
+                      border: "#d9d9d9",
+                    };
+
+                    return (
+                      <Card
+                        key={category}
+                        size="small"
+                        title={
+                          EXERCISE_CATEGORIES[
+                            category as keyof typeof EXERCISE_CATEGORIES
+                          ].name
+                        }
+                        style={{
+                          marginBottom: 16,
+                          background: colors.bg,
+                          borderColor: colors.border,
+                          borderWidth: 2,
+                        }}
+                      >
+                        <Row gutter={[8, 8]}>
                           {exercises.map((exercise) => (
-                            <button
-                              key={exercise.id}
-                              onClick={() => setSelectedExercise(exercise)}
-                              className={`text-left p-3 rounded border transition-colors ${
-                                selectedExercise?.id === exercise.id
-                                  ? 'bg-orange-100 border-orange-300'
-                                  : 'bg-white border-gray-200 hover:border-gray-300'
-                              }`}
-                            >
-                              <div className="font-medium text-sm">{exercise.name}</div>
-                              <div className="text-xs text-gray-600">
-                                {exercise.caloriesPerHour} cal/hour
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                                <span className={`font-medium ${exercise.intensityLevel === 'high' ? 'text-red-600' : exercise.intensityLevel === 'moderate' ? 'text-yellow-600' : 'text-green-600'}`}>
-                                  {exercise.intensityLevel}
-                                </span>
-                                • {exercise.description}
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  
-                </div>
-              )}
-
-              {/* Custom Exercise Entry Mode */}
-              {exerciseEntryMode === 'custom' && (
-                <div className="grid gap-4 md:grid-cols-3 px-6 mb-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Exercise Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Swimming, Dancing, etc."
-                      value={customExerciseName}
-                      onChange={(e) => setCustomExerciseName(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Duration (minutes)
-                    </label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="1"
-                      placeholder="e.g. 30"
-                      value={duration}
-                      onChange={(e) => setDuration(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Calories Burned
-                    </label>
-                    <input
-                      type="number"
-                      step="1"
-                      min="1"
-                      placeholder="e.g. 300"
-                      value={customCaloriesBurned}
-                      onChange={(e) => setCustomCaloriesBurned(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              )}
-              <footer className="sticky bottom-0 p-6 bg-white border-t border-gray-300 space-y-4">
-                {/* Duration Input */}
-                {selectedExercise && (
-                    <div className="bg-white border rounded-lg p-4">
-                      <h4 className="font-medium mb-3">Selected: {selectedExercise.name}</h4>
-                      
-                      <div className="grid gap-4 md:grid-cols-3">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Duration (minutes)
-                          </label>
-                          <input
-                            type="number"
-                            step="1"
-                            min="1"
-                            placeholder="e.g. 30, 60, 90"
-                            value={duration}
-                            onChange={(e) => setDuration(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                          />
-                          {/* Quick Duration Buttons */}
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {COMMON_DURATIONS.map((dur) => (
-                              <button
-                                key={dur.value}
-                                type="button"
-                                onClick={() => setDuration(dur.value.toString())}
-                                className="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded border"
+                            <Col key={exercise.id} xs={12} sm={8} md={6}>
+                              <Card
+                                size="small"
+                                hoverable
+                                onClick={() => setSelectedExercise(exercise)}
+                                style={{
+                                  background:
+                                    selectedExercise?.id === exercise.id
+                                      ? "#ffe7ba"
+                                      : "#fff",
+                                  borderColor:
+                                    selectedExercise?.id === exercise.id
+                                      ? "#fa8c16"
+                                      : "#d9d9d9",
+                                  borderWidth:
+                                    selectedExercise?.id === exercise.id
+                                      ? 2
+                                      : 1,
+                                }}
                               >
-                                {dur.label}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Intensity
-                          </label>
-                          <div className={`px-3 py-2 border rounded-md text-center ${
-                            selectedExercise.intensityLevel === 'high' ? 'bg-red-50 border-red-200 text-red-700' :
-                            selectedExercise.intensityLevel === 'moderate' ? 'bg-yellow-50 border-yellow-200 text-yellow-700' :
-                            'bg-green-50 border-green-200 text-green-700'
-                          }`}>
-                            {selectedExercise.intensityLevel.toUpperCase()}
-                          </div>
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Calculated Calories Burned
-                          </label>
-                          <div className="px-3 py-2 bg-orange-50 border border-orange-200 rounded-md font-medium text-orange-700">
-                            {calculatedCaloriesBurned} calories
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-              <div className="flex gap-3">
-                <button
-                  onClick={handleAddExercise}
-                  disabled={
-                    (exerciseEntryMode === 'preset' && (!selectedExercise || !duration || parseFloat(duration) <= 0)) ||
-                    (exerciseEntryMode === 'custom' && (!customExerciseName.trim() || !customCaloriesBurned || parseFloat(customCaloriesBurned) <= 0 || !duration || parseFloat(duration) <= 0))
+                                <div
+                                  style={{ fontSize: "13px", fontWeight: 500 }}
+                                >
+                                  {exercise.name}
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "11px",
+                                    color: "#8c8c8c",
+                                    marginTop: 4,
+                                  }}
+                                >
+                                  {exercise.caloriesPerHour} cal/hr
+                                </div>
+                                <div
+                                  style={{
+                                    fontSize: "10px",
+                                    color: "#aaa",
+                                    marginTop: 2,
+                                  }}
+                                >
+                                  {exercise.intensityLevel}
+                                </div>
+                              </Card>
+                            </Col>
+                          ))}
+                        </Row>
+                      </Card>
+                    );
                   }
-                  className="bg-orange-500 hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-6 py-2 rounded-md transition-colors"
-                >
-                  Add Exercise
-                </button>
-                <button
-                  onClick={handleClose}
-                  className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition-colors"
-                >
-                  Cancel
-                </button>
+                )}
               </div>
-              </footer>
             </div>
-        </div>
-      </div>
-    </div>
+          )}
+        </TabPane>
+        <TabPane tab="✏️ Custom Entry" key="custom">
+          {exerciseEntryMode === "custom" && (
+            <Row gutter={16}>
+              <Col span={12}>
+                <label
+                  style={{ display: "block", marginBottom: 8, fontWeight: 500 }}
+                >
+                  Exercise Name
+                </label>
+                <Input
+                  placeholder="e.g. Basketball, Dancing"
+                  value={customExerciseName}
+                  onChange={(e) => setCustomExerciseName(e.target.value)}
+                  size="large"
+                />
+              </Col>
+              <Col span={6}>
+                <label
+                  style={{ display: "block", marginBottom: 8, fontWeight: 500 }}
+                >
+                  Duration (min)
+                </label>
+                <InputNumber
+                  style={{ width: "100%" }}
+                  placeholder="e.g. 30"
+                  value={duration ? parseFloat(duration) : null}
+                  onChange={(val) => setDuration(val?.toString() || "")}
+                  min={0}
+                  step={1}
+                  size="large"
+                />
+              </Col>
+              <Col span={6}>
+                <label
+                  style={{ display: "block", marginBottom: 8, fontWeight: 500 }}
+                >
+                  Calories Burned
+                </label>
+                <InputNumber
+                  style={{ width: "100%" }}
+                  placeholder="e.g. 150"
+                  value={
+                    customCaloriesBurned
+                      ? parseFloat(customCaloriesBurned)
+                      : null
+                  }
+                  onChange={(val) =>
+                    setCustomCaloriesBurned(val?.toString() || "")
+                  }
+                  min={0}
+                  step={1}
+                  size="large"
+                />
+              </Col>
+            </Row>
+          )}
+        </TabPane>
+      </Tabs>
+    </Modal>
   );
 }

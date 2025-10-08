@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import { ConfigProvider } from "antd";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,7 +30,32 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <AntdRegistry>
+          <ConfigProvider
+            wave={{ disabled: false }}
+            theme={{
+              token: {
+                colorPrimary: "#000000",
+                borderRadius: 8,
+                colorBorder: "#8c8c8c", // Darker borders
+                colorBorderSecondary: "#a6a6a6", // Darker secondary borders
+              },
+              components: {
+                Button: {
+                  primaryShadow: "none",
+                  defaultShadow: "none",
+                  dangerShadow: "none",
+                  boxShadow: "none",
+                  controlHeight: 40,
+                  controlHeightLG: 48,
+                  controlHeightSM: 32,
+                },
+              },
+            }}
+          >
+            {children}
+          </ConfigProvider>
+        </AntdRegistry>
         <Analytics />
       </body>
     </html>

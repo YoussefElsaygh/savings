@@ -9,6 +9,17 @@ import {
   getComparisonClass,
   getComparisonIcon,
 } from "@/lib/utils";
+import { Card, Space, Typography, Button, Empty, Collapse, Tag } from "antd";
+import {
+  DeleteOutlined,
+  RiseOutlined,
+  FallOutlined,
+  MinusOutlined,
+  DownOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 interface HistoryTabProps {
   allHistory: RateEntry[];
@@ -24,14 +35,23 @@ interface MonthGroups {
   [key: string]: MonthGroup;
 }
 
+const getComparisonIconComponent = (icon: string) => {
+  if (icon === "↑") return <RiseOutlined style={{ color: "#52c41a" }} />;
+  if (icon === "↓") return <FallOutlined style={{ color: "#ff4d4f" }} />;
+  if (icon === "→") return <MinusOutlined style={{ color: "#faad14" }} />;
+  return null;
+};
+
+const getTagColor = (icon: string) => {
+  if (icon === "↑") return "success";
+  if (icon === "↓") return "error";
+  return "warning";
+};
+
 export default function HistoryTab({
   allHistory,
   setAllHistory,
 }: HistoryTabProps) {
-  const [collapsedMonths, setCollapsedMonths] = useState<Set<string>>(
-    new Set()
-  );
-
   const deleteEntry = async (index: number) => {
     const newHistory = allHistory.filter(
       (_: RateEntry, i: number) => i !== index
@@ -39,30 +59,19 @@ export default function HistoryTab({
     try {
       await setAllHistory(newHistory);
     } catch (error) {
-      console.error('Error deleting history entry:', error);
+      console.error("Error deleting history entry:", error);
     }
-  };
-
-  const toggleMonth = (monthKey: string) => {
-    const newCollapsed = new Set(collapsedMonths);
-    if (newCollapsed.has(monthKey)) {
-      newCollapsed.delete(monthKey);
-    } else {
-      newCollapsed.add(monthKey);
-    }
-    setCollapsedMonths(newCollapsed);
   };
 
   if (allHistory.length === 0) {
     return (
-      <div>
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold">Full Calculation History</h2>
-        </div>
-        <div className="text-center py-8 text-gray-500">
-          No calculation history available. Calculate your savings first.
-        </div>
-      </div>
+      <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Title level={2}>Full Calculation History</Title>
+        <Empty
+          description="No calculation history available. Calculate your savings first."
+          style={{ padding: "40px 0" }}
+        />
+      </Space>
     );
   }
 
@@ -98,71 +107,74 @@ export default function HistoryTab({
   );
 
   return (
-    <div>
-      <div className="flex items-center mb-6">
-        <h2 className="text-2xl font-bold">Full Calculation History</h2>
-      </div>
+    <Space direction="vertical" size="large" style={{ width: "100%" }}>
+      <Title level={2}>Full Calculation History</Title>
 
-      <div className="space-y-4">
+      <Collapse
+        defaultActiveKey={sortedMonths}
+        expandIcon={({ isActive }) => (
+          <DownOutlined rotate={isActive ? 0 : -90} />
+        )}
+      >
         {sortedMonths.map((monthKey) => {
           const monthData = historyByMonth[monthKey];
-          const isCollapsed = collapsedMonths.has(monthKey);
 
           return (
-            <div
+            <Panel
+              header={`${monthData.monthName} (${monthData.entries.length} entries)`}
               key={monthKey}
-              className="border border-gray-200 rounded-lg overflow-hidden"
             >
-              {/* Month Header */}
-              <div
-                className={`bg-gray-50 px-4 py-3 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between ${
-                  isCollapsed ? "border-b-0" : "border-b border-gray-200"
-                }`}
-                onClick={() => toggleMonth(monthKey)}
+              <Space
+                direction="vertical"
+                size="middle"
+                style={{ width: "100%" }}
               >
-                <div className="flex items-center gap-2">
-                  <span className="text-gray-600 font-mono text-sm">
-                    {isCollapsed ? "▶" : "▼"}
-                  </span>
-                  <h3 className="font-semibold text-gray-800">
-                    {monthData.monthName}
-                  </h3>
-                </div>
-                <span className="text-sm text-gray-600">
-                  ({monthData.entries.length} entries)
-                </span>
-              </div>
+                {monthData.entries.map((entry, index) => {
+                  const currentSum = entry.sum;
+                  const previousEntry =
+                    index < monthData.entries.length - 1
+                      ? monthData.entries[index + 1]
+                      : null;
+                  const previousSum = previousEntry ? previousEntry.sum : 0;
+                  const comparisonIcon = getComparisonIcon(
+                    currentSum,
+                    previousSum
+                  );
 
-              {/* Month Entries */}
-              {!isCollapsed && (
-                <div className="p-4 space-y-3">
-                  {monthData.entries.map((entry, index) => {
-                    const currentSum = entry.sum;
-                    const previousEntry =
-                      index < monthData.entries.length - 1
-                        ? monthData.entries[index + 1]
-                        : null;
-                    const previousSum = previousEntry ? previousEntry.sum : 0;
-                    const comparisonClass = getComparisonClass(
-                      currentSum,
-                      previousSum
-                    );
-                    const comparisonIcon = getComparisonIcon(
-                      currentSum,
-                      previousSum
-                    );
-
-                    return (
-                      <div
-                        key={entry.id}
-                        className="bg-white border border-gray-200 rounded-lg p-4"
+                  return (
+                    <Card
+                      key={entry.id}
+                      size="small"
+                      extra={
+                        <Button
+                          type="text"
+                          danger
+                          size="small"
+                          icon={<DeleteOutlined />}
+                          onClick={() => deleteEntry(entry.originalIndex)}
+                        >
+                          Delete
+                        </Button>
+                      }
+                    >
+                      <Space
+                        direction="vertical"
+                        size="small"
+                        style={{ width: "100%" }}
                       >
-                        <div className="flex items-start justify-between mb-3">
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "flex-start",
+                          }}
+                        >
                           <div>
-                            <div className="font-semibold text-gray-800">
+                            <Text strong style={{ fontSize: "16px" }}>
                               {formatDate(entry.timestamp)}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            </Text>
+                            <br />
+                            <Text type="secondary" style={{ fontSize: "12px" }}>
                               USD:{" "}
                               <strong>
                                 {formatNumber(entry.usdAmount)} USD
@@ -183,69 +195,74 @@ export default function HistoryTab({
                               <strong>
                                 {formatNumber(entry.gold24Amount)}gm
                               </strong>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => deleteEntry(entry.originalIndex)}
-                            className="text-red-500 hover:text-red-700 text-sm font-medium"
-                          >
-                            Delete
-                          </button>
-                        </div>
-
-                        <div className="grid gap-2 text-sm mb-3">
-                          <div className="flex flex-wrap gap-4">
-                            <span className="text-gray-600">
-                              USD: {formatNumber(entry.usdRate)}
-                            </span>
-                            <span className="text-gray-600">
-                              18K: {formatNumber(entry.gold18Rate)}
-                            </span>
-                            <span className="text-gray-600">
-                              21K: {formatNumber(entry.gold21Rate)}
-                            </span>
-                            <span className="text-gray-600">
-                              24K: {formatNumber(entry.gold21Rate / 0.875)}
-                            </span>
+                            </Text>
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between border-t border-gray-200 pt-3">
-                          <span className="font-semibold">Total:</span>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`font-bold text-lg ${comparisonClass}`}
-                            >
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "12px",
+                          }}
+                        >
+                          <Text type="secondary" style={{ fontSize: "13px" }}>
+                            USD: {formatNumber(entry.usdRate)}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: "13px" }}>
+                            18K: {formatNumber(entry.gold18Rate)}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: "13px" }}>
+                            21K: {formatNumber(entry.gold21Rate)}
+                          </Text>
+                          <Text type="secondary" style={{ fontSize: "13px" }}>
+                            24K: {formatNumber(entry.gold21Rate / 0.875)}
+                          </Text>
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            paddingTop: "8px",
+                            borderTop: "1px solid #f0f0f0",
+                          }}
+                        >
+                          <Text strong>Total:</Text>
+                          <Space>
+                            {getComparisonIconComponent(comparisonIcon)}
+                            <Text strong style={{ fontSize: "18px" }}>
                               {formatSum(currentSum)} EGP
-                            </span>
-                            {comparisonIcon && (
-                              <span
-                                className={`text-sm font-bold ${comparisonClass}`}
-                              >
-                                {comparisonIcon}
-                              </span>
-                            )}
-                          </div>
+                            </Text>
+                          </Space>
                         </div>
 
                         {previousSum > 0 && (
-                          <div className="flex justify-between text-sm text-gray-600 mt-1">
-                            <span>Change from previous:</span>
-                            <span className={`font-medium ${comparisonClass}`}>
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <Text type="secondary" style={{ fontSize: "13px" }}>
+                              Change from previous:
+                            </Text>
+                            <Tag color={getTagColor(comparisonIcon)}>
                               {currentSum > previousSum ? "+" : ""}
                               {formatSum(currentSum - previousSum)} EGP
-                            </span>
+                            </Tag>
                           </div>
                         )}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                      </Space>
+                    </Card>
+                  );
+                })}
+              </Space>
+            </Panel>
           );
         })}
-      </div>
-    </div>
+      </Collapse>
+    </Space>
   );
 }

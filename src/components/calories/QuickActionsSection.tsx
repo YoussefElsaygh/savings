@@ -3,52 +3,108 @@
 import { useState } from "react";
 import AddFoodModal from "./AddFoodModal";
 import AddExerciseModal from "./AddExerciseModal";
+import { Card, Button, Space, Typography } from "antd";
+import {
+  PlusOutlined,
+  AppleOutlined,
+  ThunderboltOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
+
 interface QuickActionsSectionProps {
-  handleModalAddFood: (foodData: { name: string; calories: number; description: string }) => void;
-  handleModalAddExercise: (exerciseData: { name: string; caloriesBurned: number; durationMinutes: number; description: string }) => void;
+  handleModalAddFood: (foodData: {
+    name: string;
+    calories: number;
+    description: string;
+  }) => void;
+  handleModalAddExercise: (exerciseData: {
+    name: string;
+    caloriesBurned: number;
+    durationMinutes: number;
+    description: string;
+  }) => void;
 }
 
-export default function QuickActionsSection({ handleModalAddFood, handleModalAddExercise }: QuickActionsSectionProps) {
+export default function QuickActionsSection({
+  handleModalAddFood,
+  handleModalAddExercise,
+}: QuickActionsSectionProps) {
   const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
   const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
+
   return (
-    <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center ">
-      <h3 className="text-lg font-bold mb-4">Track Your Activity</h3>
-      <button
-        onClick={() => {setIsFoodModalOpen(true);
-          document.body.style.overflow = 'hidden';
+    <>
+      <Card
+        style={{
+          background: "#fafafa",
+          borderColor: "#d9d9d9",
+          textAlign: "center",
         }}
-        className="bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md"
+        title={
+          <Space>
+            <PlusOutlined style={{ fontSize: "18px" }} />
+            <span>Track Your Activity</span>
+          </Space>
+        }
       >
-        ➕ Add Food 
-      </button>
-      <br/>
-      <button
-        onClick={() =>{setIsExerciseModalOpen(true);
-          document.body.style.overflow = 'hidden';
-        }}
-        className="mt-2 bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-md"
-      >
-        ➕ Add Exercise 
-      </button>
-      <p className="text-sm text-gray-600 mt-2">
-        Track what you eat or your workout sessions
-      </p>
+        <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+          <Button
+            size="large"
+            icon={<AppleOutlined />}
+            onClick={() => {
+              setIsFoodModalOpen(true);
+              document.body.style.overflow = "hidden";
+            }}
+            style={{
+              width: "100%",
+              borderColor: "#52c41a",
+              color: "#52c41a",
+              height: "48px",
+              borderWidth: "2px",
+            }}
+          >
+            Add Food
+          </Button>
+          <Button
+            size="large"
+            icon={<ThunderboltOutlined />}
+            onClick={() => {
+              setIsExerciseModalOpen(true);
+              document.body.style.overflow = "hidden";
+            }}
+            style={{
+              width: "100%",
+              borderColor: "#fa8c16",
+              color: "#fa8c16",
+              height: "48px",
+              borderWidth: "2px",
+            }}
+          >
+            Add Exercise
+          </Button>
+          <Text type="secondary" style={{ fontSize: "13px" }}>
+            Track what you eat or your workout sessions
+          </Text>
+        </Space>
+      </Card>
+
       <AddFoodModal
         isOpen={isFoodModalOpen}
-        onClose={() => {setIsFoodModalOpen(false);
-          document.body.style.overflow = 'auto';
+        onClose={() => {
+          setIsFoodModalOpen(false);
+          document.body.style.overflow = "auto";
         }}
         onAddFood={handleModalAddFood}
       />
       <AddExerciseModal
         isOpen={isExerciseModalOpen}
-        onClose={() => {setIsExerciseModalOpen(false)
-          document.body.style.overflow = 'auto';
-
+        onClose={() => {
+          setIsExerciseModalOpen(false);
+          document.body.style.overflow = "auto";
         }}
         onAddExercise={handleModalAddExercise}
       />
-    </div>
+    </>
   );
 }
