@@ -1,0 +1,46 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if the user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Savings Data Collection
+    // Document ID format: {userId}_savings
+    match /savingsData/{document} {
+      // Extract userId from document ID (format: userId_savings)
+      function getDocumentUserId() {
+        return document.split('_')[0];
+      }
+      
+      allow read: if isAuthenticated() && isOwner(getDocumentUserId());
+      allow write: if isAuthenticated() && isOwner(getDocumentUserId());
+    }
+    
+    // Calorie Data Collection
+    // Document ID format: {userId}_goal or {userId}_dailyData
+    match /calorieData/{document} {
+      // Extract userId from document ID (format: userId_goal or userId_dailyData)
+      function getDocumentUserId() {
+        return document.split('_')[0];
+      }
+      
+      allow read: if isAuthenticated() && isOwner(getDocumentUserId());
+      allow write: if isAuthenticated() && isOwner(getDocumentUserId());
+    }
+    
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

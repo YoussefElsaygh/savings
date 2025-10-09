@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider } from "antd";
+import Navbar from "@/components/shared/Navbar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Savings Calculator",
-  description: "Savings Calculator",
+  title: "Personal Tracker",
+  description: "Track your savings and calories",
 };
 
 export default function RootLayout({
@@ -53,6 +54,7 @@ export default function RootLayout({
               },
             }}
           >
+            <Navbar />
             {children}
           </ConfigProvider>
         </AntdRegistry>

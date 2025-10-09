@@ -18,7 +18,6 @@ import QuickActionsSection from "@/components/calories/QuickActionsSection";
 import TodayActivitySection from "@/components/calories/TodayActivitySection";
 import CalorieHistorySection from "@/components/calories/CalorieHistorySection";
 import EditDayModal from "@/components/calories/EditDayModal";
-import GoogleSignIn from "@/components/auth/GoogleSignIn";
 import { Typography, Space } from "antd";
 
 const { Title } = Typography;
@@ -31,7 +30,6 @@ export default function CaloriesPage() {
     calorieGoalLoading,
     calorieGoalError,
     calorieGoalUser,
-    signInCalorieGoal,
   ] = useCalorieGoalFirebase();
   const [
     dailyData,
@@ -39,12 +37,10 @@ export default function CaloriesPage() {
     dailyDataLoading,
     dailyDataError,
     dailyDataUser,
-    signInDailyData,
   ] = useDailyCalorieDataFirebase();
 
   // Use the user from either hook (they should be the same)
   const user = calorieGoalUser || dailyDataUser;
-  const signIn = signInCalorieGoal || signInDailyData;
 
   // Edit Day Modal state
   const [editDayModalOpen, setEditDayModalOpen] = useState(false);
@@ -335,12 +331,14 @@ export default function CaloriesPage() {
   };
 
   // Show loading state
-  if (calorieGoalLoading || dailyDataLoading) {
+  if (calorieGoalLoading || dailyDataLoading || !user) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your data...</p>
+          <p className="text-gray-600">
+            {!user ? "Checking authentication..." : "Loading your data..."}
+          </p>
         </div>
       </div>
     );
@@ -370,38 +368,29 @@ export default function CaloriesPage() {
     );
   }
 
-  // Show sign-in interface if user is not authenticated
-  if (!user) {
-    return (
-      <div className="w-full max-w-md mx-auto mt-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-          Calorie Tracker
-        </h1>
-        <GoogleSignIn
-          user={user}
-          isLoading={calorieGoalLoading || dailyDataLoading}
-          error={calorieGoalError || dailyDataError}
-          onSignIn={signIn}
-        />
-      </div>
-    );
-  }
-
   return (
-    <div style={{ width: "100%" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "32px" }}>
-        <Title level={1} style={{ margin: 0 }}>Calorie Tracker</Title>
-        <GoogleSignIn
-          user={user}
-          isLoading={false}
-          error={null}
-          onSignIn={signIn}
-        />
+    <div style={{ width: "100%", maxWidth: "100%", overflow: "hidden" }}>
+      <div style={{ marginBottom: "32px" }}>
+        <Title level={1} style={{ margin: 0, textAlign: "center" }}>
+          Calorie Tracker
+        </Title>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(500px, 1fr))", gap: "24px" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fit, minmax(min(100%, 500px), 1fr))",
+          gap: "24px",
+          maxWidth: "100%",
+        }}
+      >
         {/* Left Column - Goal & Progress */}
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Space
+          direction="vertical"
+          size="large"
+          style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
+        >
           <CalorieGoalSection
             calorieGoal={calorieGoal}
             onSaveGoal={handleSaveGoal}
@@ -422,7 +411,11 @@ export default function CaloriesPage() {
         </Space>
 
         {/* Right Column - Quick Actions & Today's Activity */}
-        <Space direction="vertical" size="large" style={{ width: "100%" }}>
+        <Space
+          direction="vertical"
+          size="large"
+          style={{ width: "100%", maxWidth: "100%", minWidth: 0 }}
+        >
           <QuickActionsSection
             handleModalAddFood={handleModalAddFood}
             handleModalAddExercise={handleModalAddExercise}
