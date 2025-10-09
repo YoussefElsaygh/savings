@@ -21,10 +21,3 @@ export {
   getLastUpdated,
   type DataRegistry,
 } from "./registryUtils";
-
-// Debug utilities (for development)
-export {
-  getCacheDebugInfo,
-  compareCacheWithRegistry,
-  logCacheStatus,
-} from "./cacheDebug";
