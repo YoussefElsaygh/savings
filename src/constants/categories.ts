@@ -26,6 +26,12 @@ export const DEFAULT_SPENDING_CATEGORIES: SpendingCategory[] = [
     icon: "🚗",
   },
   {
+    id: "fuel",
+    name: "Fuel",
+    color: "#FF4D4F",
+    icon: "🛢️",
+  },
+  {
     id: "clothes",
     name: "Clothes",
     color: "#FFE66D",
