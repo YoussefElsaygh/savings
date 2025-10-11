@@ -98,6 +98,5 @@ export interface MonthlySpending {
 }
 
 export interface SpendingData {
-  categories: SpendingCategory[];
   monthlyData: MonthlySpending[];
 }

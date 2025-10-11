@@ -15,6 +15,7 @@ import {
 import { PlusOutlined, DollarOutlined } from "@ant-design/icons";
 import { useSpendingDataFirebase } from "@/hooks/useFirebaseData";
 import { Expense, MonthlySpending } from "@/types";
+import { DEFAULT_SPENDING_CATEGORIES } from "@/constants/categories";
 import AddExpenseModal from "./AddExpenseModal";
 import SpendingSummaryChart from "./SpendingSummaryChart";
 import CategoryBreakdown from "./CategoryBreakdown";
@@ -243,14 +244,14 @@ export default function SpendingPage() {
         <Col xs={24} lg={12}>
           <SpendingSummaryChart
             categoryTotals={monthData.categoryTotals}
-            categories={spendingData.categories}
+            categories={DEFAULT_SPENDING_CATEGORIES}
             month={dayjs(selectedMonth).format("MMMM YYYY")}
           />
         </Col>
         <Col xs={24} lg={12}>
           <CategoryBreakdown
             categoryTotals={monthData.categoryTotals}
-            categories={spendingData.categories}
+            categories={DEFAULT_SPENDING_CATEGORIES}
             totalSpent={monthData.totalSpent}
           />
         </Col>
@@ -259,7 +260,7 @@ export default function SpendingPage() {
       <div style={{ marginTop: "16px" }}>
         <MonthlySpendingSection
           expenses={monthData.expenses}
-          categories={spendingData.categories}
+          categories={DEFAULT_SPENDING_CATEGORIES}
           onDeleteExpense={handleDeleteExpense}
         />
       </div>
@@ -268,7 +269,7 @@ export default function SpendingPage() {
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
         onAddExpense={handleAddExpense}
-        categories={spendingData.categories}
+        categories={DEFAULT_SPENDING_CATEGORIES}
       />
     </div>
   );

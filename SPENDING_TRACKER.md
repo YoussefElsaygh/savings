@@ -102,10 +102,11 @@ src/
 
 ```typescript
 {
-  categories: SpendingCategory[];  // Predefined categories
   monthlyData: MonthlySpending[];  // Array of monthly data
 }
 ```
+
+**Note**: Categories are defined in `src/constants/categories.ts` and are NOT stored in Firestore. They are imported and used directly in the UI components.
 
 ### MonthlySpending
 
