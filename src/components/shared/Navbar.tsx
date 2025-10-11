@@ -19,6 +19,7 @@ import {
   LogoutOutlined,
   LoginOutlined,
   MenuOutlined,
+  WalletOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
@@ -71,6 +72,11 @@ export default function Navbar() {
           label: <Link href="/savings">Savings</Link>,
         },
         {
+          key: "/spending",
+          icon: <WalletOutlined />,
+          label: <Link href="/spending">Spending</Link>,
+        },
+        {
           key: "/calories",
           icon: <AppleOutlined />,
           label: <Link href="/calories">Calories</Link>,
@@ -90,6 +96,15 @@ export default function Navbar() {
           },
         },
         {
+          key: "/spending",
+          icon: <WalletOutlined />,
+          label: "Spending",
+          onClick: () => {
+            router.push("/spending");
+            setDrawerOpen(false);
+          },
+        },
+        {
           key: "/calories",
           icon: <AppleOutlined />,
           label: "Calories",
@@ -104,6 +119,7 @@ export default function Navbar() {
   const getSelectedKey = () => {
     if (pathname === "/calories") return "/calories";
     if (pathname === "/savings") return "/savings";
+    if (pathname === "/spending") return "/spending";
     return "/";
   };
 

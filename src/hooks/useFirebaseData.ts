@@ -4,7 +4,13 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { db, auth, signInWithGoogle } from "@/lib/firebase";
-import { CalorieGoal, DailyCalorieData, SavingsData, RateEntry } from "@/types";
+import {
+  CalorieGoal,
+  DailyCalorieData,
+  SavingsData,
+  RateEntry,
+  SpendingData,
+} from "@/types";
 import {
   saveCacheToLocalStorage,
   getCacheFromLocalStorage,
@@ -31,6 +37,7 @@ export function useFirebaseData<T>(
     | "calorieGoal"
     | "dailyCalorieData"
     | "rateHistory"
+    | "spendingData"
 ): [
   T,
   (value: T) => Promise<void>,
@@ -176,6 +183,7 @@ export function useFirebaseData<T>(
     };
 
     loadData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid, collectionName, documentId, registryKey]);
 
   // Function to save data to Firestore (optimized - no extra registry writes)
@@ -299,5 +307,35 @@ export function useRateHistoryFirebase() {
     "rateHistory",
     DEFAULT_RATE_ENTRIES,
     "rateHistory"
+  );
+}
+
+// Default spending data with predefined categories
+const DEFAULT_SPENDING_DATA: SpendingData = {
+  categories: [
+    { id: "food", name: "Food & Dining", color: "#FF6B6B", icon: "🍔" },
+    { id: "transport", name: "Transportation", color: "#4ECDC4", icon: "🚗" },
+    { id: "shopping", name: "Shopping", color: "#FFE66D", icon: "🛍️" },
+    {
+      id: "entertainment",
+      name: "Entertainment",
+      color: "#95E1D3",
+      icon: "🎬",
+    },
+    { id: "bills", name: "Bills & Utilities", color: "#A8E6CF", icon: "💡" },
+    { id: "health", name: "Health & Fitness", color: "#FFB6C1", icon: "💊" },
+    { id: "education", name: "Education", color: "#B4A7D6", icon: "📚" },
+    { id: "other", name: "Other", color: "#D4A5A5", icon: "📦" },
+  ],
+  monthlyData: [],
+};
+
+// Specialized hook for spending data
+export function useSpendingDataFirebase() {
+  return useFirebaseData<SpendingData>(
+    "spendingData",
+    "spending",
+    DEFAULT_SPENDING_DATA,
+    "spendingData"
   );
 }

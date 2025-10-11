@@ -72,3 +72,32 @@ export function isTabType(value: unknown): value is TabType {
     "gold21-chart",
   ].includes(value as TabType);
 }
+
+// Spending Tracker Types
+export interface SpendingCategory {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+}
+
+export interface Expense {
+  id: string;
+  amount: number;
+  category: string;
+  description: string;
+  date: string; // YYYY-MM-DD
+  timestamp: string; // ISO timestamp
+}
+
+export interface MonthlySpending {
+  month: string; // YYYY-MM format
+  expenses: Expense[];
+  totalSpent: number;
+  categoryTotals: Record<string, number>; // category -> total amount
+}
+
+export interface SpendingData {
+  categories: SpendingCategory[];
+  monthlyData: MonthlySpending[];
+}

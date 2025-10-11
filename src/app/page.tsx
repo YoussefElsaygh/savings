@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { Card, Typography, Row, Col } from "antd";
-import { DollarOutlined, AppleOutlined } from "@ant-design/icons";
+import {
+  DollarOutlined,
+  BankOutlined,
+  ShoppingOutlined,
+} from "@ant-design/icons";
 
 const { Title, Paragraph } = Typography;
 
@@ -19,7 +23,7 @@ export default function Home() {
           </div>
 
           <Row gutter={[24, 24]}>
-            <Col xs={24} md={12}>
+            <Col xs={24} md={8}>
               <Link href="/savings" style={{ textDecoration: "none" }}>
                 <Card
                   hoverable
@@ -42,14 +46,44 @@ export default function Home() {
                     Savings
                   </Title>
                   <Paragraph style={{ fontSize: "16px", color: "#666" }}>
-                    Track your savings across USD, EGP, and Gold (18K, 21K,
-                    24K). Calculate your total worth and view historical data.
+                    Track your savings across USD, EGP, and Gold. Calculate your
+                    total worth.
                   </Paragraph>
                 </Card>
               </Link>
             </Col>
 
-            <Col xs={24} md={12}>
+            <Col xs={24} md={8}>
+              <Link href="/spending" style={{ textDecoration: "none" }}>
+                <Card
+                  hoverable
+                  style={{
+                    height: "100%",
+                    textAlign: "center",
+                    border: "2px solid #f0f0f0",
+                    transition: "all 0.3s",
+                  }}
+                  bodyStyle={{ padding: "48px 24px" }}
+                >
+                  <BankOutlined
+                    style={{
+                      fontSize: "64px",
+                      color: "#FFD700",
+                      marginBottom: "24px",
+                    }}
+                  />
+                  <Title level={2} style={{ marginBottom: "16px" }}>
+                    Spending
+                  </Title>
+                  <Paragraph style={{ fontSize: "16px", color: "#666" }}>
+                    Track monthly expenses by category. Visualize spending
+                    patterns with charts.
+                  </Paragraph>
+                </Card>
+              </Link>
+            </Col>
+
+            <Col xs={24} md={8}>
               <Link href="/calories" style={{ textDecoration: "none" }}>
                 <Card
                   hoverable
@@ -61,7 +95,7 @@ export default function Home() {
                   }}
                   bodyStyle={{ padding: "48px 24px" }}
                 >
-                  <AppleOutlined
+                  <ShoppingOutlined
                     style={{
                       fontSize: "64px",
                       color: "#ff4d4f",
@@ -72,8 +106,8 @@ export default function Home() {
                     Calories
                   </Title>
                   <Paragraph style={{ fontSize: "16px", color: "#666" }}>
-                    Track your daily calorie intake and exercise. Set goals,
-                    monitor progress, and achieve your weight loss targets.
+                    Track daily calorie intake and exercise. Achieve your weight
+                    loss targets.
                   </Paragraph>
                 </Card>
               </Link>
