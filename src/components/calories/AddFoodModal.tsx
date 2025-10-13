@@ -8,7 +8,6 @@ import {
   type FoodConstant,
 } from "@/constants/foods";
 import {
-  Modal,
   Button,
   Input,
   Select,
@@ -20,6 +19,7 @@ import {
   List,
 } from "antd";
 import { PlusOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
+import ModalContainer from "@/components/shared/ModalContainer";
 
 const { TabPane } = Tabs;
 
@@ -204,31 +204,13 @@ export default function AddEntryModal({
   };
 
   return (
-    <Modal
-      open={isOpen}
-      onCancel={handleClose}
+    <ModalContainer
+      isOpen={isOpen}
+      onClose={handleClose}
       title="🍎 Add Food"
-      width="100%"
-      style={{
-        top: 0,
-        maxWidth: 1100,
-        margin: "0 auto",
-        paddingBottom: 0,
-        height: "100vh",
-      }}
-      styles={{
-        body: {
-          height: "calc(100vh - 55px - 53px)",
-          overflowY: "auto",
-          padding: "12px",
-        },
-        content: {
-          borderRadius: 0,
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
+      maxWidth={1100}
+      heightMode="full"
+      compactPadding={true}
       footer={[
         <Button key="cancel" onClick={handleClose} size="large">
           Cancel
@@ -532,6 +514,6 @@ export default function AddEntryModal({
           </TabPane>
         </Tabs>
       </div>
-    </Modal>
+    </ModalContainer>
   );
 }

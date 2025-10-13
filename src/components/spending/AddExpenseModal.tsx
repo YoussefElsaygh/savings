@@ -1,18 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Modal,
-  Form,
-  Input,
-  InputNumber,
-  Select,
-  DatePicker,
-  Button,
-} from "antd";
+import { Form, Input, InputNumber, Select, DatePicker, Button } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { SpendingCategory, Expense } from "@/types";
 import dayjs from "dayjs";
+import ModalContainer from "@/components/shared/ModalContainer";
 
 interface AddExpenseModalProps {
   isOpen: boolean;
@@ -97,31 +90,17 @@ export default function AddExpenseModal({
   };
 
   return (
-    <Modal
+    <ModalContainer
+      isOpen={isOpen}
+      onClose={handleCancel}
       title={
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {isEditMode ? <EditOutlined /> : <PlusOutlined />}
           {isEditMode ? "Edit Expense" : "Add Expense"}
         </div>
       }
-      open={isOpen}
-      onCancel={handleCancel}
-      width="100%"
-      style={{
-        top: 0,
-        maxWidth: 600,
-        margin: "0 auto",
-        paddingBottom: 0,
-      }}
-      styles={{
-        body: {
-          padding: "24px",
-        },
-        content: {
-          borderRadius: 0,
-        },
-      }}
-      className="expense-modal"
+      maxWidth={600}
+      heightMode="fit-content"
       footer={[
         <Button key="cancel" onClick={handleCancel}>
           Cancel
@@ -210,6 +189,6 @@ export default function AddExpenseModal({
           />
         </Form.Item>
       </Form>
-    </Modal>
+    </ModalContainer>
   );
 }

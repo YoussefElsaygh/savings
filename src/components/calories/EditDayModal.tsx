@@ -11,7 +11,6 @@ import { formatNumber } from "@/lib/utils";
 import AddFoodModal from "./AddFoodModal";
 import AddExerciseModal from "./AddExerciseModal";
 import {
-  Modal,
   Button,
   Progress,
   Tag,
@@ -23,6 +22,7 @@ import {
   Col,
 } from "antd";
 import { SaveOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import ModalContainer from "@/components/shared/ModalContainer";
 
 const { Text } = Typography;
 
@@ -221,9 +221,9 @@ export default function EditDayModal({
 
   return (
     <>
-      <Modal
-        open={isOpen}
-        onCancel={handleCancel}
+      <ModalContainer
+        isOpen={isOpen}
+        onClose={handleCancel}
         title={`📝 Edit Day - ${new Date(
           currentDayData.date
         ).toLocaleDateString("en-US", {
@@ -232,27 +232,9 @@ export default function EditDayModal({
           day: "numeric",
           year: "numeric",
         })}`}
-        width="100%"
-        style={{
-          top: 0,
-          maxWidth: 900,
-          margin: "0 auto",
-          paddingBottom: 0,
-          height: "100vh",
-        }}
-        styles={{
-          body: {
-            height: "calc(100vh - 55px - 53px)",
-            overflowY: "auto",
-            padding: "12px",
-          },
-          content: {
-            borderRadius: 0,
-            height: "100vh",
-            display: "flex",
-            flexDirection: "column",
-          },
-        }}
+        maxWidth={900}
+        heightMode="full"
+        compactPadding={true}
         footer={[
           <Button key="cancel" onClick={handleCancel} size="large">
             Cancel
@@ -506,7 +488,7 @@ export default function EditDayModal({
             </Col>
           </Row>
         </Space>
-      </Modal>
+      </ModalContainer>
 
       {/* Add Food Modal */}
       <AddFoodModal

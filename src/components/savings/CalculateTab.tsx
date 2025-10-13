@@ -9,16 +9,7 @@ import {
   getComparisonIcon as getComparisonIconString,
   calculateHistorySum,
 } from "@/lib/utils";
-import {
-  Button,
-  Card,
-  Input,
-  Tag,
-  Space,
-  Typography,
-  Divider,
-  Modal,
-} from "antd";
+import { Button, Card, Input, Tag, Space, Typography, Divider } from "antd";
 import {
   DollarOutlined,
   GoldOutlined,
@@ -28,6 +19,7 @@ import {
   StarOutlined,
   CalculatorOutlined,
 } from "@ant-design/icons";
+import ModalContainer from "@/components/shared/ModalContainer";
 
 const { Title, Text } = Typography;
 
@@ -358,7 +350,9 @@ export default function CalculateTab({
         )}
 
         {/* Detailed Calculation Modal */}
-        <Modal
+        <ModalContainer
+          isOpen={selectedEntry !== null}
+          onClose={() => setSelectedEntry(null)}
           title={
             selectedEntry ? (
               <Space direction="vertical" size="small">
@@ -373,8 +367,8 @@ export default function CalculateTab({
               "Calculation Details"
             )
           }
-          open={selectedEntry !== null}
-          onCancel={() => setSelectedEntry(null)}
+          maxWidth={600}
+          heightMode="fit-content"
           footer={[
             <Button key="close" onClick={() => setSelectedEntry(null)}>
               Close
@@ -392,7 +386,6 @@ export default function CalculateTab({
               Load These Rates
             </Button>,
           ]}
-          width={600}
         >
           {selectedEntry && (
             <Space direction="vertical" size="middle" style={{ width: "100%" }}>
@@ -575,7 +568,7 @@ export default function CalculateTab({
               </Card>
             </Space>
           )}
-        </Modal>
+        </ModalContainer>
       </Space>
     </>
   );

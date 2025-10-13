@@ -9,7 +9,6 @@ import {
   type ExerciseConstant,
 } from "@/constants/exercises";
 import {
-  Modal,
   Button,
   Input,
   InputNumber,
@@ -27,6 +26,7 @@ import {
   DeleteOutlined,
   CheckOutlined,
 } from "@ant-design/icons";
+import ModalContainer from "@/components/shared/ModalContainer";
 
 const { TabPane } = Tabs;
 
@@ -207,31 +207,13 @@ export default function AddExerciseModal({
   };
 
   return (
-    <Modal
-      open={isOpen}
-      onCancel={handleClose}
+    <ModalContainer
+      isOpen={isOpen}
+      onClose={handleClose}
       title="🏃 Add Exercise"
-      width="100%"
-      style={{
-        top: 0,
-        maxWidth: 1100,
-        margin: "0 auto",
-        paddingBottom: 0,
-        height: "100vh",
-      }}
-      styles={{
-        body: {
-          height: "calc(100vh - 55px - 53px)",
-          overflowY: "auto",
-          padding: "12px",
-        },
-        content: {
-          borderRadius: 0,
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
-        },
-      }}
+      maxWidth={1100}
+      heightMode="full"
+      compactPadding={true}
       footer={[
         <Button key="cancel" onClick={handleClose} size="large">
           Cancel
@@ -269,6 +251,7 @@ export default function AddExerciseModal({
           style={{
             background: "#fa8c16",
             borderColor: "#fa8c16",
+            color: "#fff",
           }}
           disabled={exercisesToAdd.length === 0 || isAdding}
         >
@@ -589,6 +572,6 @@ export default function AddExerciseModal({
           </TabPane>
         </Tabs>
       </div>
-    </Modal>
+    </ModalContainer>
   );
 }

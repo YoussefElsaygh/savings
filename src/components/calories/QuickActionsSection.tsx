@@ -69,10 +69,7 @@ export default function QuickActionsSection({
           <Button
             size="large"
             icon={<AppleOutlined />}
-            onClick={() => {
-              setIsFoodModalOpen(true);
-              document.body.style.overflow = "hidden";
-            }}
+            onClick={() => setIsFoodModalOpen(true)}
             style={{
               width: "100%",
               borderColor: "#52c41a",
@@ -86,10 +83,7 @@ export default function QuickActionsSection({
           <Button
             size="large"
             icon={<ThunderboltOutlined />}
-            onClick={() => {
-              setIsExerciseModalOpen(true);
-              document.body.style.overflow = "hidden";
-            }}
+            onClick={() => setIsExerciseModalOpen(true)}
             style={{
               width: "100%",
               borderColor: "#fa8c16",
@@ -108,19 +102,13 @@ export default function QuickActionsSection({
 
       <AddFoodModal
         isOpen={isFoodModalOpen}
-        onClose={() => {
-          setIsFoodModalOpen(false);
-          document.body.style.overflow = "auto";
-        }}
+        onClose={() => setIsFoodModalOpen(false)}
         onAddFood={handleModalAddFood}
         onAddFoods={handleModalAddFoods}
       />
       <AddExerciseModal
         isOpen={isExerciseModalOpen}
-        onClose={() => {
-          setIsExerciseModalOpen(false);
-          document.body.style.overflow = "auto";
-        }}
+        onClose={() => setIsExerciseModalOpen(false)}
         onAddExercise={handleModalAddExercise}
         onAddExercises={handleModalAddExercises}
       />
