@@ -18,7 +18,8 @@ import QuickActionsSection from "@/components/calories/QuickActionsSection";
 import TodayActivitySection from "@/components/calories/TodayActivitySection";
 import CalorieHistorySection from "@/components/calories/CalorieHistorySection";
 import EditDayModal from "@/components/calories/EditDayModal";
-import { Typography, Space, Spin } from "antd";
+import LoadingScreen from "@/components/shared/LoadingScreen";
+import { Typography, Space } from "antd";
 
 const { Title } = Typography;
 
@@ -465,19 +466,9 @@ export default function CaloriesPage() {
   // Show loading state
   if (calorieGoalLoading || dailyDataLoading || !user) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          minHeight: "100vh",
-        }}
-      >
-        <Spin
-          size="large"
-          tip={!user ? "Checking authentication..." : "Loading calorie data..."}
-        />
-      </div>
+      <LoadingScreen
+        tip={!user ? "Checking authentication..." : "Loading calorie data..."}
+      />
     );
   }
 

@@ -10,7 +10,6 @@ import {
   Select,
   Statistic,
   Card,
-  Spin,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useSpendingDataFirebase } from "@/hooks/useFirebaseData";
@@ -20,6 +19,7 @@ import AddExpenseModal from "./AddExpenseModal";
 import SpendingSummaryChart from "./SpendingSummaryChart";
 import CategoryBreakdown from "./CategoryBreakdown";
 import MonthlySpendingSection from "./MonthlySpendingSection";
+import LoadingScreen from "@/components/shared/LoadingScreen";
 import dayjs from "dayjs";
 
 const { Title, Text } = Typography;
@@ -287,21 +287,9 @@ export default function SpendingPage() {
 
   if (loading || !user) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        <Spin
-          size="large"
-          tip={
-            !user ? "Checking authentication..." : "Loading spending data..."
-          }
-        />
-      </div>
+      <LoadingScreen
+        tip={!user ? "Checking authentication..." : "Loading spending data..."}
+      />
     );
   }
 

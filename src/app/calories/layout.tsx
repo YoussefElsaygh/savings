@@ -4,6 +4,9 @@ export const metadata: Metadata = {
   title: "Calories Tracker",
   description:
     "Track your daily calories, meals, exercises, and weight loss journey",
+  icons: {
+    icon: "/calories/icon.svg?v=2",
+  },
 };
 
 export default function CaloriesLayout({

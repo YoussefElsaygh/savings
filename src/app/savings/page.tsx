@@ -11,8 +11,9 @@ import CalculateTab from "@/components/savings/CalculateTab";
 import QuantityHistoryTab from "@/components/savings/QuantityHistoryTab";
 import HistoryTab from "@/components/savings/HistoryTab";
 import Gold21ChartTab from "@/components/savings/Gold21ChartTab";
+import LoadingScreen from "@/components/shared/LoadingScreen";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Tabs, Card, Spin, Typography, Button } from "antd";
+import { Tabs, Card, Typography, Button } from "antd";
 import type { TabsProps } from "antd";
 import {
   EditOutlined,
@@ -167,24 +168,11 @@ function SavingsContent() {
 
   if (savingsLoading || historyLoading || !user) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#f5f5f5",
-        }}
-      >
-        <Spin
-          size="large"
-          tip={
-            !user
-              ? "Checking authentication..."
-              : "Loading your savings data..."
-          }
-        />
-      </div>
+      <LoadingScreen
+        tip={
+          !user ? "Checking authentication..." : "Loading your savings data..."
+        }
+      />
     );
   }
 

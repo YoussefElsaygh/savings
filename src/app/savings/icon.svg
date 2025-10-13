@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <rect width="100" height="100" rx="20" fill="#3b82f6"/>
+  <g transform="translate(50, 50)">
+    <!-- Stack of gold bars / coins -->
+    <!-- Bottom bar -->
+    <rect x="-20" y="8" width="40" height="12" rx="2" fill="white"/>
+    <rect x="-18" y="10" width="36" height="8" rx="1" fill="#fbbf24"/>
+    <!-- Middle bar -->
+    <rect x="-20" y="-4" width="40" height="12" rx="2" fill="white"/>
+    <rect x="-18" y="-2" width="36" height="8" rx="1" fill="#fbbf24"/>
+    <!-- Top bar -->
+    <rect x="-20" y="-16" width="40" height="12" rx="2" fill="white"/>
+    <rect x="-18" y="-14" width="36" height="8" rx="1" fill="#fbbf24"/>
+    <!-- Shine/reflection effect -->
+    <rect x="-8" y="-14" width="4" height="8" rx="1" fill="#fde68a" opacity="0.6"/>
+    <rect x="-8" y="-2" width="4" height="8" rx="1" fill="#fde68a" opacity="0.6"/>
+    <rect x="-8" y="10" width="4" height="8" rx="1" fill="#fde68a" opacity="0.6"/>
+  </g>
+</svg>
+
