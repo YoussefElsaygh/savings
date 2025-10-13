@@ -75,7 +75,7 @@ export default function AddExerciseModal({
   const [calculatedCaloriesBurned, setCalculatedCaloriesBurned] = useState(0);
   const [exercisesToAdd, setExercisesToAdd] = useState<ExerciseToAdd[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const durationInputRef = useRef<any>(null);
+  const durationInputRef = useRef<HTMLInputElement>(null);
 
   const exercisesByCategory = getExercisesByCategory();
 

@@ -65,7 +65,7 @@ export default function AddEntryModal({
   const [calculatedCalories, setCalculatedCalories] = useState(0);
   const [foodsToAdd, setFoodsToAdd] = useState<FoodToAdd[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const quantityInputRef = useRef<any>(null);
+  const quantityInputRef = useRef<HTMLInputElement>(null);
 
   const foodsByCategory = getFoodsByCategory();
 
