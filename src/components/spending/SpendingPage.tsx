@@ -314,7 +314,7 @@ export default function SpendingPage() {
   }
 
   return (
-    <div style={{ maxWidth: "100%", overflow: "visible" }}>
+    <div style={{ maxWidth: "100%", overflow: "hidden" }}>
       <Space
         style={{
           width: "100%",
@@ -330,7 +330,15 @@ export default function SpendingPage() {
           </Title>
           <Text type="secondary">Track and analyze your expenses</Text>
         </div>
-        <Space>
+        <Space
+          style={{
+            width: "100%",
+            justifyContent: "space-between",
+            marginBottom: "24px",
+            flexWrap: "wrap",
+            gap: "16px",
+          }}
+        >
           <Select
             value={selectedMonth}
             onChange={setSelectedMonth}
