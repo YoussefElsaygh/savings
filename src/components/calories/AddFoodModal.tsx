@@ -17,10 +17,18 @@ import {
   Card,
   Row,
   Col,
+  List,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined, CheckOutlined } from "@ant-design/icons";
 
 const { TabPane } = Tabs;
+
+interface FoodToAdd {
+  id: string;
+  name: string;
+  calories: number;
+  description: string;
+}
 
 interface AddEntryModalProps {
   isOpen: boolean;
@@ -47,6 +55,7 @@ export default function AddEntryModal({
   const [customFoodName, setCustomFoodName] = useState("");
   const [customCalories, setCustomCalories] = useState("");
   const [calculatedCalories, setCalculatedCalories] = useState(0);
+  const [foodsToAdd, setFoodsToAdd] = useState<FoodToAdd[]>([]);
 
   const foodsByCategory = getFoodsByCategory();
 
@@ -79,7 +88,7 @@ export default function AddEntryModal({
     }
   }, [selectedFood, quantity, unit, foodEntryMode]);
 
-  const handleAddFood = () => {
+  const handleAddToList = () => {
     let calories: number;
     let name: string;
     let description: string;
@@ -115,16 +124,36 @@ export default function AddEntryModal({
     }
 
     if (calories > 0) {
-      onAddFood({
+      const newFood: FoodToAdd = {
+        id: `${Date.now()}-${Math.random()}`,
         name: `${name} (${description})`,
         calories: Math.round(calories),
         description,
-      });
+      };
+      setFoodsToAdd([...foodsToAdd, newFood]);
 
-      // Reset form and close modal
+      // Reset form but keep modal open
       resetFoodForm();
-      onClose();
     }
+  };
+
+  const handleAddAllFoods = () => {
+    foodsToAdd.forEach((food) => {
+      onAddFood({
+        name: food.name,
+        calories: food.calories,
+        description: food.description,
+      });
+    });
+
+    // Reset everything and close modal
+    setFoodsToAdd([]);
+    resetFoodForm();
+    onClose();
+  };
+
+  const handleRemoveFromList = (id: string) => {
+    setFoodsToAdd(foodsToAdd.filter((food) => food.id !== id));
   };
 
   const resetFoodForm = () => {
@@ -136,6 +165,7 @@ export default function AddEntryModal({
   };
 
   const handleClose = () => {
+    setFoodsToAdd([]);
     resetFoodForm();
     onClose();
   };
@@ -145,20 +175,39 @@ export default function AddEntryModal({
       open={isOpen}
       onCancel={handleClose}
       title="🍎 Add Food"
-      width={1100}
-      style={{ top: 20 }}
+      width="100%"
+      style={{
+        top: 0,
+        maxWidth: 1100,
+        margin: "0 auto",
+        paddingBottom: 0,
+        height: "100vh",
+      }}
+      styles={{
+        body: {
+          height: "calc(100vh - 55px - 53px)",
+          overflowY: "auto",
+          padding: "12px",
+        },
+        content: {
+          borderRadius: 0,
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+        },
+      }}
       footer={[
         <Button key="cancel" onClick={handleClose} size="large">
           Cancel
         </Button>,
         <Button
-          key="submit"
-          onClick={handleAddFood}
+          key="add-to-list"
+          onClick={handleAddToList}
           icon={<PlusOutlined />}
           size="large"
           style={{
-            borderColor: "#52c41a",
-            color: "#52c41a",
+            borderColor: "#1890ff",
+            color: "#1890ff",
             borderWidth: "2px",
           }}
           disabled={
@@ -170,11 +219,61 @@ export default function AddEntryModal({
                 parseFloat(customCalories) <= 0))
           }
         >
-          Add Food
+          Add to List
+        </Button>,
+        <Button
+          key="submit"
+          onClick={handleAddAllFoods}
+          icon={<CheckOutlined />}
+          size="large"
+          type="primary"
+          style={{
+            background: "#52c41a",
+            borderColor: "#52c41a",
+            color: "#fff",
+          }}
+          disabled={foodsToAdd.length === 0}
+        >
+          Done ({foodsToAdd.length})
         </Button>,
       ]}
     >
       <div>
+        {foodsToAdd.length > 0 && (
+          <Card
+            title={`Foods to Add (${foodsToAdd.length})`}
+            size="small"
+            style={{
+              marginBottom: 16,
+              background: "#f6ffed",
+              borderColor: "#52c41a",
+            }}
+          >
+            <List
+              dataSource={foodsToAdd}
+              renderItem={(food) => (
+                <List.Item
+                  actions={[
+                    <Button
+                      key="delete"
+                      type="text"
+                      danger
+                      icon={<DeleteOutlined />}
+                      onClick={() => handleRemoveFromList(food.id)}
+                    >
+                      Remove
+                    </Button>,
+                  ]}
+                >
+                  <List.Item.Meta
+                    title={food.name}
+                    description={`${food.calories} calories`}
+                  />
+                </List.Item>
+              )}
+            />
+          </Card>
+        )}
         <Tabs
           activeKey={foodEntryMode}
           onChange={(key) => {
@@ -270,7 +369,7 @@ export default function AddEntryModal({
                     </Row>
                   </Card>
                 )}
-                <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+                <div>
                   {Object.entries(foodsByCategory).map(([category, foods]) => {
                     const categoryColors: Record<
                       string,
