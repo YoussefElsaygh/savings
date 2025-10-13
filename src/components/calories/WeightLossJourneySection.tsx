@@ -2,7 +2,16 @@
 
 import { CalorieGoal } from "@/types";
 import { formatNumber } from "@/lib/utils";
-import { Card, Progress, Space, Typography, Alert, Row, Col, Statistic } from "antd";
+import {
+  Card,
+  Progress,
+  Space,
+  Typography,
+  Alert,
+  Row,
+  Col,
+  Statistic,
+} from "antd";
 import { TrophyOutlined, RiseOutlined, FireOutlined } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -26,9 +35,16 @@ export default function WeightLossJourneySection({
       : 0;
 
   const isGoalReached = totalDeficitAchieved >= calorieGoal.totalCaloriesToLose;
-  const daysToGoal = Math.ceil(
-    remainingCaloriesToLose / ((calorieGoal.targetWeightLoss * 7700) / 7)
-  );
+
+  // Calculate the daily deficit from maintenance calories
+  const dailyDeficit = calorieGoal.maintenanceCalories
+    ? calorieGoal.maintenanceCalories - calorieGoal.dailyCalorieLimit
+    : 500; // Default to 500 if maintenance not set
+
+  const daysToGoal =
+    dailyDeficit > 0 ? Math.ceil(remainingCaloriesToLose / dailyDeficit) : 0;
+
+  const weeksToGoal = daysToGoal / 7;
 
   return (
     <Card
@@ -86,7 +102,7 @@ export default function WeightLossJourneySection({
             </Text>
           </div>
           <Progress
-            percent={Math.min(progressPercent, 100)}
+            percent={Math.min(Number(progressPercent.toFixed(1)), 100)}
             strokeColor={{
               "0%": "#8b5cf6",
               "100%": "#52c41a",
@@ -126,8 +142,10 @@ export default function WeightLossJourneySection({
             }
             description={
               <Text>
-                At {formatNumber((calorieGoal.targetWeightLoss * 7700) / 7)}{" "}
-                calories/day, you&apos;ll reach it in about {daysToGoal} days.
+                At {formatNumber(dailyDeficit)} cal/day deficit, you&apos;ll
+                reach it in about {daysToGoal} day{daysToGoal !== 1 ? "s" : ""}{" "}
+                ({weeksToGoal.toFixed(1)} week
+                {weeksToGoal.toFixed(1) !== "1.0" ? "s" : ""}).
               </Text>
             }
             type="info"

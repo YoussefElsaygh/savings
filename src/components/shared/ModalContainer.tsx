@@ -139,15 +139,16 @@ export default function ModalContainer({
 
         /* Desktop: centered vertically */
         @media (min-width: 768px) {
+          .modal-fit-content {
+            top: 10% !important;
+          }
           .modal-fit-content .ant-modal {
-            top: 50% !important;
             transform: translateY(-50%) !important;
             padding-bottom: 0 !important;
           }
 
           .modal-fit-content .ant-modal-content {
             border-radius: 8px !important;
-            top: 25vh;
           }
         }
       `}</style>

@@ -23,10 +23,20 @@ export interface RateEntry {
 
 export interface CalorieGoal {
   maintenanceCalories: number; // calories needed to maintain current weight
-  dailyCalorieLimit: number; // target calories to eat for weight loss
-  targetWeightLoss: number; // kg per week
+  dailyCalorieLimit: number; // target calories to eat for weight loss/gain
+  targetWeightLoss: number; // kg per week (calculated: targetWeightChange / targetWeeks)
   totalCaloriesToLose: number; // total calories to lose (e.g., 77,000)
   createdAt: string;
+  // Personal data for calculator
+  age?: number;
+  weight?: number; // kg
+  height?: number; // cm
+  gender?: "male" | "female";
+  bodyFat?: number; // percentage
+  activityLevel?: "sedentary" | "light" | "moderate" | "active" | "very_active";
+  goal?: "lose" | "maintain" | "gain";
+  targetWeightChange?: number; // total kg to lose/gain
+  targetWeeks?: number; // weeks to reach goal
 }
 
 export interface FoodEntry {
