@@ -42,3 +42,36 @@ body {
   font-size: 0.8em;
   margin-left: 5px;
 }
+
+/* Responsive modal styles */
+/* Small screens - full height */
+@media (max-width: 767px) {
+  .expense-modal .ant-modal {
+    height: 100vh !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    top: 0 !important;
+  }
+
+  .expense-modal .ant-modal-content {
+    height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .expense-modal .ant-modal-body {
+    flex: 1 !important;
+    overflow-y: auto !important;
+  }
+}
+
+/* Large screens - content fitted */
+@media (min-width: 768px) {
+  .expense-modal .ant-modal {
+    top: 20px !important;
+  }
+
+  .expense-modal .ant-modal-content {
+    border-radius: 8px !important;
+  }
+}

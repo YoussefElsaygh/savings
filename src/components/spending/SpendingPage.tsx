@@ -314,13 +314,14 @@ export default function SpendingPage() {
   }
 
   return (
-    <div style={{ maxWidth: "100%", overflow: "hidden" }}>
+    <div style={{ maxWidth: "100%", overflow: "visible" }}>
       <Space
         style={{
           width: "100%",
           justifyContent: "space-between",
           marginBottom: "24px",
           flexWrap: "wrap",
+          gap: "16px",
         }}
       >
         <div>

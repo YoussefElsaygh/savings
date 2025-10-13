@@ -112,21 +112,16 @@ export default function AddExpenseModal({
         maxWidth: 600,
         margin: "0 auto",
         paddingBottom: 0,
-        height: "100vh",
       }}
       styles={{
         body: {
-          height: "calc(100vh - 55px - 53px)",
-          overflowY: "auto",
-          padding: "12px",
+          padding: "24px",
         },
         content: {
           borderRadius: 0,
-          height: "100vh",
-          display: "flex",
-          flexDirection: "column",
         },
       }}
+      className="expense-modal"
       footer={[
         <Button key="cancel" onClick={handleCancel}>
           Cancel
