@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   description:
     "Track your daily calories, meals, exercises, and weight loss journey",
   icons: {
-    icon: "/calories/icon.svg?v=2",
+    icon: "/calories/icon.svg?v=4",
   },
 };
 

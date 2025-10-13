@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Savings & Gold Tracker",
   description: "Track your savings, gold, and assets",
   icons: {
-    icon: "/savings/icon.svg?v=2",
+    icon: "/savings/icon.svg?v=4",
   },
 };
 

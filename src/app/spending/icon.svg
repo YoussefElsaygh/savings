@@ -1,12 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#ef4444"/>
   <g transform="translate(50, 50)">
     <!-- Wallet/Card icon -->
-    <rect x="-25" y="-15" width="50" height="30" rx="4" fill="white"/>
-    <rect x="-25" y="-15" width="50" height="8" rx="4" fill="#dc2626"/>
+    <rect x="-35" y="-22" width="70" height="44" rx="6" fill="#ef4444"/>
+    <rect x="-35" y="-22" width="70" height="12" rx="6" fill="#dc2626"/>
     <!-- Card stripe -->
-    <rect x="-20" y="2" width="18" height="3" rx="1.5" fill="#fca5a5"/>
-    <rect x="-20" y="8" width="12" height="3" rx="1.5" fill="#fca5a5"/>
+    <rect x="-28" y="2" width="26" height="4" rx="2" fill="#fca5a5"/>
+    <rect x="-28" y="10" width="18" height="4" rx="2" fill="#fca5a5"/>
   </g>
 </svg>
 

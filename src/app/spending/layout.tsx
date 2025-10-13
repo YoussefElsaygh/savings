@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: "Monthly Spending Tracker",
   description: "Track and analyze your monthly expenses by category",
   icons: {
-    icon: "/spending/icon.svg?v=2",
+    icon: "/spending/icon.svg?v=4",
   },
 };
 

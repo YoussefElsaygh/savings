@@ -1,13 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <rect width="100" height="100" rx="20" fill="#f59e0b"/>
   <g transform="translate(50, 50)">
     <!-- Apple shape for nutrition/calories -->
-    <ellipse cx="0" cy="5" rx="22" ry="25" fill="white"/>
-    <ellipse cx="0" cy="5" rx="18" ry="21" fill="#f59e0b"/>
+    <ellipse cx="0" cy="5" rx="32" ry="36" fill="#f59e0b"/>
     <!-- Leaf -->
-    <path d="M 2,-18 Q 8,-22 12,-18 Q 10,-14 6,-12 L 2,-18 Z" fill="#10b981"/>
+    <path d="M 3,-28 Q 12,-34 18,-28 Q 15,-20 8,-16 L 3,-28 Z" fill="#10b981"/>
     <!-- Stem -->
-    <rect x="-1" y="-20" width="2" height="8" rx="1" fill="#10b981"/>
+    <rect x="-1.5" y="-32" width="3" height="12" rx="1.5" fill="#10b981"/>
   </g>
 </svg>
 
