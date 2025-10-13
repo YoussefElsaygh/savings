@@ -53,7 +53,7 @@ export const DEFAULT_SPENDING_CATEGORIES: SpendingCategory[] = [
     id: "gym",
     name: "Gym",
     color: "#FFB6C1",
-    icon: "💊",
+    icon: "🏋️",
   },
   {
     id: "education",
@@ -78,6 +78,12 @@ export const DEFAULT_SPENDING_CATEGORIES: SpendingCategory[] = [
     name: "Wedding",
     color: "#B4A7D6",
     icon: "💒",
+  },
+  {
+    id: "medication",
+    name: "Medication",
+    color: "#FFB6C1",
+    icon: "💊",
   },
   {
     id: "other",
