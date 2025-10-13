@@ -7,10 +7,21 @@ import {
   BankOutlined,
   ShoppingOutlined,
 } from "@ant-design/icons";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 const { Title, Paragraph } = Typography;
 
 export default function Home() {
+  const router = useRouter();
+
+  // Prefetch all pages on mount for instant navigation
+  useEffect(() => {
+    router.prefetch("/savings");
+    router.prefetch("/spending");
+    router.prefetch("/calories");
+  }, [router]);
+
   return (
     <div style={{ minHeight: "100vh", background: "#f5f5f5" }}>
       <div style={{ padding: "48px 16px" }}>
@@ -24,7 +35,11 @@ export default function Home() {
 
           <Row gutter={[24, 24]}>
             <Col xs={24} md={8}>
-              <Link href="/savings" style={{ textDecoration: "none" }}>
+              <Link
+                href="/savings"
+                prefetch={true}
+                style={{ textDecoration: "none" }}
+              >
                 <Card
                   hoverable
                   style={{
@@ -54,7 +69,11 @@ export default function Home() {
             </Col>
 
             <Col xs={24} md={8}>
-              <Link href="/spending" style={{ textDecoration: "none" }}>
+              <Link
+                href="/spending"
+                prefetch={true}
+                style={{ textDecoration: "none" }}
+              >
                 <Card
                   hoverable
                   style={{
@@ -84,7 +103,11 @@ export default function Home() {
             </Col>
 
             <Col xs={24} md={8}>
-              <Link href="/calories" style={{ textDecoration: "none" }}>
+              <Link
+                href="/calories"
+                prefetch={true}
+                style={{ textDecoration: "none" }}
+              >
                 <Card
                   hoverable
                   style={{

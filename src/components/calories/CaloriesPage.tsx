@@ -18,7 +18,7 @@ import QuickActionsSection from "@/components/calories/QuickActionsSection";
 import TodayActivitySection from "@/components/calories/TodayActivitySection";
 import CalorieHistorySection from "@/components/calories/CalorieHistorySection";
 import EditDayModal from "@/components/calories/EditDayModal";
-import { Typography, Space } from "antd";
+import { Typography, Space, Spin } from "antd";
 
 const { Title } = Typography;
 
@@ -465,13 +465,18 @@ export default function CaloriesPage() {
   // Show loading state
   if (calorieGoalLoading || dailyDataLoading || !user) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">
-            {!user ? "Checking authentication..." : "Loading your data..."}
-          </p>
-        </div>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <Spin
+          size="large"
+          tip={!user ? "Checking authentication..." : "Loading calorie data..."}
+        />
       </div>
     );
   }
@@ -483,16 +488,38 @@ export default function CaloriesPage() {
 
   if ((calorieGoalError || dailyDataError) && !isAuthError) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center p-6 bg-red-50 rounded-lg border border-red-200">
-          <div className="text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-red-800 mb-2">
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <div
+          style={{
+            textAlign: "center",
+            padding: "24px",
+            backgroundColor: "#fff1f0",
+            borderRadius: "8px",
+            border: "1px solid #ffccc7",
+          }}
+        >
+          <div style={{ fontSize: "48px", marginBottom: "16px" }}>⚠️</div>
+          <h2
+            style={{
+              fontSize: "20px",
+              fontWeight: "bold",
+              color: "#cf1322",
+              marginBottom: "8px",
+            }}
+          >
             Connection Error
           </h2>
-          <p className="text-red-600 mb-4">
+          <p style={{ color: "#cf1322", marginBottom: "16px" }}>
             {calorieGoalError || dailyDataError}
           </p>
-          <p className="text-sm text-gray-600">
+          <p style={{ fontSize: "14px", color: "#8c8c8c" }}>
             Please check your internet connection and Firebase configuration.
           </p>
         </div>
