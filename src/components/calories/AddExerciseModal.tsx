@@ -183,7 +183,7 @@ export default function AddExerciseModal({
         body: {
           height: "calc(100vh - 55px - 53px)",
           overflowY: "auto",
-          padding: "24px",
+          padding: "12px",
         },
         content: {
           borderRadius: 0,
