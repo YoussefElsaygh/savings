@@ -49,7 +49,7 @@ export default function CategoryBreakdown({
                   <Text strong>{item.name}</Text>
                 </Space>
                 <Space>
-                  <Tag color={item.color}>${item.amount.toFixed(2)}</Tag>
+                  <Tag color={item.color}>EGP {item.amount.toFixed(2)}</Tag>
                   <Text type="secondary">{item.percentage.toFixed(1)}%</Text>
                 </Space>
               </Space>

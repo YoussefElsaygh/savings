@@ -12,7 +12,7 @@ import {
   Card,
   Spin,
 } from "antd";
-import { PlusOutlined, DollarOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { useSpendingDataFirebase } from "@/hooks/useFirebaseData";
 import { Expense, MonthlySpending } from "@/types";
 import { DEFAULT_SPENDING_CATEGORIES } from "@/constants/categories";
@@ -28,6 +28,7 @@ export default function SpendingPage() {
   const [spendingData, saveSpendingData, loading, error, user] =
     useSpendingDataFirebase();
   const [modalOpen, setModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [selectedMonth, setSelectedMonth] = useState(() =>
     dayjs().format("YYYY-MM")
   );
@@ -101,6 +102,136 @@ export default function SpendingPage() {
     });
   };
 
+  const handleEditExpense = async (
+    expenseId: string,
+    expenseData: {
+      amount: number;
+      category: string;
+      description: string;
+      date: string;
+    }
+  ) => {
+    // Find the old expense to get its original month and amount
+    let oldMonthIndex = -1;
+    let oldExpense: Expense | undefined;
+
+    for (let i = 0; i < spendingData.monthlyData.length; i++) {
+      oldExpense = spendingData.monthlyData[i].expenses.find(
+        (e) => e.id === expenseId
+      );
+      if (oldExpense) {
+        oldMonthIndex = i;
+        break;
+      }
+    }
+
+    if (oldMonthIndex < 0 || !oldExpense) return;
+
+    const newMonth = dayjs(expenseData.date).format("YYYY-MM");
+    const oldMonth = spendingData.monthlyData[oldMonthIndex].month;
+
+    let updatedMonthlyData = [...spendingData.monthlyData];
+
+    // If month changed, remove from old month
+    if (newMonth !== oldMonth) {
+      // Remove from old month
+      const updatedOldMonth = { ...updatedMonthlyData[oldMonthIndex] };
+      updatedOldMonth.expenses = updatedOldMonth.expenses.filter(
+        (e) => e.id !== expenseId
+      );
+      updatedOldMonth.totalSpent -= oldExpense.amount;
+      updatedOldMonth.categoryTotals = {
+        ...updatedOldMonth.categoryTotals,
+        [oldExpense.category]:
+          (updatedOldMonth.categoryTotals[oldExpense.category] || 0) -
+          oldExpense.amount,
+      };
+      updatedMonthlyData[oldMonthIndex] = updatedOldMonth;
+
+      // Add to new month
+      const updatedExpense: Expense = {
+        ...oldExpense,
+        amount: expenseData.amount,
+        category: expenseData.category,
+        description: expenseData.description,
+        date: expenseData.date,
+      };
+
+      const newMonthIndex = updatedMonthlyData.findIndex(
+        (m) => m.month === newMonth
+      );
+
+      if (newMonthIndex >= 0) {
+        const updatedNewMonth = { ...updatedMonthlyData[newMonthIndex] };
+        updatedNewMonth.expenses = [
+          ...updatedNewMonth.expenses,
+          updatedExpense,
+        ];
+        updatedNewMonth.totalSpent += updatedExpense.amount;
+        updatedNewMonth.categoryTotals = {
+          ...updatedNewMonth.categoryTotals,
+          [updatedExpense.category]:
+            (updatedNewMonth.categoryTotals[updatedExpense.category] || 0) +
+            updatedExpense.amount,
+        };
+        updatedMonthlyData[newMonthIndex] = updatedNewMonth;
+      } else {
+        // Create new month
+        const newMonthData: MonthlySpending = {
+          month: newMonth,
+          expenses: [updatedExpense],
+          totalSpent: updatedExpense.amount,
+          categoryTotals: {
+            [updatedExpense.category]: updatedExpense.amount,
+          },
+        };
+        updatedMonthlyData = [newMonthData, ...updatedMonthlyData];
+      }
+    } else {
+      // Same month, just update the expense
+      const updatedMonth = { ...updatedMonthlyData[oldMonthIndex] };
+      const expenseIndex = updatedMonth.expenses.findIndex(
+        (e) => e.id === expenseId
+      );
+
+      if (expenseIndex >= 0) {
+        const updatedExpense: Expense = {
+          ...oldExpense,
+          amount: expenseData.amount,
+          category: expenseData.category,
+          description: expenseData.description,
+          date: expenseData.date,
+        };
+
+        // Update totals
+        updatedMonth.totalSpent =
+          updatedMonth.totalSpent - oldExpense.amount + updatedExpense.amount;
+
+        // Update category totals
+        updatedMonth.categoryTotals = {
+          ...updatedMonth.categoryTotals,
+          [oldExpense.category]:
+            (updatedMonth.categoryTotals[oldExpense.category] || 0) -
+            oldExpense.amount,
+          [updatedExpense.category]:
+            (updatedMonth.categoryTotals[updatedExpense.category] || 0) +
+            updatedExpense.amount,
+        };
+
+        // Update expense in array
+        updatedMonth.expenses = [...updatedMonth.expenses];
+        updatedMonth.expenses[expenseIndex] = updatedExpense;
+
+        updatedMonthlyData[oldMonthIndex] = updatedMonth;
+      }
+    }
+
+    await saveSpendingData({
+      ...spendingData,
+      monthlyData: updatedMonthlyData,
+    });
+  };
+
   const handleDeleteExpense = async (expenseId: string) => {
     const monthIndex = spendingData.monthlyData.findIndex(
       (m) => m.month === selectedMonth
@@ -133,6 +264,16 @@ export default function SpendingPage() {
       ...spendingData,
       monthlyData: updatedMonthlyData,
     });
+  };
+
+  const handleOpenEditModal = (expense: Expense) => {
+    setEditingExpense(expense);
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEditingExpense(null);
   };
 
   // Generate month options for last 12 months
@@ -214,7 +355,7 @@ export default function SpendingPage() {
               title="Total Spent"
               value={monthData.totalSpent}
               precision={2}
-              prefix={<DollarOutlined />}
+              prefix="EGP"
               valueStyle={{ color: "#cf1322" }}
             />
           </Card>
@@ -234,7 +375,7 @@ export default function SpendingPage() {
               title="Avg Per Day"
               value={monthData.totalSpent / dayjs(selectedMonth).daysInMonth()}
               precision={2}
-              prefix="$"
+              prefix="EGP"
             />
           </Card>
         </Col>
@@ -262,14 +403,17 @@ export default function SpendingPage() {
           expenses={monthData.expenses}
           categories={DEFAULT_SPENDING_CATEGORIES}
           onDeleteExpense={handleDeleteExpense}
+          onEditExpense={handleOpenEditModal}
         />
       </div>
 
       <AddExpenseModal
         isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
+        onClose={handleCloseModal}
         onAddExpense={handleAddExpense}
+        onEditExpense={handleEditExpense}
         categories={DEFAULT_SPENDING_CATEGORIES}
+        editingExpense={editingExpense}
       />
     </div>
   );

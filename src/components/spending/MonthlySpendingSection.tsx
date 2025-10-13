@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, Typography, List, Space, Tag, Button, Popconfirm } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Expense, SpendingCategory } from "@/types";
 import dayjs from "dayjs";
 
@@ -11,12 +11,14 @@ interface MonthlySpendingSectionProps {
   expenses: Expense[];
   categories: SpendingCategory[];
   onDeleteExpense: (expenseId: string) => void;
+  onEditExpense: (expense: Expense) => void;
 }
 
 export default function MonthlySpendingSection({
   expenses,
   categories,
   onDeleteExpense,
+  onEditExpense,
 }: MonthlySpendingSectionProps) {
   const sortedExpenses = [...expenses].sort((a, b) => {
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
@@ -32,6 +34,13 @@ export default function MonthlySpendingSection({
           return (
             <List.Item
               actions={[
+                <Button
+                  key="edit"
+                  type="text"
+                  icon={<EditOutlined />}
+                  size="small"
+                  onClick={() => onEditExpense(expense)}
+                />,
                 <Popconfirm
                   key="delete"
                   title="Delete this expense?"
@@ -69,7 +78,7 @@ export default function MonthlySpendingSection({
                 }
                 title={
                   <Space>
-                    <Text strong>${expense.amount.toFixed(2)}</Text>
+                    <Text strong>EGP {expense.amount.toFixed(2)}</Text>
                     <Tag color={category?.color}>
                       {category?.name || "Other"}
                     </Tag>

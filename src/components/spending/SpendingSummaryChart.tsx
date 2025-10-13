@@ -1,8 +1,17 @@
 "use client";
 
-import { Card, Typography, Empty } from "antd";
-import { Pie } from "@ant-design/plots";
+import { Card, Typography, Empty, Spin } from "antd";
+import dynamic from "next/dynamic";
 import { SpendingCategory } from "@/types";
+
+const Pie = dynamic(() => import("@ant-design/plots").then((mod) => mod.Pie), {
+  ssr: false,
+  loading: () => (
+    <div style={{ textAlign: "center", padding: "50px" }}>
+      <Spin />
+    </div>
+  ),
+});
 
 const { Title, Text } = Typography;
 
@@ -38,31 +47,59 @@ export default function SpendingSummaryChart({
     radius: 0.8,
     innerRadius: 0.6,
     label: {
-      type: "spider",
-      labelHeight: 28,
-      content: "{name}\n${value}",
-    },
-    color: ({ type }: { type: string }) => {
-      const item = data.find((d) => d.type === type);
-      return item?.color || "#ccc";
-    },
-    interactions: [{ type: "element-selected" }, { type: "element-active" }],
-    statistic: {
-      title: false,
-      content: {
-        style: {
-          whiteSpace: "pre-wrap",
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          fontSize: "24px",
-          fontWeight: "bold",
-        },
-        content: `$${totalSpent.toFixed(2)}`,
+      text: "type",
+      style: {
+        fontWeight: "bold",
       },
     },
     legend: {
-      layout: "horizontal",
-      position: "bottom",
+      color: {
+        title: false,
+        position: "bottom",
+        rowPadding: 5,
+      },
+    },
+    style: {
+      lineWidth: 1,
+      stroke: "#fff",
+    },
+    tooltip: {
+      title: "type",
+      items: [
+        {
+          field: "value",
+          valueFormatter: (value: number) => `EGP ${value.toFixed(2)}`,
+        },
+      ],
+    },
+    annotations: [
+      {
+        type: "text",
+        style: {
+          text: `EGP ${totalSpent.toFixed(2)}`,
+          x: "50%",
+          y: "50%",
+          textAlign: "center",
+          fontSize: 24,
+          fontWeight: "bold",
+        },
+      },
+      {
+        type: "text",
+        style: {
+          text: "Total",
+          x: "50%",
+          y: "45%",
+          textAlign: "center",
+          fontSize: 14,
+          fill: "#999",
+        },
+      },
+    ],
+    scale: {
+      color: {
+        range: data.map((item) => item.color),
+      },
     },
   };
 
@@ -79,9 +116,11 @@ export default function SpendingSummaryChart({
     <Card>
       <Title level={4}>{month} Spending Summary</Title>
       <Text type="secondary" style={{ display: "block", marginBottom: "16px" }}>
-        Total: ${totalSpent.toFixed(2)}
+        Total: EGP {totalSpent.toFixed(2)}
       </Text>
-      <Pie {...config} />
+      <div style={{ height: 400 }}>
+        <Pie {...config} />
+      </div>
     </Card>
   );
 }

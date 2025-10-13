@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Modal,
   Form,
@@ -10,8 +10,8 @@ import {
   DatePicker,
   Button,
 } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { SpendingCategory } from "@/types";
+import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { SpendingCategory, Expense } from "@/types";
 import dayjs from "dayjs";
 
 interface AddExpenseModalProps {
@@ -23,34 +23,69 @@ interface AddExpenseModalProps {
     description: string;
     date: string;
   }) => Promise<void>;
+  onEditExpense?: (
+    expenseId: string,
+    expense: {
+      amount: number;
+      category: string;
+      description: string;
+      date: string;
+    }
+  ) => Promise<void>;
   categories: SpendingCategory[];
+  editingExpense?: Expense | null;
 }
 
 export default function AddExpenseModal({
   isOpen,
   onClose,
   onAddExpense,
+  onEditExpense,
   categories,
+  editingExpense,
 }: AddExpenseModalProps) {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const isEditMode = !!editingExpense;
+
+  // Update form when editing expense changes
+  useEffect(() => {
+    if (isEditMode && editingExpense) {
+      form.setFieldsValue({
+        amount: editingExpense.amount,
+        category: editingExpense.category,
+        description: editingExpense.description,
+        date: dayjs(editingExpense.date),
+      });
+    } else {
+      form.setFieldsValue({
+        date: dayjs(),
+      });
+    }
+  }, [editingExpense, isEditMode, form]);
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       setLoading(true);
 
-      await onAddExpense({
+      const expenseData = {
         amount: values.amount,
         category: values.category,
         description: values.description || "",
         date: values.date.format("YYYY-MM-DD"),
-      });
+      };
+
+      if (isEditMode && editingExpense && onEditExpense) {
+        await onEditExpense(editingExpense.id, expenseData);
+      } else {
+        await onAddExpense(expenseData);
+      }
 
       form.resetFields();
       onClose();
     } catch (error) {
-      console.error("Error adding expense:", error);
+      console.error("Error saving expense:", error);
     } finally {
       setLoading(false);
     }
@@ -65,8 +100,8 @@ export default function AddExpenseModal({
     <Modal
       title={
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <PlusOutlined />
-          Add Expense
+          {isEditMode ? <EditOutlined /> : <PlusOutlined />}
+          {isEditMode ? "Edit Expense" : "Add Expense"}
         </div>
       }
       open={isOpen}
@@ -81,7 +116,7 @@ export default function AddExpenseModal({
           loading={loading}
           onClick={handleSubmit}
         >
-          Add Expense
+          {isEditMode ? "Save Changes" : "Add Expense"}
         </Button>,
       ]}
     >
@@ -107,7 +142,7 @@ export default function AddExpenseModal({
           <InputNumber
             style={{ width: "100%" }}
             placeholder="0.00"
-            prefix="$"
+            prefix="EGP"
             precision={2}
             size="large"
           />
