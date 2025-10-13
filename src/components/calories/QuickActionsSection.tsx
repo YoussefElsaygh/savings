@@ -18,17 +18,34 @@ interface QuickActionsSectionProps {
     calories: number;
     description: string;
   }) => void;
+  handleModalAddFoods?: (
+    foods: Array<{
+      name: string;
+      calories: number;
+      description: string;
+    }>
+  ) => Promise<void>;
   handleModalAddExercise: (exerciseData: {
     name: string;
     caloriesBurned: number;
     durationMinutes: number;
     description: string;
   }) => void;
+  handleModalAddExercises?: (
+    exercises: Array<{
+      name: string;
+      caloriesBurned: number;
+      durationMinutes: number;
+      description: string;
+    }>
+  ) => Promise<void>;
 }
 
 export default function QuickActionsSection({
   handleModalAddFood,
+  handleModalAddFoods,
   handleModalAddExercise,
+  handleModalAddExercises,
 }: QuickActionsSectionProps) {
   const [isFoodModalOpen, setIsFoodModalOpen] = useState(false);
   const [isExerciseModalOpen, setIsExerciseModalOpen] = useState(false);
@@ -96,6 +113,7 @@ export default function QuickActionsSection({
           document.body.style.overflow = "auto";
         }}
         onAddFood={handleModalAddFood}
+        onAddFoods={handleModalAddFoods}
       />
       <AddExerciseModal
         isOpen={isExerciseModalOpen}
@@ -104,6 +122,7 @@ export default function QuickActionsSection({
           document.body.style.overflow = "auto";
         }}
         onAddExercise={handleModalAddExercise}
+        onAddExercises={handleModalAddExercises}
       />
     </>
   );

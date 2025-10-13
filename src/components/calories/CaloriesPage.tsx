@@ -182,6 +182,70 @@ export default function CaloriesPage() {
     }
   };
 
+  const handleModalAddFoods = async (
+    foodsData: Array<{
+      name: string;
+      calories: number;
+      description: string;
+    }>
+  ) => {
+    try {
+      const today = getTodayDate();
+      const existingDayIndex = dailyData.findIndex((d) => d.date === today);
+
+      // Create all food entries
+      const newFoodEntries: FoodEntry[] = foodsData.map((foodData, index) => ({
+        id: `${Date.now() + index}`,
+        name: foodData.name,
+        calories: foodData.calories,
+        timestamp: new Date().toISOString(),
+        date: today,
+      }));
+
+      const totalCaloriesFromFoods = foodsData.reduce(
+        (sum, food) => sum + food.calories,
+        0
+      );
+
+      let updatedDailyData: DailyCalorieData[];
+
+      if (existingDayIndex >= 0) {
+        // Update existing day
+        updatedDailyData = [...dailyData];
+        const updatedDay = {
+          ...updatedDailyData[existingDayIndex],
+          // Ensure backward compatibility
+          totalCaloriesBurned:
+            updatedDailyData[existingDayIndex].totalCaloriesBurned || 0,
+          exerciseEntries:
+            updatedDailyData[existingDayIndex].exerciseEntries || [],
+        };
+        updatedDay.foodEntries = [...updatedDay.foodEntries, ...newFoodEntries];
+        updatedDay.totalCalories += totalCaloriesFromFoods;
+        updatedDay.remainingCalories =
+          updatedDay.calorieLimit - updatedDay.totalCalories;
+        updatedDailyData[existingDayIndex] = updatedDay;
+      } else {
+        // Create new day
+        const newDayData: DailyCalorieData = {
+          date: today,
+          totalCalories: totalCaloriesFromFoods,
+          totalCaloriesBurned: 0,
+          foodEntries: newFoodEntries,
+          exerciseEntries: [],
+          remainingCalories:
+            (calorieGoal?.dailyCalorieLimit || 2000) - totalCaloriesFromFoods,
+          calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
+        };
+        updatedDailyData = [newDayData, ...dailyData];
+      }
+
+      await saveDailyData(updatedDailyData);
+    } catch (error) {
+      console.error("Error adding food entries:", error);
+    }
+  };
+
   const handleModalAddExercise = async (exerciseData: {
     name: string;
     caloriesBurned: number;
@@ -237,6 +301,74 @@ export default function CaloriesPage() {
       await saveDailyData(updatedDailyData);
     } catch (error) {
       console.error("Error adding exercise entry:", error);
+    }
+  };
+
+  const handleModalAddExercises = async (
+    exercisesData: Array<{
+      name: string;
+      caloriesBurned: number;
+      durationMinutes: number;
+      description: string;
+    }>
+  ) => {
+    try {
+      const today = getTodayDate();
+      const existingDayIndex = dailyData.findIndex((d) => d.date === today);
+
+      // Create all exercise entries
+      const newExerciseEntries: ExerciseEntry[] = exercisesData.map(
+        (exerciseData, index) => ({
+          id: `${Date.now() + index}`,
+          name: exerciseData.name,
+          caloriesBurned: exerciseData.caloriesBurned,
+          durationMinutes: exerciseData.durationMinutes,
+          timestamp: new Date().toISOString(),
+          date: today,
+        })
+      );
+
+      const totalCaloriesBurned = exercisesData.reduce(
+        (sum, ex) => sum + ex.caloriesBurned,
+        0
+      );
+
+      let updatedDailyData: DailyCalorieData[];
+
+      if (existingDayIndex >= 0) {
+        // Update existing day
+        updatedDailyData = [...dailyData];
+        const updatedDay = {
+          ...updatedDailyData[existingDayIndex],
+          // Ensure backward compatibility
+          totalCaloriesBurned:
+            updatedDailyData[existingDayIndex].totalCaloriesBurned || 0,
+          exerciseEntries:
+            updatedDailyData[existingDayIndex].exerciseEntries || [],
+        };
+        updatedDay.exerciseEntries = [
+          ...updatedDay.exerciseEntries,
+          ...newExerciseEntries,
+        ];
+        updatedDay.totalCaloriesBurned += totalCaloriesBurned;
+        updatedDailyData[existingDayIndex] = updatedDay;
+      } else {
+        // Create new day
+        const newDayData: DailyCalorieData = {
+          date: today,
+          totalCalories: 0,
+          totalCaloriesBurned,
+          foodEntries: [],
+          exerciseEntries: newExerciseEntries,
+          remainingCalories: calorieGoal?.dailyCalorieLimit || 2000,
+          calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
+        };
+        updatedDailyData = [newDayData, ...dailyData];
+      }
+
+      await saveDailyData(updatedDailyData);
+    } catch (error) {
+      console.error("Error adding exercise entries:", error);
     }
   };
 
@@ -418,7 +550,9 @@ export default function CaloriesPage() {
         >
           <QuickActionsSection
             handleModalAddFood={handleModalAddFood}
+            handleModalAddFoods={handleModalAddFoods}
             handleModalAddExercise={handleModalAddExercise}
+            handleModalAddExercises={handleModalAddExercises}
           />
 
           <TodayActivitySection

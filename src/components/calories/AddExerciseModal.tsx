@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   EXERCISE_CATEGORIES,
   getExercisesByCategory,
@@ -47,12 +47,21 @@ interface AddExerciseModalProps {
     durationMinutes: number;
     description: string;
   }) => void;
+  onAddExercises?: (
+    exercises: Array<{
+      name: string;
+      caloriesBurned: number;
+      durationMinutes: number;
+      description: string;
+    }>
+  ) => Promise<void>;
 }
 
 export default function AddExerciseModal({
   isOpen,
   onClose,
   onAddExercise,
+  onAddExercises,
 }: AddExerciseModalProps) {
   // Exercise entry states
   const [exerciseEntryMode, setExerciseEntryMode] = useState<
@@ -65,8 +74,20 @@ export default function AddExerciseModal({
   const [customCaloriesBurned, setCustomCaloriesBurned] = useState("");
   const [calculatedCaloriesBurned, setCalculatedCaloriesBurned] = useState(0);
   const [exercisesToAdd, setExercisesToAdd] = useState<ExerciseToAdd[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const durationInputRef = useRef<any>(null);
 
   const exercisesByCategory = getExercisesByCategory();
+
+  // Focus duration input when exercise is selected
+  useEffect(() => {
+    if (selectedExercise) {
+      // Focus duration input after a short delay to ensure rendering
+      setTimeout(() => {
+        durationInputRef.current?.focus();
+      }, 100);
+    }
+  }, [selectedExercise]);
 
   // Calculate calories burned when preset exercise selection changes
   useEffect(() => {
@@ -132,20 +153,39 @@ export default function AddExerciseModal({
     }
   };
 
-  const handleAddAllExercises = () => {
-    exercisesToAdd.forEach((exercise) => {
-      onAddExercise({
-        name: exercise.name,
-        caloriesBurned: exercise.caloriesBurned,
-        durationMinutes: exercise.durationMinutes,
-        description: exercise.description,
-      });
-    });
+  const handleAddAllExercises = async () => {
+    setIsAdding(true);
+    try {
+      if (onAddExercises) {
+        // Use batch add if available (more reliable)
+        const exercisesData = exercisesToAdd.map((exercise) => ({
+          name: exercise.name,
+          caloriesBurned: exercise.caloriesBurned,
+          durationMinutes: exercise.durationMinutes,
+          description: exercise.description,
+        }));
+        await onAddExercises(exercisesData);
+      } else {
+        // Fallback to sequential adds
+        for (const exercise of exercisesToAdd) {
+          await onAddExercise({
+            name: exercise.name,
+            caloriesBurned: exercise.caloriesBurned,
+            durationMinutes: exercise.durationMinutes,
+            description: exercise.description,
+          });
+          // Longer delay to ensure Firebase sync and state updates complete
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+      }
 
-    // Reset everything and close modal
-    setExercisesToAdd([]);
-    resetExerciseForm();
-    onClose();
+      // Reset everything and close modal
+      setExercisesToAdd([]);
+      resetExerciseForm();
+      onClose();
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const handleRemoveFromList = (id: string) => {
@@ -225,13 +265,16 @@ export default function AddExerciseModal({
           icon={<CheckOutlined />}
           size="large"
           type="primary"
+          loading={isAdding}
           style={{
             background: "#fa8c16",
             borderColor: "#fa8c16",
           }}
-          disabled={exercisesToAdd.length === 0}
+          disabled={exercisesToAdd.length === 0 || isAdding}
         >
-          Done ({exercisesToAdd.length})
+          {isAdding
+            ? `Adding ${exercisesToAdd.length}...`
+            : `Done (${exercisesToAdd.length})`}
         </Button>,
       ]}
     >
@@ -304,6 +347,7 @@ export default function AddExerciseModal({
                           Duration (minutes)
                         </label>
                         <InputNumber
+                          ref={durationInputRef}
                           style={{ width: "100%" }}
                           placeholder="e.g. 30"
                           value={duration ? parseFloat(duration) : null}

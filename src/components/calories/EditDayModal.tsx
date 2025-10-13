@@ -70,6 +70,37 @@ export default function EditDayModal({
     setCurrentDayData(updatedDay);
   };
 
+  const handleAddFoods = async (
+    foodsData: Array<{
+      name: string;
+      calories: number;
+      description: string;
+    }>
+  ) => {
+    const newFoodEntries: FoodEntry[] = foodsData.map((foodData, index) => ({
+      id: `${Date.now() + index}`,
+      name: foodData.name,
+      calories: foodData.calories,
+      timestamp: new Date().toISOString(),
+      date: currentDayData.date,
+    }));
+
+    const totalCaloriesFromFoods = foodsData.reduce(
+      (sum, food) => sum + food.calories,
+      0
+    );
+
+    const updatedDay = {
+      ...currentDayData,
+      foodEntries: [...currentDayData.foodEntries, ...newFoodEntries],
+      totalCalories: currentDayData.totalCalories + totalCaloriesFromFoods,
+    };
+
+    updatedDay.remainingCalories =
+      updatedDay.calorieLimit - updatedDay.totalCalories;
+    setCurrentDayData(updatedDay);
+  };
+
   const handleAddExercise = (exerciseData: {
     name: string;
     caloriesBurned: number;
@@ -93,6 +124,43 @@ export default function EditDayModal({
       ],
       totalCaloriesBurned:
         (currentDayData.totalCaloriesBurned || 0) + exerciseData.caloriesBurned,
+    };
+
+    setCurrentDayData(updatedDay);
+  };
+
+  const handleAddExercises = async (
+    exercisesData: Array<{
+      name: string;
+      caloriesBurned: number;
+      durationMinutes: number;
+      description: string;
+    }>
+  ) => {
+    const newExerciseEntries: ExerciseEntry[] = exercisesData.map(
+      (exerciseData, index) => ({
+        id: `${Date.now() + index}`,
+        name: exerciseData.name,
+        caloriesBurned: exerciseData.caloriesBurned,
+        durationMinutes: exerciseData.durationMinutes,
+        timestamp: new Date().toISOString(),
+        date: currentDayData.date,
+      })
+    );
+
+    const totalCaloriesBurned = exercisesData.reduce(
+      (sum, ex) => sum + ex.caloriesBurned,
+      0
+    );
+
+    const updatedDay = {
+      ...currentDayData,
+      exerciseEntries: [
+        ...(currentDayData.exerciseEntries || []),
+        ...newExerciseEntries,
+      ],
+      totalCaloriesBurned:
+        (currentDayData.totalCaloriesBurned || 0) + totalCaloriesBurned,
     };
 
     setCurrentDayData(updatedDay);
@@ -445,6 +513,7 @@ export default function EditDayModal({
         isOpen={showAddFoodModal}
         onClose={() => setShowAddFoodModal(false)}
         onAddFood={handleAddFood}
+        onAddFoods={handleAddFoods}
       />
 
       {/* Add Exercise Modal */}
@@ -452,6 +521,7 @@ export default function EditDayModal({
         isOpen={showAddExerciseModal}
         onClose={() => setShowAddExerciseModal(false)}
         onAddExercise={handleAddExercise}
+        onAddExercises={handleAddExercises}
       />
     </>
   );

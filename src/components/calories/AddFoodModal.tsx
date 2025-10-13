@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FOOD_CATEGORIES,
   getFoodsByCategory,
@@ -38,12 +38,20 @@ interface AddEntryModalProps {
     calories: number;
     description: string;
   }) => void;
+  onAddFoods?: (
+    foods: Array<{
+      name: string;
+      calories: number;
+      description: string;
+    }>
+  ) => Promise<void>;
 }
 
 export default function AddEntryModal({
   isOpen,
   onClose,
   onAddFood,
+  onAddFoods,
 }: AddEntryModalProps) {
   // Food entry states
   const [foodEntryMode, setFoodEntryMode] = useState<"preset" | "custom">(
@@ -56,10 +64,12 @@ export default function AddEntryModal({
   const [customCalories, setCustomCalories] = useState("");
   const [calculatedCalories, setCalculatedCalories] = useState(0);
   const [foodsToAdd, setFoodsToAdd] = useState<FoodToAdd[]>([]);
+  const [isAdding, setIsAdding] = useState(false);
+  const quantityInputRef = useRef<any>(null);
 
   const foodsByCategory = getFoodsByCategory();
 
-  // Set appropriate unit when food is selected
+  // Set appropriate unit when food is selected and focus quantity input
   useEffect(() => {
     if (selectedFood) {
       // Auto-set unit based on food type
@@ -70,6 +80,11 @@ export default function AddEntryModal({
       } else if (selectedFood.unitType === "100ml") {
         setUnit("ml");
       }
+
+      // Focus quantity input after a short delay to ensure rendering
+      setTimeout(() => {
+        quantityInputRef.current?.focus();
+      }, 100);
     }
   }, [selectedFood]);
 
@@ -137,19 +152,37 @@ export default function AddEntryModal({
     }
   };
 
-  const handleAddAllFoods = () => {
-    foodsToAdd.forEach((food) => {
-      onAddFood({
-        name: food.name,
-        calories: food.calories,
-        description: food.description,
-      });
-    });
+  const handleAddAllFoods = async () => {
+    setIsAdding(true);
+    try {
+      if (onAddFoods) {
+        // Use batch add if available (more reliable)
+        const foodsData = foodsToAdd.map((food) => ({
+          name: food.name,
+          calories: food.calories,
+          description: food.description,
+        }));
+        await onAddFoods(foodsData);
+      } else {
+        // Fallback to sequential adds
+        for (const food of foodsToAdd) {
+          await onAddFood({
+            name: food.name,
+            calories: food.calories,
+            description: food.description,
+          });
+          // Longer delay to ensure Firebase sync and state updates complete
+          await new Promise((resolve) => setTimeout(resolve, 300));
+        }
+      }
 
-    // Reset everything and close modal
-    setFoodsToAdd([]);
-    resetFoodForm();
-    onClose();
+      // Reset everything and close modal
+      setFoodsToAdd([]);
+      resetFoodForm();
+      onClose();
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   const handleRemoveFromList = (id: string) => {
@@ -227,14 +260,17 @@ export default function AddEntryModal({
           icon={<CheckOutlined />}
           size="large"
           type="primary"
+          loading={isAdding}
           style={{
             background: "#52c41a",
             borderColor: "#52c41a",
             color: "#fff",
           }}
-          disabled={foodsToAdd.length === 0}
+          disabled={foodsToAdd.length === 0 || isAdding}
         >
-          Done ({foodsToAdd.length})
+          {isAdding
+            ? `Adding ${foodsToAdd.length}...`
+            : `Done (${foodsToAdd.length})`}
         </Button>,
       ]}
     >
@@ -308,6 +344,7 @@ export default function AddEntryModal({
                           Quantity
                         </label>
                         <InputNumber
+                          ref={quantityInputRef}
                           style={{ width: "100%" }}
                           placeholder="e.g. 1, 150"
                           value={quantity ? parseFloat(quantity) : null}
