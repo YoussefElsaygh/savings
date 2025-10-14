@@ -10,6 +10,7 @@ import {
   Button,
   Space,
   Drawer,
+  ConfigProvider,
 } from "antd";
 import type { MenuProps } from "antd";
 import {
@@ -165,16 +166,29 @@ export default function Navbar() {
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             {/* Desktop Menu - hidden on small screens */}
             {user && navItems.length > 0 && (
-              <Menu
-                mode="horizontal"
-                selectedKeys={[getSelectedKey()]}
-                items={navItems}
-                style={{
-                  border: "none",
-                  minWidth: 0,
+              <ConfigProvider
+                theme={{
+                  components: {
+                    Menu: {
+                      itemSelectedBg: "#f0f0f0",
+                      itemSelectedColor: "#000000",
+                      horizontalItemSelectedBg: "#f0f0f0",
+                      horizontalItemSelectedColor: "#000000",
+                    },
+                  },
                 }}
-                className="desktop-menu"
-              />
+              >
+                <Menu
+                  mode="horizontal"
+                  selectedKeys={[getSelectedKey()]}
+                  items={navItems}
+                  style={{
+                    border: "none",
+                    minWidth: 0,
+                  }}
+                  className="desktop-menu"
+                />
+              </ConfigProvider>
             )}
 
             {/* Mobile Menu Button - shown on small screens */}
@@ -241,6 +255,31 @@ export default function Navbar() {
       </Drawer>
 
       <style jsx global>{`
+        /* Desktop menu styling with higher specificity */
+        .desktop-menu.ant-menu-horizontal .ant-menu-item-selected {
+          background-color: #f0f0f0 !important;
+          color: #000000 !important;
+        }
+
+        .desktop-menu.ant-menu-horizontal .ant-menu-item-selected a {
+          color: #000000 !important;
+        }
+
+        .desktop-menu.ant-menu-horizontal .ant-menu-item-selected::after {
+          border-bottom-color: #000000 !important;
+          border-bottom-width: 2px !important;
+        }
+
+        .desktop-menu.ant-menu-horizontal .ant-menu-item:hover {
+          background-color: #fafafa !important;
+        }
+
+        .desktop-menu.ant-menu-horizontal
+          .ant-menu-item:hover:not(.ant-menu-item-selected) {
+          color: rgba(0, 0, 0, 0.88) !important;
+        }
+
+        /* Mobile drawer menu styling */
         .drawer-menu .ant-menu-item-selected {
           background-color: #f0f0f0 !important;
           color: #000000 !important;

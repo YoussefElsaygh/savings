@@ -25,6 +25,18 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Ensure ripple effects are visible */
+.ant-wave {
+  position: absolute;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+button {
+  position: relative;
+  overflow: visible !important;
+}
+
 /* Status Colors for comparison indicators */
 .increase {
   color: #4caf50;
