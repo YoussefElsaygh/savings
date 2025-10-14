@@ -13,7 +13,7 @@ import HistoryTab from "@/components/savings/HistoryTab";
 import Gold21ChartTab from "@/components/savings/Gold21ChartTab";
 import LoadingScreen from "@/components/shared/LoadingScreen";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Tabs, Card, Typography, Button } from "antd";
+import { Tabs, Card, Typography } from "antd";
 import type { TabsProps } from "antd";
 import {
   EditOutlined,
@@ -22,10 +22,9 @@ import {
   BarChartOutlined,
   GoldOutlined,
   LockOutlined,
-  LoginOutlined,
 } from "@ant-design/icons";
 
-const { Title, Paragraph } = Typography;
+const { Title } = Typography;
 
 export default function SavingsPage() {
   return (
@@ -38,7 +37,7 @@ export default function SavingsPage() {
 function SavingsContent() {
   const [activeTab, setActiveTabProp] = useState<TabType | null>(null);
 
-  const [savings, setSavings, savingsLoading, savingsError, user, signIn] =
+  const [savings, setSavings, savingsLoading, , user] =
     useSavingsDataFirebase();
   const [allHistory, setAllHistory, historyLoading] = useRateHistoryFirebase();
 

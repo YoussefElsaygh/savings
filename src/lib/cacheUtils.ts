@@ -81,7 +81,7 @@ export function clearAllCacheForUser(userId: string): void {
             if (data.userId === userId) {
               localStorage.removeItem(key);
             }
-          } catch (e) {
+          } catch {
             // Invalid JSON, remove it anyway
             localStorage.removeItem(key);
           }

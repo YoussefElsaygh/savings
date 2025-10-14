@@ -7,7 +7,7 @@ const createWorkoutExercise = (
   sets: number,
   reps: number,
   order: number
-): Omit<WorkoutExercise, "sets"> => ({
+): WorkoutExercise => ({
   exerciseId,
   exerciseName,
   targetSets: sets,

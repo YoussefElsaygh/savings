@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import {
-  Modal,
   Card,
   Button,
   InputNumber,
@@ -10,15 +9,12 @@ import {
   Typography,
   Row,
   Col,
-  Divider,
   Statistic,
-  Checkbox,
   message,
   Tag,
 } from "antd";
 import {
   CheckOutlined,
-  CloseOutlined,
   PlusOutlined,
   DeleteOutlined,
   TrophyOutlined,

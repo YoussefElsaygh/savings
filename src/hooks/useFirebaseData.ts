@@ -38,6 +38,9 @@ export function useFirebaseData<T>(
     | "dailyCalorieData"
     | "rateHistory"
     | "spendingData"
+    | "workoutSessions"
+    | "personalRecords"
+    | "workoutPreferences"
 ): [
   T,
   (value: T) => Promise<void>,
@@ -342,7 +345,7 @@ export function useWorkoutSessionsFirebase() {
     "workoutData",
     "sessions",
     DEFAULT_WORKOUT_SESSIONS,
-    "workoutSessions" as any
+    "workoutSessions" as const
   );
 }
 
@@ -352,7 +355,7 @@ export function usePersonalRecordsFirebase() {
     "workoutData",
     "personalRecords",
     DEFAULT_PERSONAL_RECORDS,
-    "personalRecords" as any
+    "personalRecords" as const
   );
 }
 
@@ -362,6 +365,6 @@ export function useWorkoutPreferencesFirebase() {
     "workoutData",
     "preferences",
     DEFAULT_WORKOUT_PREFERENCES,
-    "workoutPreferences" as any
+    "workoutPreferences" as const
   );
 }

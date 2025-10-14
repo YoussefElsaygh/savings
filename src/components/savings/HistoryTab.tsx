@@ -7,7 +7,6 @@ import {
   formatSum,
   formatNumber,
   getComparisonIcon,
-  calculateHistorySum,
 } from "@/lib/utils";
 import { Card, Space, Typography, Button, Empty, Collapse, Tag } from "antd";
 import {

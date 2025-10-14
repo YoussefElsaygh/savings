@@ -31,12 +31,7 @@ import PRsSection from "./PRsSection";
 import WorkoutHistorySection from "./WorkoutHistorySection";
 import WorkoutPreferencesModal from "./WorkoutPreferencesModal";
 import LoadingScreen from "@/components/shared/LoadingScreen";
-import {
-  WorkoutPlan,
-  WorkoutSession,
-  PersonalRecord,
-  WorkoutPreferences,
-} from "@/types";
+import { WorkoutPlan, WorkoutSession, PersonalRecord } from "@/types";
 import { generatePersonalizedPlans } from "@/lib/workoutPlanGenerator";
 
 const { Title, Text } = Typography;
@@ -53,13 +48,8 @@ export default function WorkoutPage() {
   // Firebase hooks
   const [sessions, saveSessions, sessionsLoading, sessionsError, sessionsUser] =
     useWorkoutSessionsFirebase();
-  const [
-    preferences,
-    savePreferences,
-    preferencesLoading,
-    preferencesError,
-    preferencesUser,
-  ] = useWorkoutPreferencesFirebase();
+  const [preferences, savePreferences, preferencesLoading] =
+    useWorkoutPreferencesFirebase();
   const [personalRecords, savePersonalRecords, prsLoading, prsError, prsUser] =
     usePersonalRecordsFirebase();
 
@@ -188,7 +178,7 @@ export default function WorkoutPage() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     let streak = 0;
-    let checkDate = new Date(today);
+    const checkDate = new Date(today);
 
     while (true) {
       const hasWorkout = sessions.some((session) => {
@@ -369,7 +359,7 @@ export default function WorkoutPage() {
                   <Text
                     style={{ color: "rgba(255,255,255,0.9)", fontSize: "16px" }}
                   >
-                    Let's create a personalized workout plan just for you
+                    Let&apos;s create a personalized workout plan just for you
                   </Text>
                 </div>
                 <Button

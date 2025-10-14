@@ -1,7 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Card, Table, Tag, Empty, Typography, Space, Row, Col, Statistic, Timeline } from "antd";
+import {
+  Card,
+  Table,
+  Tag,
+  Empty,
+  Typography,
+  Space,
+  Row,
+  Col,
+  Statistic,
+  Timeline,
+} from "antd";
 import {
   HistoryOutlined,
   FireOutlined,
@@ -17,8 +28,12 @@ interface WorkoutHistorySectionProps {
   sessions: WorkoutSession[];
 }
 
-export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectionProps) {
-  const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(null);
+export default function WorkoutHistorySection({
+  sessions,
+}: WorkoutHistorySectionProps) {
+  const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(
+    null
+  );
   const [detailModalOpen, setDetailModalOpen] = useState(false);
 
   const handleRowClick = (session: WorkoutSession) => {
@@ -31,10 +46,13 @@ export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectio
         <Empty
           description={
             <span>
-              No workout history yet! Start your first workout to begin tracking.
+              No workout history yet! Start your first workout to begin
+              tracking.
             </span>
           }
-          image={<HistoryOutlined style={{ fontSize: "64px", color: "#d9d9d9" }} />}
+          image={
+            <HistoryOutlined style={{ fontSize: "64px", color: "#d9d9d9" }} />
+          }
         />
       </Card>
     );
@@ -49,14 +67,15 @@ export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectio
   const totalWorkouts = sessions.length;
   const totalVolume = sessions.reduce((sum, s) => sum + s.totalVolume, 0);
   const avgVolume = totalVolume / totalWorkouts;
-  const avgDuration = sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / totalWorkouts;
+  const avgDuration =
+    sessions.reduce((sum, s) => sum + (s.duration || 0), 0) / totalWorkouts;
 
   // Get current week streak
   const getCurrentStreak = (): number => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     let streak = 0;
-    let checkDate = new Date(today);
+    const checkDate = new Date(today);
 
     while (true) {
       const hasWorkout = sessions.some((session) => {
@@ -108,7 +127,7 @@ export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectio
     {
       title: "Exercises",
       key: "exercises",
-      render: (_: any, record: WorkoutSession) => (
+      render: (_: unknown, record: WorkoutSession) => (
         <Text>{record.exercises.length} exercises</Text>
       ),
     },
@@ -122,7 +141,8 @@ export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectio
           <Text strong>{volume.toLocaleString()} kg</Text>
         </Space>
       ),
-      sorter: (a: WorkoutSession, b: WorkoutSession) => b.totalVolume - a.totalVolume,
+      sorter: (a: WorkoutSession, b: WorkoutSession) =>
+        b.totalVolume - a.totalVolume,
     },
     {
       title: "Duration",
@@ -207,7 +227,8 @@ export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectio
                 <Text strong>{session.planName || "Custom Workout"}</Text>
                 <Text type="secondary">
                   {new Date(session.date).toLocaleDateString()} -{" "}
-                  {session.exercises.length} exercises, {session.totalVolume} kg volume
+                  {session.exercises.length} exercises, {session.totalVolume} kg
+                  volume
                 </Text>
               </Space>
             ),
@@ -253,10 +274,12 @@ export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectio
         >
           <Space direction="vertical" align="center">
             <Text type="secondary">
-              📈 Chart integration coming soon! Your volume trend will appear here.
+              📈 Chart integration coming soon! Your volume trend will appear
+              here.
             </Text>
             <Text type="secondary" style={{ fontSize: "12px" }}>
-              Avg Volume: {Math.round(avgVolume)} kg | Highest: {Math.max(...sessions.map((s) => s.totalVolume))} kg
+              Avg Volume: {Math.round(avgVolume)} kg | Highest:{" "}
+              {Math.max(...sessions.map((s) => s.totalVolume))} kg
             </Text>
           </Space>
         </div>
@@ -264,4 +287,3 @@ export default function WorkoutHistorySection({ sessions }: WorkoutHistorySectio
     </Space>
   );
 }
-
