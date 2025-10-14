@@ -77,7 +77,7 @@ export default function MonthlySpendingSection({
                   </div>
                 }
                 title={
-                  <Space>
+                  <Space direction="vertical" size="small">
                     <Text strong>EGP {expense.amount.toFixed(2)}</Text>
                     <Tag color={category?.color}>
                       {category?.name || "Other"}

@@ -110,3 +110,104 @@ export interface MonthlySpending {
 export interface SpendingData {
   monthlyData: MonthlySpending[];
 }
+
+// Workout Tracker Types
+export type MuscleGroup =
+  | "chest"
+  | "back"
+  | "shoulders"
+  | "biceps"
+  | "triceps"
+  | "legs"
+  | "core"
+  | "cardio"
+  | "full-body";
+
+export type EquipmentType =
+  | "barbell"
+  | "dumbbell"
+  | "machine"
+  | "bodyweight"
+  | "cable"
+  | "kettlebell"
+  | "resistance-band";
+
+export type ExperienceLevel = "beginner" | "intermediate" | "advanced";
+
+export interface Exercise {
+  id: string;
+  name: string;
+  muscleGroup: MuscleGroup;
+  equipment: EquipmentType[];
+  gifUrl: string; // URL to exercise GIF
+  description: string;
+  tips: string[];
+  alternatives: string[]; // Array of alternative exercise IDs
+}
+
+export interface WorkoutSet {
+  id: string;
+  reps: number;
+  weight: number; // in kg
+  completed: boolean;
+  restTime?: number; // seconds
+  notes?: string;
+}
+
+export interface WorkoutExercise {
+  exerciseId: string;
+  exerciseName: string;
+  sets: WorkoutSet[];
+  targetSets: number;
+  targetReps: number;
+  order: number; // Exercise order in workout
+}
+
+export interface WorkoutPlan {
+  id: string;
+  name: string;
+  description: string;
+  level: ExperienceLevel;
+  daysPerWeek: 2 | 3 | 4;
+  dayName: string; // e.g., "Day 1: Push", "Day 2: Pull"
+  exercises: WorkoutExercise[];
+  createdAt: string;
+}
+
+export interface WorkoutSession {
+  id: string;
+  planId?: string;
+  planName?: string;
+  date: string; // YYYY-MM-DD
+  startTime: string; // ISO timestamp
+  endTime?: string; // ISO timestamp
+  exercises: WorkoutExercise[];
+  totalVolume: number; // sum of (sets × reps × weight)
+  duration?: number; // minutes
+  notes?: string;
+  completed: boolean;
+}
+
+export interface PersonalRecord {
+  exerciseId: string;
+  exerciseName: string;
+  weight: number; // kg
+  reps: number;
+  date: string; // YYYY-MM-DD
+  timestamp: string; // ISO timestamp
+}
+
+export type EquipmentPreference =
+  | "free-weights"
+  | "machines"
+  | "mixed"
+  | "bodyweight";
+
+export interface WorkoutPreferences {
+  daysPerWeek: 2 | 3 | 4;
+  experienceLevel: ExperienceLevel;
+  equipmentPreference: EquipmentPreference;
+  goals?: string[]; // e.g., ["strength", "hypertrophy", "endurance"]
+  createdAt: string;
+  updatedAt: string;
+}

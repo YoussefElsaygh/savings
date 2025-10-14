@@ -234,7 +234,7 @@ export default function AddEntryModal({
                 parseFloat(customCalories) <= 0))
           }
         >
-          Add to List
+          Add
         </Button>,
         <Button
           key="submit"

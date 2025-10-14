@@ -239,7 +239,7 @@ export default function AddExerciseModal({
             borderWidth: "2px",
           }}
         >
-          Add to List
+          Add
         </Button>,
         <Button
           key="submit"

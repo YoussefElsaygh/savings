@@ -49,6 +49,18 @@ service cloud.firestore {
       allow write: if isAuthenticated() && isOwner(getDocumentUserId());
     }
     
+    // Workout Data Collection
+    // Document ID format: {userId}_sessions or {userId}_personalRecords
+    match /workoutData/{document} {
+      // Extract userId from document ID (format: userId_sessions or userId_personalRecords)
+      function getDocumentUserId() {
+        return document.split('_')[0];
+      }
+      
+      allow read: if isAuthenticated() && isOwner(getDocumentUserId());
+      allow write: if isAuthenticated() && isOwner(getDocumentUserId());
+    }
+    
     // Deny all other access
     match /{document=**} {
       allow read, write: if false;

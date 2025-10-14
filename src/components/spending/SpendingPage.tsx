@@ -49,6 +49,18 @@ export default function SpendingPage() {
 
   const monthData = getCurrentMonthData();
 
+  // Calculate the actual totals from expenses to ensure accuracy
+  const actualTotalSpent = monthData.expenses.reduce(
+    (sum, expense) => sum + expense.amount,
+    0
+  );
+
+  // Recalculate category totals from actual expenses
+  const actualCategoryTotals = monthData.expenses.reduce((acc, expense) => {
+    acc[expense.category] = (acc[expense.category] || 0) + expense.amount;
+    return acc;
+  }, {} as Record<string, number>);
+
   const handleAddExpense = async (expenseData: {
     amount: number;
     category: string;
@@ -350,7 +362,7 @@ export default function SpendingPage() {
           <Card>
             <Statistic
               title="Total Spent"
-              value={monthData.totalSpent}
+              value={actualTotalSpent}
               precision={2}
               prefix="EGP"
               valueStyle={{ color: "#cf1322" }}
@@ -370,7 +382,7 @@ export default function SpendingPage() {
           <Card>
             <Statistic
               title="Avg Per Day"
-              value={monthData.totalSpent / dayjs(selectedMonth).daysInMonth()}
+              value={actualTotalSpent / dayjs(selectedMonth).daysInMonth()}
               precision={2}
               prefix="EGP"
             />
@@ -381,16 +393,16 @@ export default function SpendingPage() {
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={12}>
           <SpendingSummaryChart
-            categoryTotals={monthData.categoryTotals}
+            categoryTotals={actualCategoryTotals}
             categories={DEFAULT_SPENDING_CATEGORIES}
             month={dayjs(selectedMonth).format("MMMM YYYY")}
           />
         </Col>
         <Col xs={24} lg={12}>
           <CategoryBreakdown
-            categoryTotals={monthData.categoryTotals}
+            categoryTotals={actualCategoryTotals}
             categories={DEFAULT_SPENDING_CATEGORIES}
-            totalSpent={monthData.totalSpent}
+            totalSpent={actualTotalSpent}
           />
         </Col>
       </Row>
