@@ -23,6 +23,23 @@ import {
 // Key format: "userId_collectionName_documentId"
 const loadedDataTracker = new Map<string, boolean>();
 
+// Generate a unique session ID on module load (changes on every page refresh)
+const SESSION_ID = `session_${Date.now()}_${Math.random()}`;
+
+// Clean up old session storage keys from previous page loads
+if (typeof window !== "undefined") {
+  try {
+    const keys = Object.keys(sessionStorage);
+    keys.forEach((key) => {
+      if (key.startsWith("session_checked_session_")) {
+        sessionStorage.removeItem(key);
+      }
+    });
+  } catch (error) {
+    console.error("Error cleaning old session keys:", error);
+  }
+}
+
 // Clear tracker when user signs out
 export function clearLoadedDataTracker() {
   loadedDataTracker.clear();
@@ -118,8 +135,9 @@ export function useFirebaseData<T>(
           setError(null);
           loadedFromCache.current = true;
 
-          // 3. Check if we should verify freshness (only check once per session)
-          const sessionKey = `session_checked_${cacheKey}`;
+          // 3. Check if we should verify freshness (only check once per page load)
+          // Use SESSION_ID to ensure checks happen on every page refresh
+          const sessionKey = `session_checked_${SESSION_ID}_${cacheKey}`;
           const alreadyChecked = sessionStorage.getItem(sessionKey);
 
           if (!alreadyChecked) {
@@ -134,7 +152,9 @@ export function useFirebaseData<T>(
 
                   // If timestamps don't match, update cache silently
                   if (cached.timestamp !== firestoreTimestamp) {
-                    console.log(`↻ Updating cache for ${registryKey}`);
+                    console.log(
+                      `↻ Updating cache for ${registryKey} - found newer data`
+                    );
                     const fetchedData =
                       firestoreData.data || defaultValueRef.current;
                     setData(fetchedData);
@@ -146,7 +166,7 @@ export function useFirebaseData<T>(
                     );
                   }
                 }
-                // Mark as checked for this session
+                // Mark as checked for this page load session
                 sessionStorage.setItem(sessionKey, "true");
               })
               .catch((err) => {
