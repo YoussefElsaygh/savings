@@ -200,7 +200,7 @@ export default function Navbar() {
                   items={navItems}
                   style={{
                     border: "none",
-                    minWidth: 0,
+                    minWidth: "500px",
                   }}
                   className="desktop-menu"
                 />
