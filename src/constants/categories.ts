@@ -8,6 +8,12 @@ export const DEFAULT_SPENDING_CATEGORIES: SpendingCategory[] = [
     icon: "🍔",
   },
   {
+    id: "food-delivery",
+    name: "Food Delivery",
+    color: "#FFD700",
+    icon: "🛵",
+  },
+  {
     id: "supermarket",
     name: "Supermarket",
     color: "#FFD700",
