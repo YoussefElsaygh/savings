@@ -33,24 +33,12 @@ export default function RootLayout({
       >
         <AntdRegistry>
           <ConfigProvider
-            wave={{ disabled: false }}
             theme={{
               token: {
                 colorPrimary: "#000000",
                 borderRadius: 8,
                 colorBorder: "#8c8c8c", // Darker borders
                 colorBorderSecondary: "#a6a6a6", // Darker secondary borders
-              },
-              components: {
-                Button: {
-                  primaryShadow: "none",
-                  defaultShadow: "none",
-                  dangerShadow: "none",
-                  boxShadow: "none",
-                  controlHeight: 40,
-                  controlHeightLG: 48,
-                  controlHeightSM: 32,
-                },
               },
             }}
           >

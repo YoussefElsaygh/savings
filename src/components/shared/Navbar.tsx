@@ -182,29 +182,16 @@ export default function Navbar() {
           <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             {/* Desktop Menu - hidden on small screens */}
             {user && navItems.length > 0 && (
-              <ConfigProvider
-                theme={{
-                  components: {
-                    Menu: {
-                      itemSelectedBg: "#f0f0f0",
-                      itemSelectedColor: "#000000",
-                      horizontalItemSelectedBg: "#f0f0f0",
-                      horizontalItemSelectedColor: "#000000",
-                    },
-                  },
+              <Menu
+                mode="horizontal"
+                selectedKeys={[getSelectedKey()]}
+                items={navItems}
+                style={{
+                  border: "none",
+                  minWidth: "500px",
                 }}
-              >
-                <Menu
-                  mode="horizontal"
-                  selectedKeys={[getSelectedKey()]}
-                  items={navItems}
-                  style={{
-                    border: "none",
-                    minWidth: "500px",
-                  }}
-                  className="desktop-menu"
-                />
-              </ConfigProvider>
+                className="desktop-menu"
+              />
             )}
 
             {/* Mobile Menu Button - shown on small screens */}
