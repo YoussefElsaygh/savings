@@ -46,6 +46,10 @@ export default function WeightLossJourneySection({
 
   const weeksToGoal = daysToGoal / 7;
 
+  // Calculate kg lost (approximately 7,700 calories = 1 kg)
+  const kgLost = totalDeficitAchieved / 7700;
+  const totalKgGoal = calorieGoal.totalCaloriesToLose / 7700;
+
   return (
     <Card
       style={{
@@ -61,7 +65,7 @@ export default function WeightLossJourneySection({
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         <Row gutter={[16, 16]}>
-          <Col span={8}>
+          <Col xs={12} sm={6}>
             <Statistic
               title="Goal"
               value={formatNumber(calorieGoal.totalCaloriesToLose)}
@@ -69,7 +73,7 @@ export default function WeightLossJourneySection({
               valueStyle={{ fontSize: "16px", color: "#8b5cf6" }}
             />
           </Col>
-          <Col span={8}>
+          <Col xs={12} sm={6}>
             <Statistic
               title="Achieved"
               value={formatNumber(totalDeficitAchieved)}
@@ -78,12 +82,24 @@ export default function WeightLossJourneySection({
               valueStyle={{ fontSize: "16px", color: "#52c41a" }}
             />
           </Col>
-          <Col span={8}>
+          <Col xs={12} sm={6}>
             <Statistic
               title="Remaining"
               value={formatNumber(remainingCaloriesToLose)}
               suffix="cal"
               valueStyle={{ fontSize: "16px", color: "#fa8c16" }}
+            />
+          </Col>
+          <Col xs={12} sm={6}>
+            <Statistic
+              title="Weight Lost"
+              value={kgLost.toFixed(2)}
+              suffix={`/ ${totalKgGoal.toFixed(1)} kg`}
+              valueStyle={{
+                fontSize: "16px",
+                color: "#d946ef",
+                fontWeight: "bold",
+              }}
             />
           </Col>
         </Row>
