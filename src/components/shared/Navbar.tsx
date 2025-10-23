@@ -2,16 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import {
-  Menu,
-  Typography,
-  Avatar,
-  Dropdown,
-  Button,
-  Space,
-  Drawer,
-  ConfigProvider,
-} from "antd";
+import { Menu, Typography, Avatar, Dropdown, Button, Space } from "antd";
 import type { MenuProps } from "antd";
 import {
   DollarOutlined,
@@ -19,7 +10,6 @@ import {
   UserOutlined,
   LogoutOutlined,
   LoginOutlined,
-  MenuOutlined,
   WalletOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
@@ -38,7 +28,7 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [signingIn, setSigningIn] = useState(false);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isPWA, setIsPWA] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -46,6 +36,25 @@ export default function Navbar() {
       setAuthLoading(false);
     });
     return () => unsubscribe();
+  }, []);
+
+  // Detect PWA mode
+  useEffect(() => {
+    const checkPWA = () => {
+      const isStandalone = window.matchMedia(
+        "(display-mode: standalone)"
+      ).matches;
+      setIsPWA(isStandalone);
+    };
+
+    checkPWA();
+
+    // Listen for changes
+    const mediaQuery = window.matchMedia("(display-mode: standalone)");
+    const handler = () => checkPWA();
+    mediaQuery.addEventListener("change", handler);
+
+    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   const handleSignIn = async () => {
@@ -100,47 +109,6 @@ export default function Navbar() {
       ]
     : [];
 
-  const drawerItems: MenuProps["items"] = user
-    ? [
-        {
-          key: "/savings",
-          icon: <DollarOutlined />,
-          label: "Savings",
-          onClick: () => {
-            router.push("/savings");
-            setDrawerOpen(false);
-          },
-        },
-        {
-          key: "/spending",
-          icon: <WalletOutlined />,
-          label: "Spending",
-          onClick: () => {
-            router.push("/spending");
-            setDrawerOpen(false);
-          },
-        },
-        {
-          key: "/calories",
-          icon: <AppleOutlined />,
-          label: "Calories",
-          onClick: () => {
-            router.push("/calories");
-            setDrawerOpen(false);
-          },
-        },
-        {
-          key: "/workout",
-          icon: <ThunderboltOutlined />,
-          label: "Workout",
-          onClick: () => {
-            router.push("/workout");
-            setDrawerOpen(false);
-          },
-        },
-      ]
-    : [];
-
   const getSelectedKey = () => {
     if (pathname === "/calories") return "/calories";
     if (pathname === "/savings") return "/savings";
@@ -160,9 +128,18 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Top Navigation Bar - Desktop and Header on Mobile */}
-      <div className="navbar-safe-area">
-        <nav className="top-navbar">
+      {/* Top Navigation Bar - Desktop and Header on Mobile - Hidden in PWA mode */}
+      {!isPWA && (
+        <nav
+          style={{
+            borderBottom: "1px solid #f0f0f0",
+            background: "#fff",
+            position: "sticky",
+            top: 0,
+            zIndex: 1000,
+            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          }}
+        >
           <div
             style={{
               maxWidth: "1280px",
@@ -238,7 +215,7 @@ export default function Navbar() {
             </div>
           </div>
         </nav>
-      </div>
+      )}
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="bottom-nav">
@@ -296,34 +273,6 @@ export default function Navbar() {
       </nav>
 
       <style jsx global>{`
-        /* Navbar safe area wrapper - covers notch/dynamic island */
-        .navbar-safe-area {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          z-index: 1000;
-          background: #fff;
-          padding-top: env(safe-area-inset-top, 0px);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        /* Force light theme for navbars - don't follow system theme */
-        .top-navbar {
-          background: transparent;
-          border-bottom: 1px solid #f0f0f0;
-          position: relative;
-        }
-
-        .top-navbar > div {
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 0 16px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-        }
-
         /* Desktop menu styling with higher specificity */
         .desktop-menu.ant-menu-horizontal .ant-menu-item-selected {
           background-color: #f0f0f0 !important;
@@ -348,14 +297,14 @@ export default function Navbar() {
           color: rgba(0, 0, 0, 0.88) !important;
         }
 
-        /* Bottom Navigation Styles - Mobile App Like - FORCE LIGHT THEME */
+        /* Bottom Navigation Styles - Mobile App Like */
         .bottom-nav {
           display: none;
           position: fixed;
           bottom: 0;
           left: 0;
           right: 0;
-          background: #ffffff !important;
+          background: #ffffff;
           border-top: 1px solid #f0f0f0;
           padding: 8px 0;
           padding-bottom: max(8px, env(safe-area-inset-bottom));

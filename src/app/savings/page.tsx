@@ -12,6 +12,7 @@ import QuantityHistoryTab from "@/components/savings/QuantityHistoryTab";
 import HistoryTab from "@/components/savings/HistoryTab";
 import Gold21ChartTab from "@/components/savings/Gold21ChartTab";
 import LoadingScreen from "@/components/shared/LoadingScreen";
+import AuthGuard from "@/components/shared/AuthGuard";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Tabs, Card, Typography } from "antd";
 import type { TabsProps } from "antd";
@@ -28,9 +29,11 @@ const { Title } = Typography;
 
 export default function SavingsPage() {
   return (
-    <Suspense>
-      <SavingsContent />
-    </Suspense>
+    <AuthGuard>
+      <Suspense>
+        <SavingsContent />
+      </Suspense>
+    </AuthGuard>
   );
 }
 
@@ -165,14 +168,8 @@ function SavingsContent() {
     },
   ];
 
-  if (savingsLoading || historyLoading || !user) {
-    return (
-      <LoadingScreen
-        tip={
-          !user ? "Checking authentication..." : "Loading your savings data..."
-        }
-      />
-    );
+  if (savingsLoading || historyLoading) {
+    return <LoadingScreen tip="Loading your savings data..." />;
   }
 
   return (

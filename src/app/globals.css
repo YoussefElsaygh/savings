@@ -17,55 +17,13 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-
-  /* Keep html background white for navbar safe area */
-  html {
-    background: #fff !important;
-  }
-}
-
-html {
-  /* Prevent pull-to-refresh on mobile */
-  overscroll-behavior-y: contain;
-  /* Enable smooth scrolling */
-  scroll-behavior: smooth;
-  /* No padding on html - safe areas handled by specific elements */
-  padding: 0;
-  /* Ensure background extends into safe areas */
-  background: #fff;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  /* Prevent overscroll bounce effect on mobile */
-  overscroll-behavior: contain;
-  /* Optimize for touch interactions */
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-  /* Prevent text size adjustment on orientation change */
-  -webkit-text-size-adjust: 100%;
-  /* Full height for mobile app feel */
-  min-height: 100vh;
-  min-height: 100dvh; /* Dynamic viewport height for mobile */
   margin: 0;
-  /* Add padding for fixed navbar at top (navbar height + safe area) */
-  padding-top: calc(64px + env(safe-area-inset-top, 0px));
-  /* Add padding for bottom navigation on mobile */
-  padding-bottom: 0;
-}
-
-/* Prevent body background from showing in notch area */
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: env(safe-area-inset-top, 0px);
-  background: #fff;
-  z-index: 999;
 }
 /* Status Colors for comparison indicators */
 .increase {
@@ -85,64 +43,17 @@ body::before {
   margin-left: 5px;
 }
 
-/* Mobile App Optimizations */
+/* Mobile Bottom Navigation - Add padding for mobile devices */
 @media (max-width: 768px) {
-  /* Add padding at bottom for bottom navigation */
-  body {
-    padding-bottom: 0;
-  }
-
-  /* Optimize touch targets */
-  button,
-  a,
-  [role="button"] {
-    min-height: 44px;
-    min-width: 44px;
-  }
-
-  /* Make main content scrollable with proper spacing */
-  main {
-    padding-bottom: calc(80px + env(safe-area-inset-bottom, 16px));
-    min-height: calc(
-      100vh - 64px - 80px
-    ); /* Account for top nav and bottom nav */
-  }
-
-  /* Page content wrapper padding */
+  /* Page content wrapper padding for bottom nav */
   body > div:not([class*="bottom-nav"]) {
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 16px));
   }
 }
 
-/* PWA install prompt styling */
-.install-prompt {
-  position: fixed;
-  bottom: calc(80px + env(safe-area-inset-bottom, 16px));
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  padding: 12px 24px;
-  background: #000;
-  color: #fff;
-  border-radius: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  animation: slideUp 0.3s ease-out;
-  max-width: calc(100vw - 32px);
-}
-
-@media (min-width: 769px) {
-  .install-prompt {
-    bottom: 24px;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateX(-50%) translateY(100px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(-50%) translateY(0);
-    opacity: 1;
+/* PWA Mode - Safe area adjustments */
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top, 0px);
   }
 }
