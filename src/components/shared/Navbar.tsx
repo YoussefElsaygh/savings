@@ -28,6 +28,7 @@ import { User } from "firebase/auth";
 import { auth, signInWithGoogle, signOutUser } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import Image from "next/image";
+import { clearLoadedDataTracker } from "@/hooks/useFirebaseData";
 
 const { Text } = Typography;
 
@@ -60,7 +61,15 @@ export default function Navbar() {
 
   const handleSignOut = async () => {
     try {
+      // Clear the loaded data tracker
+      clearLoadedDataTracker();
+      // Sign out from Firebase
       await signOutUser();
+      // Clear all local storage and session storage
+      localStorage.clear();
+      sessionStorage.clear();
+      // Redirect to home page after signing out
+      router.push("/");
     } catch (error) {
       console.error("Sign out failed:", error);
     }

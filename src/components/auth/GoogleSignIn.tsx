@@ -4,6 +4,8 @@ import { useState } from "react";
 import { User } from "firebase/auth";
 import { signOutUser } from "@/lib/firebase";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { clearLoadedDataTracker } from "@/hooks/useFirebaseData";
 
 interface GoogleSignInProps {
   user: User | null;
@@ -18,6 +20,7 @@ export default function GoogleSignIn({
   error,
   onSignIn,
 }: GoogleSignInProps) {
+  const router = useRouter();
   const [signingIn, setSigningIn] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
 
@@ -35,7 +38,15 @@ export default function GoogleSignIn({
   const handleSignOut = async () => {
     setSigningOut(true);
     try {
+      // Clear the loaded data tracker
+      clearLoadedDataTracker();
+      // Sign out from Firebase
       await signOutUser();
+      // Clear all local storage and session storage
+      localStorage.clear();
+      sessionStorage.clear();
+      // Redirect to home page after signing out
+      router.push("/");
     } catch (error) {
       console.error("Sign out failed:", error);
     } finally {
