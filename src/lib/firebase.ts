@@ -35,38 +35,21 @@ googleProvider.setCustomParameters({
   prompt: "select_account",
 });
 
-// Check if on mobile device or PWA
-const isMobileOrPWA = (): boolean => {
-  if (typeof window === "undefined") return false;
-
-  // Check if PWA
-  const isPWA = window.matchMedia("(display-mode: standalone)").matches;
-  if (isPWA) return true;
-
-  // Check if mobile device
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-  if (isMobile) return true;
-
-  // Check if small screen
-  const isSmallScreen = window.innerWidth <= 768;
-  return isSmallScreen;
-};
-
-// Sign in with Google
+// Sign in with Google - use popup by default, fallback to redirect if popup fails
 export const signInWithGoogle = async (): Promise<User | void> => {
   try {
-    // Use redirect for mobile/PWA, popup for desktop
-    if (isMobileOrPWA()) {
-      console.log("Using redirect sign-in for mobile/PWA");
-      // In mobile/PWA mode, use redirect (no return value, handled by getRedirectResult)
+    const result = await signInWithPopup(auth, googleProvider);
+    return result.user;
+  } catch (error: any) {
+    // If popup is blocked or fails, try redirect
+    if (
+      error.code === "auth/popup-blocked" ||
+      error.code === "auth/popup-closed-by-user"
+    ) {
+      console.log("Popup blocked or closed, using redirect instead");
       await signInWithRedirect(auth, googleProvider);
-    } else {
-      console.log("Using popup sign-in for desktop");
-      // In desktop mode, use popup
-      const result = await signInWithPopup(auth, googleProvider);
-      return result.user;
+      return;
     }
-  } catch (error) {
     console.error("Error signing in with Google:", error);
     throw error;
   }
