@@ -1,6 +1,13 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, signOut, User } from 'firebase/auth';
+import { initializeApp } from "firebase/app";
+import { getFirestore } from "firebase/firestore";
+import {
+  getAuth,
+  signInWithPopup,
+  signInWithRedirect,
+  GoogleAuthProvider,
+  signOut,
+  User,
+} from "firebase/auth";
 
 // Your web app's Firebase configuration
 // You'll need to replace these with your actual Firebase project credentials
@@ -10,9 +17,8 @@ const firebaseConfig = {
   projectId: "savings-b9cfc",
   storageBucket: "savings-b9cfc.firebasestorage.app",
   messagingSenderId: "76977824120",
-  appId: "1:76977824120:web:05a27bb9c282e9bbb6e88d"
+  appId: "1:76977824120:web:05a27bb9c282e9bbb6e88d",
 };
-
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -26,13 +32,13 @@ const googleProvider = new GoogleAuthProvider();
 
 // Configure Google provider
 googleProvider.setCustomParameters({
-  prompt: 'select_account'
+  prompt: "select_account",
 });
 
 // Check if running in PWA mode
 const isPWA = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  return window.matchMedia('(display-mode: standalone)').matches;
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(display-mode: standalone)").matches;
 };
 
 // Sign in with Google
@@ -48,7 +54,7 @@ export const signInWithGoogle = async (): Promise<User | void> => {
       return result.user;
     }
   } catch (error) {
-    console.error('Error signing in with Google:', error);
+    console.error("Error signing in with Google:", error);
     throw error;
   }
 };
@@ -58,7 +64,7 @@ export const signOutUser = async (): Promise<void> => {
   try {
     await signOut(auth);
   } catch (error) {
-    console.error('Error signing out:', error);
+    console.error("Error signing out:", error);
     throw error;
   }
 };

@@ -28,4 +28,3 @@ export default function AuthRedirectHandler() {
   // This component doesn't render anything
   return null;
 }
-
