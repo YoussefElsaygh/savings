@@ -17,6 +17,11 @@
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+
+  /* Keep html background white for navbar safe area */
+  html {
+    background: #fff !important;
+  }
 }
 
 html {
@@ -26,6 +31,8 @@ html {
   scroll-behavior: smooth;
   /* No padding on html - safe areas handled by specific elements */
   padding: 0;
+  /* Ensure background extends into safe areas */
+  background: #fff;
 }
 
 body {
@@ -43,10 +50,22 @@ body {
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
   margin: 0;
-  /* Add padding for fixed navbar at top */
+  /* Add padding for fixed navbar at top (navbar height + safe area) */
   padding-top: calc(64px + env(safe-area-inset-top, 0px));
   /* Add padding for bottom navigation on mobile */
   padding-bottom: 0;
+}
+
+/* Prevent body background from showing in notch area */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: env(safe-area-inset-top, 0px);
+  background: #fff;
+  z-index: 999;
 }
 /* Status Colors for comparison indicators */
 .increase {

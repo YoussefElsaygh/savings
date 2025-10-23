@@ -161,92 +161,84 @@ export default function Navbar() {
   return (
     <>
       {/* Top Navigation Bar - Desktop and Header on Mobile */}
-      <nav
-        className="top-navbar"
-        style={{
-          borderBottom: "1px solid #f0f0f0",
-          background: "#fff",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          paddingTop: "env(safe-area-inset-top, 0px)",
-        }}
-      >
-        <div
-          style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: "0 16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-          }}
-        >
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <Text
-              strong
-              style={{
-                fontSize: "18px",
-                padding: "16px 0",
-                cursor: "pointer",
-              }}
-            >
-              Personal Tracker
-            </Text>
-          </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            {/* Desktop Menu - hidden on small screens */}
-            {user && navItems.length > 0 && (
-              <Menu
-                mode="horizontal"
-                selectedKeys={[getSelectedKey()]}
-                items={navItems}
+      <div className="navbar-safe-area">
+        <nav className="top-navbar">
+          <div
+            style={{
+              maxWidth: "1280px",
+              margin: "0 auto",
+              padding: "0 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Link href="/" style={{ textDecoration: "none" }}>
+              <Text
+                strong
                 style={{
-                  border: "none",
-                  minWidth: "500px",
+                  fontSize: "18px",
+                  padding: "16px 0",
+                  cursor: "pointer",
                 }}
-                className="desktop-menu"
-              />
-            )}
-
-            {authLoading ? (
-              <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
-            ) : user ? (
-              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                <Space style={{ cursor: "pointer" }}>
-                  {user.photoURL ? (
-                    <Image
-                      src={user.photoURL}
-                      alt="Profile"
-                      width={32}
-                      height={32}
-                      style={{ borderRadius: "50%" }}
-                    />
-                  ) : (
-                    <Avatar icon={<UserOutlined />} />
-                  )}
-                  <Text className="user-name">
-                    {user.displayName || user.email}
-                  </Text>
-                </Space>
-              </Dropdown>
-            ) : (
-              <Button
-                type="primary"
-                icon={<LoginOutlined />}
-                onClick={handleSignIn}
-                loading={signingIn}
-                className="desktop-signin-btn"
               >
-                Sign In
-              </Button>
-            )}
+                Personal Tracker
+              </Text>
+            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              {/* Desktop Menu - hidden on small screens */}
+              {user && navItems.length > 0 && (
+                <Menu
+                  mode="horizontal"
+                  selectedKeys={[getSelectedKey()]}
+                  items={navItems}
+                  style={{
+                    border: "none",
+                    minWidth: "500px",
+                  }}
+                  className="desktop-menu"
+                />
+              )}
+
+              {authLoading ? (
+                <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
+              ) : user ? (
+                <Dropdown
+                  menu={{ items: userMenuItems }}
+                  placement="bottomRight"
+                >
+                  <Space style={{ cursor: "pointer" }}>
+                    {user.photoURL ? (
+                      <Image
+                        src={user.photoURL}
+                        alt="Profile"
+                        width={32}
+                        height={32}
+                        style={{ borderRadius: "50%" }}
+                      />
+                    ) : (
+                      <Avatar icon={<UserOutlined />} />
+                    )}
+                    <Text className="user-name">
+                      {user.displayName || user.email}
+                    </Text>
+                  </Space>
+                </Dropdown>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<LoginOutlined />}
+                  onClick={handleSignIn}
+                  loading={signingIn}
+                  className="desktop-signin-btn"
+                >
+                  Sign In
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="bottom-nav">
@@ -304,10 +296,32 @@ export default function Navbar() {
       </nav>
 
       <style jsx global>{`
+        /* Navbar safe area wrapper - covers notch/dynamic island */
+        .navbar-safe-area {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          background: #fff;
+          padding-top: env(safe-area-inset-top, 0px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
         /* Force light theme for navbars - don't follow system theme */
         .top-navbar {
-          background: #fff !important;
-          color: #000 !important;
+          background: transparent;
+          border-bottom: 1px solid #f0f0f0;
+          position: relative;
+        }
+
+        .top-navbar > div {
+          max-width: 1280px;
+          margin: 0 auto;
+          padding: 0 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
         }
 
         /* Desktop menu styling with higher specificity */
