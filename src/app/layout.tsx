@@ -6,6 +6,7 @@ import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider } from "antd";
 import Navbar from "@/components/shared/Navbar";
 import PWAInstallPrompt from "@/components/shared/PWAInstallPrompt";
+import AuthRedirectHandler from "@/components/shared/AuthRedirectHandler";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -73,6 +74,7 @@ export default function RootLayout({
               },
             }}
           >
+            <AuthRedirectHandler />
             <Navbar />
             {children}
             <PWAInstallPrompt />

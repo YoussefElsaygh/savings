@@ -41,13 +41,16 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         setSigningIn(true);
         try {
           await signInWithGoogle();
-          // If successful, onAuthStateChanged will update the user
+          // In PWA mode, signInWithGoogle will redirect and not return here
+          // In browser mode, if successful, onAuthStateChanged will update the user
         } catch (error) {
           console.error("Sign in failed:", error);
           // Redirect to home on sign-in failure
           setRedirecting(true);
           router.replace("/");
         } finally {
+          // Only set signingIn to false in browser mode
+          // In PWA mode, the page will redirect and this won't execute
           setSigningIn(false);
         }
       };

@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, User } from 'firebase/auth';
+import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, signOut, User } from 'firebase/auth';
 
 // Your web app's Firebase configuration
 // You'll need to replace these with your actual Firebase project credentials
@@ -29,11 +29,24 @@ googleProvider.setCustomParameters({
   prompt: 'select_account'
 });
 
+// Check if running in PWA mode
+const isPWA = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia('(display-mode: standalone)').matches;
+};
+
 // Sign in with Google
-export const signInWithGoogle = async (): Promise<User> => {
+export const signInWithGoogle = async (): Promise<User | void> => {
   try {
-    const result = await signInWithPopup(auth, googleProvider);
-    return result.user;
+    // Use redirect for PWA mode, popup for browser mode
+    if (isPWA()) {
+      // In PWA mode, use redirect (no return value, handled by getRedirectResult)
+      await signInWithRedirect(auth, googleProvider);
+    } else {
+      // In browser mode, use popup
+      const result = await signInWithPopup(auth, googleProvider);
+      return result.user;
+    }
   } catch (error) {
     console.error('Error signing in with Google:', error);
     throw error;
