@@ -161,90 +161,92 @@ export default function Navbar() {
   return (
     <>
       {/* Top Navigation Bar - Desktop and Header on Mobile */}
-      <div className="navbar-wrapper">
-        <nav
-          className="top-navbar"
+      <nav
+        className="top-navbar"
+        style={{
+          borderBottom: "1px solid #f0f0f0",
+          background: "#fff",
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          paddingTop: "env(safe-area-inset-top, 0px)",
+        }}
+      >
+        <div
           style={{
-            borderBottom: "1px solid #f0f0f0",
-            position: "relative",
-            zIndex: 1,
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: "0 16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <div
-            style={{
-              maxWidth: "1280px",
-              margin: "0 auto",
-              padding: "0 16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Link href="/" style={{ textDecoration: "none" }}>
-              <Text
-                strong
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <Text
+              strong
+              style={{
+                fontSize: "18px",
+                padding: "16px 0",
+                cursor: "pointer",
+              }}
+            >
+              Personal Tracker
+            </Text>
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            {/* Desktop Menu - hidden on small screens */}
+            {user && navItems.length > 0 && (
+              <Menu
+                mode="horizontal"
+                selectedKeys={[getSelectedKey()]}
+                items={navItems}
                 style={{
-                  fontSize: "18px",
-                  padding: "16px 0",
-                  cursor: "pointer",
+                  border: "none",
+                  minWidth: "500px",
                 }}
-              >
-                Personal Tracker
-              </Text>
-            </Link>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              {/* Desktop Menu - hidden on small screens */}
-              {user && navItems.length > 0 && (
-                <Menu
-                  mode="horizontal"
-                  selectedKeys={[getSelectedKey()]}
-                  items={navItems}
-                  style={{
-                    border: "none",
-                    minWidth: "500px",
-                  }}
-                  className="desktop-menu"
-                />
-              )}
+                className="desktop-menu"
+              />
+            )}
 
-              {authLoading ? (
-                <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
-              ) : user ? (
-                <Dropdown
-                  menu={{ items: userMenuItems }}
-                  placement="bottomRight"
-                >
-                  <Space style={{ cursor: "pointer" }}>
-                    {user.photoURL ? (
-                      <Image
-                        src={user.photoURL}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        style={{ borderRadius: "50%" }}
-                      />
-                    ) : (
-                      <Avatar icon={<UserOutlined />} />
-                    )}
-                    <Text className="user-name">
-                      {user.displayName || user.email}
-                    </Text>
-                  </Space>
-                </Dropdown>
-              ) : (
-                <Button
-                  type="primary"
-                  icon={<LoginOutlined />}
-                  onClick={handleSignIn}
-                  loading={signingIn}
-                >
-                  Sign In
-                </Button>
-              )}
-            </div>
+            {authLoading ? (
+              <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
+            ) : user ? (
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+                <Space style={{ cursor: "pointer" }}>
+                  {user.photoURL ? (
+                    <Image
+                      src={user.photoURL}
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      style={{ borderRadius: "50%" }}
+                    />
+                  ) : (
+                    <Avatar icon={<UserOutlined />} />
+                  )}
+                  <Text className="user-name">
+                    {user.displayName || user.email}
+                  </Text>
+                </Space>
+              </Dropdown>
+            ) : (
+              <Button
+                type="primary"
+                icon={<LoginOutlined />}
+                onClick={handleSignIn}
+                loading={signingIn}
+                className="desktop-signin-btn"
+              >
+                Sign In
+              </Button>
+            )}
           </div>
-        </nav>
-      </div>
+        </div>
+      </nav>
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="bottom-nav">
@@ -288,32 +290,24 @@ export default function Navbar() {
             </Link>
           </>
         ) : (
-          <button
-            className="bottom-nav-item bottom-nav-signin"
-            onClick={handleSignIn}
-            disabled={signingIn}
-          >
-            <LoginOutlined style={{ fontSize: "24px" }} />
-            <span>{signingIn ? "Signing in..." : "Sign In"}</span>
-          </button>
+          <div className="bottom-nav-signin-container">
+            <button
+              className="bottom-nav-signin-btn"
+              onClick={handleSignIn}
+              disabled={signingIn}
+            >
+              <LoginOutlined style={{ fontSize: "20px", marginRight: "8px" }} />
+              <span>{signingIn ? "Signing in..." : "Sign In with Google"}</span>
+            </button>
+          </div>
         )}
       </nav>
 
       <style jsx global>{`
-        /* Navbar wrapper - extends to cover full top area including notch */
-        .navbar-wrapper {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          z-index: 1000;
-          background: #fff;
-          padding-top: env(safe-area-inset-top, 0px);
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
+        /* Force light theme for navbars - don't follow system theme */
         .top-navbar {
-          background: transparent;
+          background: #fff !important;
+          color: #000 !important;
         }
 
         /* Desktop menu styling with higher specificity */
@@ -340,14 +334,14 @@ export default function Navbar() {
           color: rgba(0, 0, 0, 0.88) !important;
         }
 
-        /* Bottom Navigation Styles - Mobile App Like */
+        /* Bottom Navigation Styles - Mobile App Like - FORCE LIGHT THEME */
         .bottom-nav {
           display: none;
           position: fixed;
           bottom: 0;
           left: 0;
           right: 0;
-          background: #ffffff;
+          background: #ffffff !important;
           border-top: 1px solid #f0f0f0;
           padding: 8px 0;
           padding-bottom: max(8px, env(safe-area-inset-bottom));
@@ -390,44 +384,49 @@ export default function Navbar() {
           border-radius: 8px;
         }
 
-        .bottom-nav-signin {
+        /* Sign-in container for bottom nav */
+        .bottom-nav-signin-container {
           width: 100%;
-          color: #000000 !important;
+          padding: 8px 16px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
         }
 
-        .bottom-nav-signin:disabled {
+        .bottom-nav-signin-btn {
+          background: #000000;
+          color: #ffffff;
+          border: none;
+          padding: 14px 24px;
+          border-radius: 12px;
+          font-size: 15px;
+          font-weight: 600;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          width: 100%;
+          max-width: 320px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .bottom-nav-signin-btn:hover {
+          background: #1a1a1a;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .bottom-nav-signin-btn:active {
+          transform: translateY(0);
+        }
+
+        .bottom-nav-signin-btn:disabled {
           opacity: 0.6;
           cursor: not-allowed;
         }
 
-        /* Top navbar in dark mode */
-        @media (prefers-color-scheme: dark) {
-          .navbar-wrapper {
-            background: #0a0a0a !important;
-          }
-
-          .top-navbar {
-            border-bottom-color: #262626 !important;
-          }
-
-          .bottom-nav {
-            background: #0a0a0a;
-            border-top-color: #262626;
-          }
-
-          .bottom-nav-item {
-            color: #8c8c8c;
-          }
-
-          .bottom-nav-item.active {
-            color: #ededed;
-          }
-
-          .bottom-nav-item:active {
-            background: #1a1a1a;
-          }
-        }
-
+        /* Responsive styles */
         @media (min-width: 769px) {
           .desktop-menu {
             display: flex !important;
@@ -445,6 +444,10 @@ export default function Navbar() {
             display: flex !important;
           }
           .user-name {
+            display: none !important;
+          }
+          /* Hide desktop sign-in button on mobile */
+          .desktop-signin-btn {
             display: none !important;
           }
         }
