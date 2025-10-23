@@ -43,6 +43,8 @@ body {
   min-height: 100vh;
   min-height: 100dvh; /* Dynamic viewport height for mobile */
   margin: 0;
+  /* Add padding for fixed navbar at top */
+  padding-top: calc(64px + env(safe-area-inset-top, 0px));
   /* Add padding for bottom navigation on mobile */
   padding-bottom: 0;
 }

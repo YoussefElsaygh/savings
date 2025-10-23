@@ -165,8 +165,10 @@ export default function Navbar() {
         style={{
           borderBottom: "1px solid #f0f0f0",
           background: "#fff",
-          position: "sticky",
+          position: "fixed",
           top: 0,
+          left: 0,
+          right: 0,
           zIndex: 1000,
           boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
           paddingTop: "env(safe-area-inset-top, 0px)",
@@ -378,7 +380,13 @@ export default function Navbar() {
           cursor: not-allowed;
         }
 
+        /* Top navbar in dark mode */
         @media (prefers-color-scheme: dark) {
+          nav[style*="position: fixed"] {
+            background: #0a0a0a !important;
+            border-bottom-color: #262626 !important;
+          }
+
           .bottom-nav {
             background: #0a0a0a;
             border-top-color: #262626;
