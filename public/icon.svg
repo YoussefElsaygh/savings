@@ -1,12 +1,15 @@
+<!-- Orange/Red Fitness Theme -->
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="128" fill="#000000"/>
-  <g fill="#ffffff">
-    <!-- Dollar sign -->
-    <path d="M280 80h-48v40c-35 5-64 28-64 68 0 45 35 58 76 68 28 7 36 15 36 28 0 15-15 28-40 28-20 0-35-8-44-20l-40 28c15 25 42 40 76 44v40h48v-40c35-5 64-28 64-68 0-45-35-58-76-68-28-7-36-15-36-28 0-15 15-28 40-28 20 0 35 8 44 20l40-28c-15-25-42-40-76-44V80z"/>
-    <!-- Chart bars -->
-    <rect x="80" y="340" width="40" height="92" rx="8"/>
-    <rect x="140" y="300" width="40" height="132" rx="8"/>
-    <rect x="200" y="320" width="40" height="112" rx="8"/>
-  </g>
+  <defs>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="128" fill="url(#orangeGrad)"/>
+  <!-- Lightning bolt for energy -->
+  <path d="M280,100 L200,260 L260,260 L230,410 L350,240 L290,240 L320,100 Z" fill="#fff"/>
+  <!-- Heart rate line at bottom -->
+  <polyline points="80,380 120,380 140,340 170,420 200,340 220,380 432,380" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
 

@@ -24,9 +24,8 @@ html {
   overscroll-behavior-y: contain;
   /* Enable smooth scrolling */
   scroll-behavior: smooth;
-  /* Add safe area support for notched devices */
-  padding: env(safe-area-inset-top) env(safe-area-inset-right)
-    env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* No padding on html - safe areas handled by specific elements */
+  padding: 0;
 }
 
 body {
@@ -69,7 +68,7 @@ body {
 @media (max-width: 768px) {
   /* Add padding at bottom for bottom navigation */
   body {
-    padding-bottom: env(safe-area-inset-bottom, 64px);
+    padding-bottom: 0;
   }
 
   /* Optimize touch targets */
@@ -82,14 +81,22 @@ body {
 
   /* Make main content scrollable with proper spacing */
   main {
-    padding-bottom: 80px;
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 16px));
+    min-height: calc(
+      100vh - 64px - 80px
+    ); /* Account for top nav and bottom nav */
+  }
+
+  /* Page content wrapper padding */
+  body > div:not([class*="bottom-nav"]) {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 16px));
   }
 }
 
 /* PWA install prompt styling */
 .install-prompt {
   position: fixed;
-  bottom: 80px;
+  bottom: calc(80px + env(safe-area-inset-bottom, 16px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
@@ -99,6 +106,13 @@ body {
   border-radius: 24px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   animation: slideUp 0.3s ease-out;
+  max-width: calc(100vw - 32px);
+}
+
+@media (min-width: 769px) {
+  .install-prompt {
+    bottom: 24px;
+  }
 }
 
 @keyframes slideUp {

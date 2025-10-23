@@ -169,6 +169,7 @@ export default function Navbar() {
           top: 0,
           zIndex: 1000,
           boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+          paddingTop: "env(safe-area-inset-top, 0px)",
         }}
       >
         <div
@@ -240,46 +241,57 @@ export default function Navbar() {
       </nav>
 
       {/* Bottom Navigation - Mobile Only */}
-      {user && (
-        <nav className="bottom-nav">
-          <Link
-            href="/savings"
-            className={`bottom-nav-item ${
-              pathname === "/savings" ? "active" : ""
-            }`}
+      <nav className="bottom-nav">
+        {user ? (
+          <>
+            <Link
+              href="/savings"
+              className={`bottom-nav-item ${
+                pathname === "/savings" ? "active" : ""
+              }`}
+            >
+              <DollarOutlined style={{ fontSize: "24px" }} />
+              <span>Savings</span>
+            </Link>
+            <Link
+              href="/spending"
+              className={`bottom-nav-item ${
+                pathname === "/spending" ? "active" : ""
+              }`}
+            >
+              <WalletOutlined style={{ fontSize: "24px" }} />
+              <span>Spending</span>
+            </Link>
+            <Link
+              href="/calories"
+              className={`bottom-nav-item ${
+                pathname === "/calories" ? "active" : ""
+              }`}
+            >
+              <AppleOutlined style={{ fontSize: "24px" }} />
+              <span>Calories</span>
+            </Link>
+            <Link
+              href="/workout"
+              className={`bottom-nav-item ${
+                pathname === "/workout" ? "active" : ""
+              }`}
+            >
+              <ThunderboltOutlined style={{ fontSize: "24px" }} />
+              <span>Workout</span>
+            </Link>
+          </>
+        ) : (
+          <button
+            className="bottom-nav-item bottom-nav-signin"
+            onClick={handleSignIn}
+            disabled={signingIn}
           >
-            <DollarOutlined style={{ fontSize: "24px" }} />
-            <span>Savings</span>
-          </Link>
-          <Link
-            href="/spending"
-            className={`bottom-nav-item ${
-              pathname === "/spending" ? "active" : ""
-            }`}
-          >
-            <WalletOutlined style={{ fontSize: "24px" }} />
-            <span>Spending</span>
-          </Link>
-          <Link
-            href="/calories"
-            className={`bottom-nav-item ${
-              pathname === "/calories" ? "active" : ""
-            }`}
-          >
-            <AppleOutlined style={{ fontSize: "24px" }} />
-            <span>Calories</span>
-          </Link>
-          <Link
-            href="/workout"
-            className={`bottom-nav-item ${
-              pathname === "/workout" ? "active" : ""
-            }`}
-          >
-            <ThunderboltOutlined style={{ fontSize: "24px" }} />
-            <span>Workout</span>
-          </Link>
-        </nav>
-      )}
+            <LoginOutlined style={{ fontSize: "24px" }} />
+            <span>{signingIn ? "Signing in..." : "Sign In"}</span>
+          </button>
+        )}
+      </nav>
 
       <style jsx global>{`
         /* Desktop menu styling with higher specificity */
@@ -335,6 +347,10 @@ export default function Navbar() {
           flex: 1;
           gap: 4px;
           -webkit-tap-highlight-color: transparent;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-family: inherit;
         }
 
         .bottom-nav-item span {
@@ -350,6 +366,16 @@ export default function Navbar() {
           transform: scale(0.95);
           background: #f5f5f5;
           border-radius: 8px;
+        }
+
+        .bottom-nav-signin {
+          width: 100%;
+          color: #000000 !important;
+        }
+
+        .bottom-nav-signin:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
         }
 
         @media (prefers-color-scheme: dark) {
