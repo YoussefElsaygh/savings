@@ -40,11 +40,12 @@ export const signInWithGoogle = async (): Promise<User | void> => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
-  } catch (error: any) {
+  } catch (error) {
     // If popup is blocked or fails, try redirect
+    const authError = error as { code?: string };
     if (
-      error.code === "auth/popup-blocked" ||
-      error.code === "auth/popup-closed-by-user"
+      authError.code === "auth/popup-blocked" ||
+      authError.code === "auth/popup-closed-by-user"
     ) {
       console.log("Popup blocked or closed, using redirect instead");
       await signInWithRedirect(auth, googleProvider);
