@@ -5,6 +5,7 @@ import "./globals.css";
 import { AntdRegistry } from "@ant-design/nextjs-registry";
 import { ConfigProvider } from "antd";
 import Navbar from "@/components/shared/Navbar";
+import PWAInstallPrompt from "@/components/shared/PWAInstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +20,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Personal Tracker",
   description: "Track your savings and calories",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Personal Tracker",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    viewportFit: "cover",
+  },
+  themeColor: "#000000",
 };
 
 export default function RootLayout({
@@ -28,6 +43,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/icon.svg" />
+        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta
+          name="apple-mobile-web-app-status-bar-style"
+          content="black-translucent"
+        />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -44,6 +69,7 @@ export default function RootLayout({
           >
             <Navbar />
             {children}
+            <PWAInstallPrompt />
           </ConfigProvider>
         </AntdRegistry>
         <Analytics />

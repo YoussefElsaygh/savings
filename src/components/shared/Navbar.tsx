@@ -160,6 +160,7 @@ export default function Navbar() {
 
   return (
     <>
+      {/* Top Navigation Bar - Desktop and Header on Mobile */}
       <nav
         style={{
           borderBottom: "1px solid #f0f0f0",
@@ -203,17 +204,6 @@ export default function Navbar() {
               />
             )}
 
-            {/* Mobile Menu Button - shown on small screens */}
-            {user && drawerItems.length > 0 && (
-              <Button
-                type="text"
-                icon={<MenuOutlined />}
-                onClick={() => setDrawerOpen(true)}
-                className="mobile-menu-button"
-                style={{ display: "none" }}
-              />
-            )}
-
             {authLoading ? (
               <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
             ) : user ? (
@@ -249,22 +239,47 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Drawer */}
-      <Drawer
-        title=""
-        placement="right"
-        onClose={() => setDrawerOpen(false)}
-        open={drawerOpen}
-        width={280}
-      >
-        <Menu
-          mode="vertical"
-          selectedKeys={[getSelectedKey()]}
-          items={drawerItems}
-          style={{ border: "none" }}
-          className="drawer-menu"
-        />
-      </Drawer>
+      {/* Bottom Navigation - Mobile Only */}
+      {user && (
+        <nav className="bottom-nav">
+          <Link
+            href="/savings"
+            className={`bottom-nav-item ${
+              pathname === "/savings" ? "active" : ""
+            }`}
+          >
+            <DollarOutlined style={{ fontSize: "24px" }} />
+            <span>Savings</span>
+          </Link>
+          <Link
+            href="/spending"
+            className={`bottom-nav-item ${
+              pathname === "/spending" ? "active" : ""
+            }`}
+          >
+            <WalletOutlined style={{ fontSize: "24px" }} />
+            <span>Spending</span>
+          </Link>
+          <Link
+            href="/calories"
+            className={`bottom-nav-item ${
+              pathname === "/calories" ? "active" : ""
+            }`}
+          >
+            <AppleOutlined style={{ fontSize: "24px" }} />
+            <span>Calories</span>
+          </Link>
+          <Link
+            href="/workout"
+            className={`bottom-nav-item ${
+              pathname === "/workout" ? "active" : ""
+            }`}
+          >
+            <ThunderboltOutlined style={{ fontSize: "24px" }} />
+            <span>Workout</span>
+          </Link>
+        </nav>
+      )}
 
       <style jsx global>{`
         /* Desktop menu styling with higher specificity */
@@ -291,25 +306,76 @@ export default function Navbar() {
           color: rgba(0, 0, 0, 0.88) !important;
         }
 
-        /* Mobile drawer menu styling */
-        .drawer-menu .ant-menu-item-selected {
-          background-color: #f0f0f0 !important;
-          color: #000000 !important;
+        /* Bottom Navigation Styles - Mobile App Like */
+        .bottom-nav {
+          display: none;
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: #ffffff;
+          border-top: 1px solid #f0f0f0;
+          padding: 8px 0;
+          padding-bottom: max(8px, env(safe-area-inset-bottom));
+          z-index: 1000;
+          box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+          justify-content: space-around;
+          align-items: center;
         }
 
-        .drawer-menu .ant-menu-item-selected::after {
-          border-right-color: #000000 !important;
+        .bottom-nav-item {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 12px;
+          color: #8c8c8c;
+          text-decoration: none;
+          transition: all 0.2s ease;
+          flex: 1;
+          gap: 4px;
+          -webkit-tap-highlight-color: transparent;
         }
 
-        .drawer-menu .ant-menu-item:hover {
-          background-color: #fafafa !important;
+        .bottom-nav-item span {
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        .bottom-nav-item.active {
+          color: #000000;
+        }
+
+        .bottom-nav-item:active {
+          transform: scale(0.95);
+          background: #f5f5f5;
+          border-radius: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+          .bottom-nav {
+            background: #0a0a0a;
+            border-top-color: #262626;
+          }
+
+          .bottom-nav-item {
+            color: #8c8c8c;
+          }
+
+          .bottom-nav-item.active {
+            color: #ededed;
+          }
+
+          .bottom-nav-item:active {
+            background: #1a1a1a;
+          }
         }
 
         @media (min-width: 769px) {
           .desktop-menu {
             display: flex !important;
           }
-          .mobile-menu-button {
+          .bottom-nav {
             display: none !important;
           }
         }
@@ -318,8 +384,8 @@ export default function Navbar() {
           .desktop-menu {
             display: none !important;
           }
-          .mobile-menu-button {
-            display: inline-flex !important;
+          .bottom-nav {
+            display: flex !important;
           }
           .user-name {
             display: none !important;

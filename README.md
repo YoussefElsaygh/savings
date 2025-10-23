@@ -43,9 +43,20 @@ A comprehensive personal tracking application built with Next.js, TypeScript, Fi
 - **Progress Analytics**: Workout history, volume tracking, and streak counters
 - **Detailed Stats**: Total workouts, total volume, current streak, PRs this month
 
-## 📱 Responsive Design
+## 📱 Progressive Web App (PWA)
+
+**Install as a mobile app!** This application is a fully-featured Progressive Web App with:
+
+- **🏠 Installable**: Add to your phone's home screen for app-like experience
+- **📴 Offline Support**: Works without internet after first load
+- **🎯 Bottom Navigation**: Mobile-first navigation design for easy thumb access
+- **📲 Push Ready**: Infrastructure ready for push notifications
+- **🔔 App Shortcuts**: Quick access to Savings, Spending, Calories, and Workout sections
+- **🎨 Native Feel**: Standalone mode with no browser UI, custom splash screen
 
 Works seamlessly on desktop, tablet, and mobile devices with a modern, intuitive UI powered by Ant Design.
+
+👉 **See [PWA_SETUP.md](./PWA_SETUP.md) for detailed installation and testing instructions**
 
 ## 🛠️ Tech Stack
 
@@ -56,6 +67,7 @@ Works seamlessly on desktop, tablet, and mobile devices with a modern, intuitive
 - **Authentication**: Firebase Auth (Google Sign-In)
 - **State Management**: React hooks with Firebase integration
 - **Build Tool**: Turbopack (for faster development)
+- **PWA**: Service Worker, Web App Manifest, Offline Support
 
 ## 🚀 Getting Started
 
@@ -101,6 +113,16 @@ Works seamlessly on desktop, tablet, and mobile devices with a modern, intuitive
 - `npm run build` - Build the application for production
 - `npm run start` - Start the production server
 - `npm run lint` - Run ESLint for code quality
+
+### Testing PWA Features
+
+For the full PWA experience with service worker and install prompt:
+
+1. Build the production version: `npm run build`
+2. Start the production server: `npm run start`
+3. Open https://localhost:3000 or deploy to a hosting service
+4. On mobile: Look for "Add to Home Screen" or install prompt
+5. Desktop: Look for install icon in browser address bar
 
 ## 📖 Usage
 
@@ -171,7 +193,7 @@ src/
 │   ├── savings/             # Savings calculator UI
 │   ├── spending/            # Spending tracker UI
 │   ├── workout/             # Workout tracker UI
-│   └── shared/              # Shared components (Navbar, Modals)
+│   └── shared/              # Shared components (Navbar, PWA, Modals)
 ├── constants/               # Static data
 │   ├── exercises-library.ts # 50+ exercises with alternatives
 │   ├── foods.ts             # Food database
@@ -273,10 +295,19 @@ The app uses Firestore security rules to protect user data:
 
 ## Browser Compatibility
 
-- Chrome (latest) ✅
-- Firefox (latest) ✅
-- Safari (latest) ✅
-- Edge (latest) ✅
+### Desktop:
+
+- Chrome (latest) ✅ - Full PWA support
+- Firefox (latest) ✅ - Full PWA support
+- Safari (latest) ✅ - Full PWA support
+- Edge (latest) ✅ - Full PWA support
+
+### Mobile:
+
+- iOS Safari 11.3+ ✅ - Add to Home Screen, Standalone mode
+- Chrome Android 73+ ✅ - Full PWA install, Service Worker
+- Samsung Internet 8+ ✅ - Full PWA support
+- Firefox Mobile ✅ - Full PWA support
 
 ## 🐛 Troubleshooting
 
