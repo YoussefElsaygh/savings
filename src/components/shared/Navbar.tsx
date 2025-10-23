@@ -161,86 +161,90 @@ export default function Navbar() {
   return (
     <>
       {/* Top Navigation Bar - Desktop and Header on Mobile */}
-      <nav
-        style={{
-          borderBottom: "1px solid #f0f0f0",
-          background: "#fff",
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          paddingTop: "env(safe-area-inset-top, 0px)",
-        }}
-      >
-        <div
+      <div className="navbar-wrapper">
+        <nav
+          className="top-navbar"
           style={{
-            maxWidth: "1280px",
-            margin: "0 auto",
-            padding: "0 16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
+            borderBottom: "1px solid #f0f0f0",
+            position: "relative",
+            zIndex: 1,
           }}
         >
-          <Link href="/" style={{ textDecoration: "none" }}>
-            <Text
-              strong
-              style={{ fontSize: "18px", padding: "16px 0", cursor: "pointer" }}
-            >
-              Personal Tracker
-            </Text>
-          </Link>
-          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            {/* Desktop Menu - hidden on small screens */}
-            {user && navItems.length > 0 && (
-              <Menu
-                mode="horizontal"
-                selectedKeys={[getSelectedKey()]}
-                items={navItems}
+          <div
+            style={{
+              maxWidth: "1280px",
+              margin: "0 auto",
+              padding: "0 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Link href="/" style={{ textDecoration: "none" }}>
+              <Text
+                strong
                 style={{
-                  border: "none",
-                  minWidth: "500px",
+                  fontSize: "18px",
+                  padding: "16px 0",
+                  cursor: "pointer",
                 }}
-                className="desktop-menu"
-              />
-            )}
-
-            {authLoading ? (
-              <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
-            ) : user ? (
-              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
-                <Space style={{ cursor: "pointer" }}>
-                  {user.photoURL ? (
-                    <Image
-                      src={user.photoURL}
-                      alt="Profile"
-                      width={32}
-                      height={32}
-                      style={{ borderRadius: "50%" }}
-                    />
-                  ) : (
-                    <Avatar icon={<UserOutlined />} />
-                  )}
-                  <Text className="user-name">
-                    {user.displayName || user.email}
-                  </Text>
-                </Space>
-              </Dropdown>
-            ) : (
-              <Button
-                type="primary"
-                icon={<LoginOutlined />}
-                onClick={handleSignIn}
-                loading={signingIn}
               >
-                Sign In
-              </Button>
-            )}
+                Personal Tracker
+              </Text>
+            </Link>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              {/* Desktop Menu - hidden on small screens */}
+              {user && navItems.length > 0 && (
+                <Menu
+                  mode="horizontal"
+                  selectedKeys={[getSelectedKey()]}
+                  items={navItems}
+                  style={{
+                    border: "none",
+                    minWidth: "500px",
+                  }}
+                  className="desktop-menu"
+                />
+              )}
+
+              {authLoading ? (
+                <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
+              ) : user ? (
+                <Dropdown
+                  menu={{ items: userMenuItems }}
+                  placement="bottomRight"
+                >
+                  <Space style={{ cursor: "pointer" }}>
+                    {user.photoURL ? (
+                      <Image
+                        src={user.photoURL}
+                        alt="Profile"
+                        width={32}
+                        height={32}
+                        style={{ borderRadius: "50%" }}
+                      />
+                    ) : (
+                      <Avatar icon={<UserOutlined />} />
+                    )}
+                    <Text className="user-name">
+                      {user.displayName || user.email}
+                    </Text>
+                  </Space>
+                </Dropdown>
+              ) : (
+                <Button
+                  type="primary"
+                  icon={<LoginOutlined />}
+                  onClick={handleSignIn}
+                  loading={signingIn}
+                >
+                  Sign In
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      </div>
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="bottom-nav">
@@ -296,6 +300,22 @@ export default function Navbar() {
       </nav>
 
       <style jsx global>{`
+        /* Navbar wrapper - extends to cover full top area including notch */
+        .navbar-wrapper {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          background: #fff;
+          padding-top: env(safe-area-inset-top, 0px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .top-navbar {
+          background: transparent;
+        }
+
         /* Desktop menu styling with higher specificity */
         .desktop-menu.ant-menu-horizontal .ant-menu-item-selected {
           background-color: #f0f0f0 !important;
@@ -382,8 +402,11 @@ export default function Navbar() {
 
         /* Top navbar in dark mode */
         @media (prefers-color-scheme: dark) {
-          nav[style*="position: fixed"] {
+          .navbar-wrapper {
             background: #0a0a0a !important;
+          }
+
+          .top-navbar {
             border-bottom-color: #262626 !important;
           }
 
