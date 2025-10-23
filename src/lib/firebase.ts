@@ -35,21 +35,34 @@ googleProvider.setCustomParameters({
   prompt: "select_account",
 });
 
-// Check if running in PWA mode
-const isPWA = (): boolean => {
+// Check if on mobile device or PWA
+const isMobileOrPWA = (): boolean => {
   if (typeof window === "undefined") return false;
-  return window.matchMedia("(display-mode: standalone)").matches;
+
+  // Check if PWA
+  const isPWA = window.matchMedia("(display-mode: standalone)").matches;
+  if (isPWA) return true;
+
+  // Check if mobile device
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (isMobile) return true;
+
+  // Check if small screen
+  const isSmallScreen = window.innerWidth <= 768;
+  return isSmallScreen;
 };
 
 // Sign in with Google
 export const signInWithGoogle = async (): Promise<User | void> => {
   try {
-    // Use redirect for PWA mode, popup for browser mode
-    if (isPWA()) {
-      // In PWA mode, use redirect (no return value, handled by getRedirectResult)
+    // Use redirect for mobile/PWA, popup for desktop
+    if (isMobileOrPWA()) {
+      console.log("Using redirect sign-in for mobile/PWA");
+      // In mobile/PWA mode, use redirect (no return value, handled by getRedirectResult)
       await signInWithRedirect(auth, googleProvider);
     } else {
-      // In browser mode, use popup
+      console.log("Using popup sign-in for desktop");
+      // In desktop mode, use popup
       const result = await signInWithPopup(auth, googleProvider);
       return result.user;
     }

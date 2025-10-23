@@ -38,15 +38,32 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   useEffect(() => {
     if (!loading && !user && !signingIn && !redirecting) {
       const attemptSignIn = async () => {
+        console.log(
+          "🔐 AuthGuard: User not authenticated, attempting sign-in..."
+        );
+        console.log("📍 Current path:", pathname);
         setSigningIn(true);
         try {
+          // Store the current path to redirect back after sign-in
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("authRedirectPath", pathname);
+            console.log("💾 Stored redirect path in sessionStorage:", pathname);
+          }
+          console.log("🚀 Calling signInWithGoogle()...");
           await signInWithGoogle();
+          console.log("✅ signInWithGoogle() completed (popup mode)");
           // In PWA mode, signInWithGoogle will redirect and not return here
           // In browser mode, if successful, onAuthStateChanged will update the user
-        } catch (error) {
-          console.error("Sign in failed:", error);
+        } catch (error: any) {
+          console.error("❌ Sign in failed:", error.message);
+          // Clear stored path on error
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("authRedirectPath");
+            console.log("🗑️ Cleared redirect path from sessionStorage");
+          }
           // Redirect to home on sign-in failure
           setRedirecting(true);
+          console.log("🏠 Redirecting to home page...");
           router.replace("/");
         } finally {
           // Only set signingIn to false in browser mode
@@ -56,7 +73,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
       };
       attemptSignIn();
     }
-  }, [loading, user, signingIn, redirecting, router]);
+  }, [loading, user, signingIn, redirecting, router, pathname]);
 
   // Show loading while checking auth
   if (loading) {
