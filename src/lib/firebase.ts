@@ -3,7 +3,6 @@ import { getFirestore } from "firebase/firestore";
 import {
   getAuth,
   signInWithPopup,
-  signInWithRedirect,
   GoogleAuthProvider,
   signOut,
   User,
@@ -35,22 +34,26 @@ googleProvider.setCustomParameters({
   prompt: "select_account",
 });
 
-// Sign in with Google - use popup by default, fallback to redirect if popup fails
-export const signInWithGoogle = async (): Promise<User | void> => {
+// Sign in with Google using popup
+export const signInWithGoogle = async (): Promise<User> => {
   try {
     const result = await signInWithPopup(auth, googleProvider);
     return result.user;
   } catch (error) {
-    // If popup is blocked or fails, try redirect
     const authError = error as { code?: string };
-    if (
-      authError.code === "auth/popup-blocked" ||
-      authError.code === "auth/popup-closed-by-user"
-    ) {
-      console.log("Popup blocked or closed, using redirect instead");
-      await signInWithRedirect(auth, googleProvider);
-      return;
+    
+    // Handle user cancellation gracefully
+    if (authError.code === "auth/popup-closed-by-user") {
+      console.log("Sign-in popup was closed by user");
+      throw new Error("Sign-in cancelled");
     }
+    
+    // Handle popup blocked
+    if (authError.code === "auth/popup-blocked") {
+      console.error("Popup was blocked by browser");
+      throw new Error("Please allow popups for this site to sign in");
+    }
+    
     console.error("Error signing in with Google:", error);
     throw error;
   }

@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { CalorieGoal, DailyCalorieData } from "@/types";
 import { formatNumber } from "@/lib/utils";
+import AddFoodModal from "./AddFoodModal";
 import {
   Card,
   Space,
@@ -17,6 +19,8 @@ import {
   EditOutlined,
   FireOutlined,
   ThunderboltOutlined,
+  DownOutlined,
+  UpOutlined,
 } from "@ant-design/icons";
 
 const { Text } = Typography;
@@ -28,6 +32,11 @@ interface CalorieHistorySectionProps {
   getTotalDeficitAchieved: () => number;
   getTodayDate: () => string;
   onEditDay: (date: string) => void;
+  onEditFood: (
+    foodId: string,
+    date: string,
+    updatedFood: { name: string; calories: number }
+  ) => Promise<void>;
 }
 
 export default function CalorieHistorySection({
@@ -37,7 +46,70 @@ export default function CalorieHistorySection({
   getTotalDeficitAchieved,
   getTodayDate,
   onEditDay,
+  onEditFood,
 }: CalorieHistorySectionProps) {
+  const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
+  const [editFoodModalOpen, setEditFoodModalOpen] = useState(false);
+  const [foodToEdit, setFoodToEdit] = useState<{
+    id: string;
+    name: string;
+    calories: number;
+    date: string;
+    isPreset?: boolean;
+    presetFoodId?: string;
+    presetFoodName?: string;
+    quantity?: number;
+    unit?: "pieces" | "grams" | "ml";
+    caloriesPerUnit?: number;
+    unitType?: "piece" | "100g" | "100ml";
+  } | null>(null);
+
+  const toggleDay = (date: string) => {
+    const newExpanded = new Set(expandedDays);
+    if (newExpanded.has(date)) {
+      newExpanded.delete(date);
+    } else {
+      newExpanded.add(date);
+    }
+    setExpandedDays(newExpanded);
+  };
+
+  const handleEditFoodClick = (
+    entry: {
+      id: string;
+      name: string;
+      calories: number;
+      isPreset?: boolean;
+      presetFoodId?: string;
+      presetFoodName?: string;
+      quantity?: number;
+      unit?: "pieces" | "grams" | "ml";
+      caloriesPerUnit?: number;
+      unitType?: "piece" | "100g" | "100ml";
+    },
+    date: string
+  ) => {
+    setFoodToEdit({
+      id: entry.id,
+      name: entry.name,
+      calories: entry.calories,
+      date,
+      isPreset: entry.isPreset,
+      presetFoodId: entry.presetFoodId,
+      presetFoodName: entry.presetFoodName,
+      quantity: entry.quantity,
+      unit: entry.unit,
+      caloriesPerUnit: entry.caloriesPerUnit,
+      unitType: entry.unitType,
+    });
+    setEditFoodModalOpen(true);
+  };
+
+  const handleCloseEditFoodModal = () => {
+    setEditFoodModalOpen(false);
+    setFoodToEdit(null);
+  };
+
   if (dailyData.length === 0) return null;
 
   const deficitDaysCount = normalizeData(dailyData).filter((day) => {
@@ -239,7 +311,18 @@ export default function CalorieHistorySection({
                   >
                     <Space size="small">
                       {day.foodEntries.length > 0 && (
-                        <Tag color="green">
+                        <Tag
+                          color="green"
+                          style={{ cursor: "pointer" }}
+                          onClick={() => toggleDay(day.date)}
+                          icon={
+                            expandedDays.has(day.date) ? (
+                              <UpOutlined />
+                            ) : (
+                              <DownOutlined />
+                            )
+                          }
+                        >
                           🍎 {day.foodEntries.length} food
                           {day.foodEntries.length > 1 ? "s" : ""}
                         </Tag>
@@ -252,12 +335,89 @@ export default function CalorieHistorySection({
                           </Tag>
                         )}
                     </Space>
+
+                    {/* Expanded Food Details */}
+                    {expandedDays.has(day.date) &&
+                      day.foodEntries.length > 0 && (
+                        <div
+                          style={{
+                            marginTop: 12,
+                            padding: "12px",
+                            background: "#fff",
+                            borderRadius: "6px",
+                            border: "1px solid #d9f7be",
+                          }}
+                        >
+                          <Text
+                            strong
+                            style={{
+                              fontSize: "13px",
+                              color: "#52c41a",
+                              display: "block",
+                              marginBottom: "8px",
+                            }}
+                          >
+                            Food Consumed:
+                          </Text>
+                          <Space
+                            direction="vertical"
+                            size="small"
+                            style={{ width: "100%" }}
+                          >
+                            {day.foodEntries.map((food, idx) => (
+                              <div
+                                key={idx}
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "space-between",
+                                  alignItems: "center",
+                                  padding: "6px 0",
+                                  borderBottom:
+                                    idx < day.foodEntries.length - 1
+                                      ? "1px solid #f0f0f0"
+                                      : "none",
+                                }}
+                              >
+                                <Text style={{ fontSize: "14px", flex: 1 }}>
+                                  {food.name}
+                                </Text>
+                                <Space size="small">
+                                  <Tag color="green" style={{ margin: 0 }}>
+                                    {formatNumber(food.calories)} cal
+                                  </Tag>
+                                  <Button
+                                    type="text"
+                                    size="small"
+                                    icon={<EditOutlined />}
+                                    onClick={() =>
+                                      handleEditFoodClick(food, day.date)
+                                    }
+                                    style={{ color: "#1890ff" }}
+                                  />
+                                </Space>
+                              </div>
+                            ))}
+                          </Space>
+                        </div>
+                      )}
                   </div>
                 )}
               </Card>
             );
           })}
       </div>
+
+      {/* Edit Food Modal */}
+      {foodToEdit && (
+        <AddFoodModal
+          isOpen={editFoodModalOpen}
+          onClose={handleCloseEditFoodModal}
+          onAddFood={() => {}}
+          editMode={true}
+          editFoodData={foodToEdit}
+          onEditFood={onEditFood}
+        />
+      )}
     </Card>
   );
 }

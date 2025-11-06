@@ -28,6 +28,13 @@ interface FoodToAdd {
   name: string;
   calories: number;
   description: string;
+  isPreset?: boolean;
+  presetFoodId?: string;
+  presetFoodName?: string;
+  quantity?: number;
+  unit?: "pieces" | "grams" | "ml";
+  caloriesPerUnit?: number;
+  unitType?: "piece" | "100g" | "100ml";
 }
 
 interface AddEntryModalProps {
@@ -37,13 +44,51 @@ interface AddEntryModalProps {
     name: string;
     calories: number;
     description: string;
+    isPreset?: boolean;
+    presetFoodId?: string;
+    presetFoodName?: string;
+    quantity?: number;
+    unit?: "pieces" | "grams" | "ml";
+    caloriesPerUnit?: number;
+    unitType?: "piece" | "100g" | "100ml";
   }) => void;
   onAddFoods?: (
     foods: Array<{
       name: string;
       calories: number;
       description: string;
+      isPreset?: boolean;
+      presetFoodId?: string;
+      presetFoodName?: string;
+      quantity?: number;
+      unit?: "pieces" | "grams" | "ml";
+      caloriesPerUnit?: number;
+      unitType?: "piece" | "100g" | "100ml";
     }>
+  ) => Promise<void>;
+  editMode?: boolean;
+  editFoodData?: {
+    id: string;
+    name: string;
+    calories: number;
+    date: string;
+    isPreset?: boolean;
+    presetFoodId?: string;
+    presetFoodName?: string;
+    quantity?: number;
+    unit?: "pieces" | "grams" | "ml";
+    caloriesPerUnit?: number;
+    unitType?: "piece" | "100g" | "100ml";
+  };
+  onEditFood?: (
+    foodId: string,
+    date: string,
+    updatedFood: {
+      name: string;
+      calories: number;
+      quantity?: number;
+      unit?: "pieces" | "grams" | "ml";
+    }
   ) => Promise<void>;
 }
 
@@ -52,6 +97,9 @@ export default function AddEntryModal({
   onClose,
   onAddFood,
   onAddFoods,
+  editMode = false,
+  editFoodData,
+  onEditFood,
 }: AddEntryModalProps) {
   // Food entry states
   const [foodEntryMode, setFoodEntryMode] = useState<"preset" | "custom">(
@@ -68,6 +116,29 @@ export default function AddEntryModal({
   const quantityInputRef = useRef<HTMLInputElement>(null);
 
   const foodsByCategory = getFoodsByCategory();
+
+  // Pre-fill form in edit mode
+  useEffect(() => {
+    if (editMode && editFoodData) {
+      if (editFoodData.isPreset && editFoodData.presetFoodId) {
+        // Preset food - set to preset mode and pre-fill quantity
+        setFoodEntryMode("preset");
+        setQuantity(editFoodData.quantity?.toString() || "");
+        setUnit(editFoodData.unit || "grams");
+        // Find and select the preset food
+        const allFoods = Object.values(foodsByCategory).flat();
+        const presetFood = allFoods.find((f) => f.id === editFoodData.presetFoodId);
+        if (presetFood) {
+          setSelectedFood(presetFood);
+        }
+      } else {
+        // Custom food - set to custom mode
+        setFoodEntryMode("custom");
+        setCustomFoodName(editFoodData.name);
+        setCustomCalories(editFoodData.calories.toString());
+      }
+    }
+  }, [editMode, editFoodData, foodsByCategory]);
 
   // Set appropriate unit when food is selected and focus quantity input
   useEffect(() => {
@@ -107,9 +178,16 @@ export default function AddEntryModal({
     let calories: number;
     let name: string;
     let description: string;
+    let isPreset = false;
+    let presetFoodId: string | undefined;
+    let presetFoodName: string | undefined;
+    let qty: number | undefined;
+    let selectedUnit: "pieces" | "grams" | "ml" | undefined;
+    let caloriesPerUnit: number | undefined;
+    let unitType: "piece" | "100g" | "100ml" | undefined;
 
     if (foodEntryMode === "preset" && selectedFood && quantity) {
-      const qty = parseFloat(quantity);
+      qty = parseFloat(quantity);
       if (qty > 0) {
         calories = calculateCalories(selectedFood, qty, unit);
         name = selectedFood.name;
@@ -122,6 +200,13 @@ export default function AddEntryModal({
             ? "ml"
             : "g"
         }`;
+        // Store preset metadata
+        isPreset = true;
+        presetFoodId = selectedFood.id;
+        presetFoodName = selectedFood.name;
+        selectedUnit = unit;
+        caloriesPerUnit = selectedFood.caloriesPerUnit;
+        unitType = selectedFood.unitType;
       } else {
         return;
       }
@@ -134,6 +219,7 @@ export default function AddEntryModal({
       calories = customCals;
       name = customName;
       description = "custom entry";
+      isPreset = false;
     } else {
       return;
     }
@@ -144,6 +230,13 @@ export default function AddEntryModal({
         name: `${name} (${description})`,
         calories: Math.round(calories),
         description,
+        isPreset,
+        presetFoodId,
+        presetFoodName,
+        quantity: qty,
+        unit: selectedUnit,
+        caloriesPerUnit,
+        unitType,
       };
       setFoodsToAdd([...foodsToAdd, newFood]);
 
@@ -155,12 +248,53 @@ export default function AddEntryModal({
   const handleAddAllFoods = async () => {
     setIsAdding(true);
     try {
-      if (onAddFoods) {
+      if (editMode && editFoodData && onEditFood) {
+        // Handle edit mode - different logic for preset vs custom
+        if (editFoodData.isPreset && foodEntryMode === "preset" && selectedFood && quantity) {
+          // Preset food - recalculate calories from new quantity
+          const qty = parseFloat(quantity);
+          if (qty > 0) {
+            const newCalories = calculateCalories(selectedFood, qty, unit);
+            const description = `${qty} ${
+              unit === "pieces"
+                ? qty === 1
+                  ? "piece"
+                  : "pieces"
+                : unit === "ml"
+                ? "ml"
+                : "g"
+            }`;
+            await onEditFood(editFoodData.id, editFoodData.date, {
+              name: `${selectedFood.name} (${description})`,
+              calories: Math.round(newCalories),
+              quantity: qty,
+              unit: unit,
+            });
+          }
+        } else {
+          // Custom food - update name and calories directly
+          const customCals = parseFloat(customCalories);
+          const customName = customFoodName.trim();
+          if (customName && customCals > 0) {
+            await onEditFood(editFoodData.id, editFoodData.date, {
+              name: customName,
+              calories: customCals,
+            });
+          }
+        }
+      } else if (onAddFoods) {
         // Use batch add if available (more reliable)
         const foodsData = foodsToAdd.map((food) => ({
           name: food.name,
           calories: food.calories,
           description: food.description,
+          isPreset: food.isPreset,
+          presetFoodId: food.presetFoodId,
+          presetFoodName: food.presetFoodName,
+          quantity: food.quantity,
+          unit: food.unit,
+          caloriesPerUnit: food.caloriesPerUnit,
+          unitType: food.unitType,
         }));
         await onAddFoods(foodsData);
       } else {
@@ -170,6 +304,13 @@ export default function AddEntryModal({
             name: food.name,
             calories: food.calories,
             description: food.description,
+            isPreset: food.isPreset,
+            presetFoodId: food.presetFoodId,
+            presetFoodName: food.presetFoodName,
+            quantity: food.quantity,
+            unit: food.unit,
+            caloriesPerUnit: food.caloriesPerUnit,
+            unitType: food.unitType,
           });
           // Longer delay to ensure Firebase sync and state updates complete
           await new Promise((resolve) => setTimeout(resolve, 300));
@@ -207,92 +348,235 @@ export default function AddEntryModal({
     <ModalContainer
       isOpen={isOpen}
       onClose={handleClose}
-      title="🍎 Add Food"
+      title={editMode ? "✏️ Edit Food" : "🍎 Add Food"}
       maxWidth={1100}
       heightMode="full"
       compactPadding={true}
-      footer={[
-        <Button key="cancel" onClick={handleClose} size="large">
-          Cancel
-        </Button>,
-        <Button
-          key="add-to-list"
-          onClick={handleAddToList}
-          icon={<PlusOutlined />}
-          size="large"
-          style={{
-            borderColor: "#1890ff",
-            color: "#1890ff",
-            borderWidth: "2px",
-          }}
-          disabled={
-            (foodEntryMode === "preset" &&
-              (!selectedFood || !quantity || parseFloat(quantity) <= 0)) ||
-            (foodEntryMode === "custom" &&
-              (!customFoodName.trim() ||
-                !customCalories ||
-                parseFloat(customCalories) <= 0))
-          }
-        >
-          Add
-        </Button>,
-        <Button
-          key="submit"
-          onClick={handleAddAllFoods}
-          icon={<CheckOutlined />}
-          size="large"
-          type="primary"
-          loading={isAdding}
-          style={{
-            background: "#52c41a",
-            borderColor: "#52c41a",
-            color: "#fff",
-          }}
-          disabled={foodsToAdd.length === 0 || isAdding}
-        >
-          {isAdding
-            ? `Adding ${foodsToAdd.length}...`
-            : `Done (${foodsToAdd.length})`}
-        </Button>,
-      ]}
+      footer={
+        editMode
+          ? [
+              <Button key="cancel" onClick={handleClose} size="large">
+                Cancel
+              </Button>,
+              <Button
+                key="save"
+                onClick={handleAddAllFoods}
+                icon={<CheckOutlined />}
+                size="large"
+                type="primary"
+                loading={isAdding}
+                style={{
+                  background: "#52c41a",
+                  borderColor: "#52c41a",
+                  color: "#fff",
+                }}
+                disabled={
+                  isAdding ||
+                  (editFoodData?.isPreset
+                    ? // Preset food - check quantity
+                      !quantity || parseFloat(quantity) <= 0
+                    : // Custom food - check name and calories
+                      !customFoodName.trim() ||
+                      !customCalories ||
+                      parseFloat(customCalories) <= 0)
+                }
+              >
+                {isAdding ? "Saving..." : "Save Changes"}
+              </Button>,
+            ]
+          : [
+              <Button key="cancel" onClick={handleClose} size="large">
+                Cancel
+              </Button>,
+              <Button
+                key="add-to-list"
+                onClick={handleAddToList}
+                icon={<PlusOutlined />}
+                size="large"
+                style={{
+                  borderColor: "#1890ff",
+                  color: "#1890ff",
+                  borderWidth: "2px",
+                }}
+                disabled={
+                  (foodEntryMode === "preset" &&
+                    (!selectedFood ||
+                      !quantity ||
+                      parseFloat(quantity) <= 0)) ||
+                  (foodEntryMode === "custom" &&
+                    (!customFoodName.trim() ||
+                      !customCalories ||
+                      parseFloat(customCalories) <= 0))
+                }
+              >
+                Add
+              </Button>,
+              <Button
+                key="submit"
+                onClick={handleAddAllFoods}
+                icon={<CheckOutlined />}
+                size="large"
+                type="primary"
+                loading={isAdding}
+                style={{
+                  background: "#52c41a",
+                  borderColor: "#52c41a",
+                  color: "#fff",
+                }}
+                disabled={foodsToAdd.length === 0 || isAdding}
+              >
+                {isAdding
+                  ? `Adding ${foodsToAdd.length}...`
+                  : `Done (${foodsToAdd.length})`}
+              </Button>,
+            ]
+      }
     >
       <div>
-        {foodsToAdd.length > 0 && (
-          <Card
-            title={`Foods to Add (${foodsToAdd.length})`}
-            size="small"
-            style={{
-              marginBottom: 16,
-              background: "#f6ffed",
-              borderColor: "#52c41a",
-            }}
-          >
-            <List
-              dataSource={foodsToAdd}
-              renderItem={(food) => (
-                <List.Item
-                  actions={[
-                    <Button
-                      key="delete"
-                      type="text"
-                      danger
-                      icon={<DeleteOutlined />}
-                      onClick={() => handleRemoveFromList(food.id)}
-                    >
-                      Remove
-                    </Button>,
-                  ]}
-                >
-                  <List.Item.Meta
-                    title={food.name}
-                    description={`${food.calories} calories`}
+        {editMode ? (
+          /* Edit mode - different UI for preset vs custom */
+          editFoodData?.isPreset && selectedFood ? (
+            /* Preset food edit - show quantity controls */
+            <Card
+              size="small"
+              title={`Editing: ${editFoodData.presetFoodName || editFoodData.name}`}
+              style={{ marginBottom: 16, background: "#f6ffed" }}
+            >
+              <Row gutter={16}>
+                <Col span={12}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 8,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Quantity
+                  </label>
+                  <InputNumber
+                    ref={quantityInputRef}
+                    style={{ width: "100%" }}
+                    placeholder="e.g. 1, 150"
+                    value={quantity ? parseFloat(quantity) : null}
+                    onChange={(val) => setQuantity(val?.toString() || "")}
+                    min={0}
+                    step={0.1}
+                    size="large"
+                    autoFocus
                   />
-                </List.Item>
-              )}
-            />
-          </Card>
-        )}
-        <Tabs
+                </Col>
+                <Col span={12}>
+                  <label
+                    style={{
+                      display: "block",
+                      marginBottom: 8,
+                      fontWeight: 500,
+                    }}
+                  >
+                    Calculated Calories
+                  </label>
+                  <div
+                    style={{
+                      padding: "8px 12px",
+                      background: "#52c41a",
+                      color: "white",
+                      borderRadius: "8px",
+                      fontSize: "16px",
+                      fontWeight: 600,
+                      textAlign: "center",
+                      height: "40px",
+                      lineHeight: "24px",
+                    }}
+                  >
+                    {calculatedCalories} cal
+                  </div>
+                </Col>
+              </Row>
+              <div style={{ marginTop: 12, fontSize: "12px", color: "#8c8c8c" }}>
+                Unit: {unit === "pieces" ? "Pieces" : unit === "ml" ? "Milliliters" : "Grams"}
+              </div>
+            </Card>
+          ) : (
+            /* Custom food edit - show name and calorie fields */
+            <Row gutter={16}>
+              <Col span={16}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: 8,
+                    fontWeight: 500,
+                  }}
+                >
+                  Food Name
+                </label>
+                <Input
+                  placeholder="e.g. Homemade pasta, Restaurant meal"
+                  value={customFoodName}
+                  onChange={(e) => setCustomFoodName(e.target.value)}
+                  size="large"
+                  autoFocus
+                />
+              </Col>
+              <Col span={8}>
+                <label
+                  style={{
+                    display: "block",
+                    marginBottom: 8,
+                    fontWeight: 500,
+                  }}
+                >
+                  Calories
+                </label>
+                <InputNumber
+                  style={{ width: "100%" }}
+                  placeholder="e.g. 250"
+                  value={customCalories ? parseFloat(customCalories) : null}
+                  onChange={(val) => setCustomCalories(val?.toString() || "")}
+                  min={0}
+                  step={1}
+                  size="large"
+                />
+              </Col>
+            </Row>
+          )
+        ) : (
+          <>
+            {foodsToAdd.length > 0 && (
+              <Card
+                title={`Foods to Add (${foodsToAdd.length})`}
+                size="small"
+                style={{
+                  marginBottom: 16,
+                  background: "#f6ffed",
+                  borderColor: "#52c41a",
+                }}
+              >
+                <List
+                  dataSource={foodsToAdd}
+                  renderItem={(food) => (
+                    <List.Item
+                      actions={[
+                        <Button
+                          key="delete"
+                          type="text"
+                          danger
+                          icon={<DeleteOutlined />}
+                          onClick={() => handleRemoveFromList(food.id)}
+                        >
+                          Remove
+                        </Button>,
+                      ]}
+                    >
+                      <List.Item.Meta
+                        title={food.name}
+                        description={`${food.calories} calories`}
+                      />
+                    </List.Item>
+                  )}
+                />
+              </Card>
+            )}
+            <Tabs
           activeKey={foodEntryMode}
           onChange={(key) => {
             setFoodEntryMode(key as "preset" | "custom");
@@ -513,6 +797,8 @@ export default function AddEntryModal({
             )}
           </TabPane>
         </Tabs>
+          </>
+        )}
       </div>
     </ModalContainer>
   );

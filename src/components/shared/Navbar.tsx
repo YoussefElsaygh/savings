@@ -28,7 +28,6 @@ export default function Navbar() {
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
   const [signingIn, setSigningIn] = useState(false);
-  const [isPWA, setIsPWA] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -36,25 +35,6 @@ export default function Navbar() {
       setAuthLoading(false);
     });
     return () => unsubscribe();
-  }, []);
-
-  // Detect PWA mode
-  useEffect(() => {
-    const checkPWA = () => {
-      const isStandalone = window.matchMedia(
-        "(display-mode: standalone)"
-      ).matches;
-      setIsPWA(isStandalone);
-    };
-
-    checkPWA();
-
-    // Listen for changes
-    const mediaQuery = window.matchMedia("(display-mode: standalone)");
-    const handler = () => checkPWA();
-    mediaQuery.addEventListener("change", handler);
-
-    return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
   const handleSignIn = async () => {
@@ -128,94 +108,92 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Top Navigation Bar - Desktop and Header on Mobile - Hidden in PWA mode */}
-      {!isPWA && (
-        <nav
+      {/* Top Navigation Bar - Desktop and Header on Mobile */}
+      <nav
+        style={{
+          borderBottom: "1px solid #f0f0f0",
+          background: "#fff",
+          position: "sticky",
+          top: 0,
+          zIndex: 1000,
+          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+        }}
+      >
+        <div
           style={{
-            borderBottom: "1px solid #f0f0f0",
-            background: "#fff",
-            position: "sticky",
-            top: 0,
-            zIndex: 1000,
-            boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
+            maxWidth: "1280px",
+            margin: "0 auto",
+            padding: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
           }}
         >
-          <div
-            style={{
-              maxWidth: "1280px",
-              margin: "0 auto",
-              padding: "16px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Link href="/" style={{ textDecoration: "none" }}>
-              <Text
-                strong
+          <Link href="/" style={{ textDecoration: "none" }}>
+            <Text
+              strong
+              style={{
+                fontSize: "18px",
+                padding: "16px 0",
+                cursor: "pointer",
+              }}
+            >
+              Personal Tracker
+            </Text>
+          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            {/* Desktop Menu - hidden on small screens */}
+            {user && navItems.length > 0 && (
+              <Menu
+                mode="horizontal"
+                selectedKeys={[getSelectedKey()]}
+                items={navItems}
                 style={{
-                  fontSize: "18px",
-                  padding: "16px 0",
-                  cursor: "pointer",
+                  border: "none",
+                  minWidth: "500px",
                 }}
-              >
-                Personal Tracker
-              </Text>
-            </Link>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              {/* Desktop Menu - hidden on small screens */}
-              {user && navItems.length > 0 && (
-                <Menu
-                  mode="horizontal"
-                  selectedKeys={[getSelectedKey()]}
-                  items={navItems}
-                  style={{
-                    border: "none",
-                    minWidth: "500px",
-                  }}
-                  className="desktop-menu"
-                />
-              )}
+                className="desktop-menu"
+              />
+            )}
 
-              {authLoading ? (
-                <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
-              ) : user ? (
-                <Dropdown
-                  menu={{ items: userMenuItems }}
-                  placement="bottomRight"
-                >
-                  <Space style={{ cursor: "pointer" }}>
-                    {user.photoURL ? (
-                      <Image
-                        src={user.photoURL}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        style={{ borderRadius: "50%" }}
-                      />
-                    ) : (
-                      <Avatar icon={<UserOutlined />} />
-                    )}
-                    <Text className="user-name">
-                      {user.displayName || user.email}
-                    </Text>
-                  </Space>
-                </Dropdown>
-              ) : (
-                <Button
-                  type="primary"
-                  icon={<LoginOutlined />}
-                  onClick={handleSignIn}
-                  loading={signingIn}
-                  className="desktop-signin-btn"
-                >
-                  Sign In
-                </Button>
-              )}
-            </div>
+            {authLoading ? (
+              <Avatar icon={<UserOutlined />} style={{ opacity: 0.5 }} />
+            ) : user ? (
+              <Dropdown
+                menu={{ items: userMenuItems }}
+                placement="bottomRight"
+              >
+                <Space style={{ cursor: "pointer" }}>
+                  {user.photoURL ? (
+                    <Image
+                      src={user.photoURL}
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      style={{ borderRadius: "50%" }}
+                    />
+                  ) : (
+                    <Avatar icon={<UserOutlined />} />
+                  )}
+                  <Text className="user-name">
+                    {user.displayName || user.email}
+                  </Text>
+                </Space>
+              </Dropdown>
+            ) : (
+              <Button
+                type="primary"
+                icon={<LoginOutlined />}
+                onClick={handleSignIn}
+                loading={signingIn}
+                className="desktop-signin-btn"
+              >
+                Sign In
+              </Button>
+            )}
           </div>
-        </nav>
-      )}
+        </div>
+      </nav>
 
       {/* Bottom Navigation - Mobile Only */}
       <nav className="bottom-nav">

@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { DailyCalorieData } from "@/types";
 import { formatNumber } from "@/lib/utils";
+import AddFoodModal from "./AddFoodModal";
 import { Card, Space, Typography, Button, List, Tag } from "antd";
-import { AppleOutlined, ThunderboltOutlined, CloseOutlined, ClockCircleOutlined } from "@ant-design/icons";
+import { AppleOutlined, ThunderboltOutlined, CloseOutlined, ClockCircleOutlined, EditOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -11,16 +13,70 @@ interface TodayActivitySectionProps {
   todayData: DailyCalorieData;
   onDeleteFood: (foodId: string) => void;
   onDeleteExercise: (exerciseId: string) => void;
+  onEditFood: (
+    foodId: string,
+    date: string,
+    updatedFood: { name: string; calories: number }
+  ) => Promise<void>;
 }
 
 export default function TodayActivitySection({
   todayData,
   onDeleteFood,
   onDeleteExercise,
+  onEditFood,
 }: TodayActivitySectionProps) {
+  const [editFoodModalOpen, setEditFoodModalOpen] = useState(false);
+  const [foodToEdit, setFoodToEdit] = useState<{
+    id: string;
+    name: string;
+    calories: number;
+    date: string;
+    isPreset?: boolean;
+    presetFoodId?: string;
+    presetFoodName?: string;
+    quantity?: number;
+    unit?: "pieces" | "grams" | "ml";
+    caloriesPerUnit?: number;
+    unitType?: "piece" | "100g" | "100ml";
+  } | null>(null);
+
   const hasActivity =
     todayData.foodEntries.length > 0 ||
     (todayData.exerciseEntries && todayData.exerciseEntries.length > 0);
+
+  const handleEditFoodClick = (entry: {
+    id: string;
+    name: string;
+    calories: number;
+    isPreset?: boolean;
+    presetFoodId?: string;
+    presetFoodName?: string;
+    quantity?: number;
+    unit?: "pieces" | "grams" | "ml";
+    caloriesPerUnit?: number;
+    unitType?: "piece" | "100g" | "100ml";
+  }) => {
+    setFoodToEdit({
+      id: entry.id,
+      name: entry.name,
+      calories: entry.calories,
+      date: todayData.date,
+      isPreset: entry.isPreset,
+      presetFoodId: entry.presetFoodId,
+      presetFoodName: entry.presetFoodName,
+      quantity: entry.quantity,
+      unit: entry.unit,
+      caloriesPerUnit: entry.caloriesPerUnit,
+      unitType: entry.unitType,
+    });
+    setEditFoodModalOpen(true);
+  };
+
+  const handleCloseEditFoodModal = () => {
+    setEditFoodModalOpen(false);
+    setFoodToEdit(null);
+  };
 
   if (!hasActivity) return null;
 
@@ -47,13 +103,22 @@ export default function TodayActivitySection({
                     border: "1px solid #b7eb8f",
                   }}
                   extra={
-                    <Button
-                      type="text"
-                      danger
-                      icon={<CloseOutlined />}
-                      onClick={() => onDeleteFood(entry.id)}
-                      title="Delete food entry"
-                    />
+                    <Space>
+                      <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => handleEditFoodClick(entry)}
+                        title="Edit food entry"
+                        style={{ color: "#1890ff" }}
+                      />
+                      <Button
+                        type="text"
+                        danger
+                        icon={<CloseOutlined />}
+                        onClick={() => onDeleteFood(entry.id)}
+                        title="Delete food entry"
+                      />
+                    </Space>
                   }
                 >
                   <List.Item.Meta
@@ -132,6 +197,18 @@ export default function TodayActivitySection({
           </div>
         )}
       </Space>
+
+      {/* Edit Food Modal */}
+      {foodToEdit && (
+        <AddFoodModal
+          isOpen={editFoodModalOpen}
+          onClose={handleCloseEditFoodModal}
+          onAddFood={() => {}}
+          editMode={true}
+          editFoodData={foodToEdit}
+          onEditFood={onEditFood}
+        />
+      )}
     </Card>
   );
 }
