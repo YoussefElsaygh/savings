@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { CalorieGoal, DailyCalorieData } from "@/types";
 import { formatNumber } from "@/lib/utils";
-import AddFoodModal from "./AddFoodModal";
 import {
   Card,
   Space,
@@ -32,11 +31,6 @@ interface CalorieHistorySectionProps {
   getTotalDeficitAchieved: () => number;
   getTodayDate: () => string;
   onEditDay: (date: string) => void;
-  onEditFood: (
-    foodId: string,
-    date: string,
-    updatedFood: { name: string; calories: number }
-  ) => Promise<void>;
 }
 
 export default function CalorieHistorySection({
@@ -46,23 +40,8 @@ export default function CalorieHistorySection({
   getTotalDeficitAchieved,
   getTodayDate,
   onEditDay,
-  onEditFood,
 }: CalorieHistorySectionProps) {
   const [expandedDays, setExpandedDays] = useState<Set<string>>(new Set());
-  const [editFoodModalOpen, setEditFoodModalOpen] = useState(false);
-  const [foodToEdit, setFoodToEdit] = useState<{
-    id: string;
-    name: string;
-    calories: number;
-    date: string;
-    isPreset?: boolean;
-    presetFoodId?: string;
-    presetFoodName?: string;
-    quantity?: number;
-    unit?: "pieces" | "grams" | "ml";
-    caloriesPerUnit?: number;
-    unitType?: "piece" | "100g" | "100ml";
-  } | null>(null);
 
   const toggleDay = (date: string) => {
     const newExpanded = new Set(expandedDays);
@@ -72,42 +51,6 @@ export default function CalorieHistorySection({
       newExpanded.add(date);
     }
     setExpandedDays(newExpanded);
-  };
-
-  const handleEditFoodClick = (
-    entry: {
-      id: string;
-      name: string;
-      calories: number;
-      isPreset?: boolean;
-      presetFoodId?: string;
-      presetFoodName?: string;
-      quantity?: number;
-      unit?: "pieces" | "grams" | "ml";
-      caloriesPerUnit?: number;
-      unitType?: "piece" | "100g" | "100ml";
-    },
-    date: string
-  ) => {
-    setFoodToEdit({
-      id: entry.id,
-      name: entry.name,
-      calories: entry.calories,
-      date,
-      isPreset: entry.isPreset,
-      presetFoodId: entry.presetFoodId,
-      presetFoodName: entry.presetFoodName,
-      quantity: entry.quantity,
-      unit: entry.unit,
-      caloriesPerUnit: entry.caloriesPerUnit,
-      unitType: entry.unitType,
-    });
-    setEditFoodModalOpen(true);
-  };
-
-  const handleCloseEditFoodModal = () => {
-    setEditFoodModalOpen(false);
-    setFoodToEdit(null);
   };
 
   if (dailyData.length === 0) return null;
@@ -381,20 +324,9 @@ export default function CalorieHistorySection({
                                 <Text style={{ fontSize: "14px", flex: 1 }}>
                                   {food.name}
                                 </Text>
-                                <Space size="small">
-                                  <Tag color="green" style={{ margin: 0 }}>
-                                    {formatNumber(food.calories)} cal
-                                  </Tag>
-                                  <Button
-                                    type="text"
-                                    size="small"
-                                    icon={<EditOutlined />}
-                                    onClick={() =>
-                                      handleEditFoodClick(food, day.date)
-                                    }
-                                    style={{ color: "#1890ff" }}
-                                  />
-                                </Space>
+                                <Tag color="green" style={{ margin: 0 }}>
+                                  {formatNumber(food.calories)} cal
+                                </Tag>
                               </div>
                             ))}
                           </Space>
@@ -406,18 +338,6 @@ export default function CalorieHistorySection({
             );
           })}
       </div>
-
-      {/* Edit Food Modal */}
-      {foodToEdit && (
-        <AddFoodModal
-          isOpen={editFoodModalOpen}
-          onClose={handleCloseEditFoodModal}
-          onAddFood={() => {}}
-          editMode={true}
-          editFoodData={foodToEdit}
-          onEditFood={onEditFood}
-        />
-      )}
     </Card>
   );
 }

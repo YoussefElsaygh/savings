@@ -45,14 +45,6 @@ export interface FoodEntry {
   calories: number;
   timestamp: string;
   date: string; // YYYY-MM-DD format for grouping
-  // Preset food tracking (optional fields for backwards compatibility)
-  isPreset?: boolean;
-  presetFoodId?: string;
-  presetFoodName?: string; // Store original preset name
-  quantity?: number;
-  unit?: "pieces" | "grams" | "ml";
-  caloriesPerUnit?: number; // Store for recalculation
-  unitType?: "piece" | "100g" | "100ml"; // Original unit type from preset
 }
 
 export interface ExerciseEntry {

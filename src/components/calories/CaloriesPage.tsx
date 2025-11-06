@@ -131,13 +131,6 @@ export default function CaloriesPage() {
     name: string;
     calories: number;
     description: string;
-    isPreset?: boolean;
-    presetFoodId?: string;
-    presetFoodName?: string;
-    quantity?: number;
-    unit?: "pieces" | "grams" | "ml";
-    caloriesPerUnit?: number;
-    unitType?: "piece" | "100g" | "100ml";
   }) => {
     try {
       const newFoodEntry: FoodEntry = {
@@ -146,16 +139,6 @@ export default function CaloriesPage() {
         calories: foodData.calories,
         timestamp: new Date().toISOString(),
         date: getTodayDate(),
-        // Store preset metadata if applicable
-        ...(foodData.isPreset && {
-          isPreset: foodData.isPreset,
-          presetFoodId: foodData.presetFoodId,
-          presetFoodName: foodData.presetFoodName,
-          quantity: foodData.quantity,
-          unit: foodData.unit,
-          caloriesPerUnit: foodData.caloriesPerUnit,
-          unitType: foodData.unitType,
-        }),
       };
 
       const today = getTodayDate();
@@ -205,13 +188,6 @@ export default function CaloriesPage() {
       name: string;
       calories: number;
       description: string;
-      isPreset?: boolean;
-      presetFoodId?: string;
-      presetFoodName?: string;
-      quantity?: number;
-      unit?: "pieces" | "grams" | "ml";
-      caloriesPerUnit?: number;
-      unitType?: "piece" | "100g" | "100ml";
     }>
   ) => {
     try {
@@ -225,16 +201,6 @@ export default function CaloriesPage() {
         calories: foodData.calories,
         timestamp: new Date().toISOString(),
         date: today,
-        // Store preset metadata if applicable
-        ...(foodData.isPreset && {
-          isPreset: foodData.isPreset,
-          presetFoodId: foodData.presetFoodId,
-          presetFoodName: foodData.presetFoodName,
-          quantity: foodData.quantity,
-          unit: foodData.unit,
-          caloriesPerUnit: foodData.caloriesPerUnit,
-          unitType: foodData.unitType,
-        }),
       }));
 
       const totalCaloriesFromFoods = foodsData.reduce(
@@ -465,57 +431,6 @@ export default function CaloriesPage() {
     }
   };
 
-  const handleEditFood = async (
-    foodId: string,
-    date: string,
-    updatedFood: {
-      name: string;
-      calories: number;
-      quantity?: number;
-      unit?: "pieces" | "grams" | "ml";
-    }
-  ) => {
-    try {
-      const dayIndex = dailyData.findIndex((d) => d.date === date);
-
-      if (dayIndex >= 0) {
-        const updatedDailyData = [...dailyData];
-        const dayData = { ...updatedDailyData[dayIndex] };
-        const foodToEdit = dayData.foodEntries.find((f) => f.id === foodId);
-
-        if (foodToEdit) {
-          // Update the food entry
-          const oldCalories = foodToEdit.calories;
-          dayData.foodEntries = dayData.foodEntries.map((f) =>
-            f.id === foodId
-              ? {
-                  ...f,
-                  name: updatedFood.name,
-                  calories: updatedFood.calories,
-                  // Update quantity/unit if provided (for preset foods)
-                  ...(updatedFood.quantity !== undefined && {
-                    quantity: updatedFood.quantity,
-                  }),
-                  ...(updatedFood.unit !== undefined && {
-                    unit: updatedFood.unit,
-                  }),
-                }
-              : f
-          );
-          // Recalculate totals
-          dayData.totalCalories =
-            dayData.totalCalories - oldCalories + updatedFood.calories;
-          dayData.remainingCalories =
-            dayData.calorieLimit - dayData.totalCalories;
-          updatedDailyData[dayIndex] = dayData;
-          await saveDailyData(updatedDailyData);
-        }
-      }
-    } catch (error) {
-      console.error("Error editing food entry:", error);
-    }
-  };
-
   // Handle editing a specific day
   const handleEditDay = (date: string) => {
     const normalizedData = normalizeData(dailyData);
@@ -662,7 +577,6 @@ export default function CaloriesPage() {
             todayData={todayData}
             onDeleteFood={handleDeleteFood}
             onDeleteExercise={handleDeleteExercise}
-            onEditFood={handleEditFood}
           />
         </Space>
       </div>
@@ -674,7 +588,6 @@ export default function CaloriesPage() {
         getTotalDeficitAchieved={getTotalDeficitAchieved}
         getTodayDate={getTodayDate}
         onEditDay={handleEditDay}
-        onEditFood={handleEditFood}
       />
 
       {/* Edit Day Modal */}
