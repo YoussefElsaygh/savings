@@ -141,7 +141,10 @@ export default function CalorieHistorySection({
                   marginBottom: 12,
                   background: isToday ? "#e6f4ff" : "#fafafa",
                   borderColor: isToday ? "#91caff" : "#d9d9d9",
+                  cursor: "pointer",
                 }}
+                onClick={() => toggleDay(day.date)}
+                hoverable
               >
                 {/* Date Header */}
                 <div
@@ -168,7 +171,10 @@ export default function CalorieHistorySection({
                   <Button
                     size="small"
                     icon={<EditOutlined />}
-                    onClick={() => onEditDay(day.date)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditDay(day.date);
+                    }}
                     style={{
                       borderColor: "#000000",
                       color: "#000000",
@@ -256,8 +262,6 @@ export default function CalorieHistorySection({
                       {day.foodEntries.length > 0 && (
                         <Tag
                           color="green"
-                          style={{ cursor: "pointer" }}
-                          onClick={() => toggleDay(day.date)}
                           icon={
                             expandedDays.has(day.date) ? (
                               <UpOutlined />
