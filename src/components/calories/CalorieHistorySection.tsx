@@ -53,9 +53,70 @@ export default function CalorieHistorySection({
     setExpandedDays(newExpanded);
   };
 
-  if (dailyData.length === 0) return null;
+  // Generate all dates to display (last 30 days or from first entry, whichever is more)
+  const generateAllDates = (): DailyCalorieData[] => {
+    const today = new Date(getTodayDate());
+    const dates: string[] = [];
+    
+    // Determine the start date: either 30 days ago or the earliest entry date
+    let startDate: Date;
+    if (dailyData.length > 0) {
+      const earliestEntry = dailyData.reduce((earliest, day) => {
+        const dayDate = new Date(day.date);
+        return dayDate < new Date(earliest) ? day.date : earliest;
+      }, dailyData[0].date);
+      
+      const earliestDate = new Date(earliestEntry);
+      const thirtyDaysAgo = new Date(today);
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+      
+      // Use whichever is earlier
+      startDate = earliestDate < thirtyDaysAgo ? earliestDate : thirtyDaysAgo;
+    } else {
+      // If no data, show last 30 days
+      startDate = new Date(today);
+      startDate.setDate(startDate.getDate() - 29);
+    }
+    
+    // Generate all dates from start to today
+    const currentDate = new Date(startDate);
+    while (currentDate <= today) {
+      dates.push(new Intl.DateTimeFormat("en-CA").format(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    // Create a map of existing data
+    const dataMap = new Map<string, DailyCalorieData>();
+    normalizeData(dailyData).forEach((day) => {
+      dataMap.set(day.date, day);
+    });
+    
+    // Fill in all dates, using existing data or creating empty entries
+    return dates.map((date) => {
+      if (dataMap.has(date)) {
+        return dataMap.get(date)!;
+      } else {
+        // Create empty day entry
+        return {
+          date,
+          totalCalories: 0,
+          totalCaloriesBurned: 0,
+          foodEntries: [],
+          exerciseEntries: [],
+          remainingCalories: calorieGoal?.dailyCalorieLimit || 2000,
+          calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
+        };
+      }
+    });
+  };
 
-  const deficitDaysCount = normalizeData(dailyData).filter((day) => {
+  const allDates = generateAllDates();
+
+  const daysWithData = allDates.filter(
+    (day) => day.foodEntries.length > 0 || (day.exerciseEntries?.length || 0) > 0
+  );
+
+  const deficitDaysCount = daysWithData.filter((day) => {
     const foodDeficit = calorieGoal?.maintenanceCalories
       ? Math.max(calorieGoal.maintenanceCalories - day.totalCalories, 0)
       : 0;
@@ -63,16 +124,19 @@ export default function CalorieHistorySection({
     return foodDeficit + exerciseBonus > 0;
   }).length;
 
-  const totalActivities = normalizeData(dailyData).reduce(
+  const totalActivities = daysWithData.reduce(
     (sum, day) =>
       sum + day.foodEntries.length + (day.exerciseEntries?.length || 0),
     0
   );
 
-  const avgCaloriesPerDay = Math.round(
-    dailyData.reduce((sum, day) => sum + day.totalCalories, 0) /
-      dailyData.length
-  );
+  const avgCaloriesPerDay =
+    daysWithData.length > 0
+      ? Math.round(
+          daysWithData.reduce((sum, day) => sum + day.totalCalories, 0) /
+            daysWithData.length
+        )
+      : 0;
 
   return (
     <Card
@@ -80,7 +144,10 @@ export default function CalorieHistorySection({
       title={
         <Space>
           <CalendarOutlined />
-          <span>Daily Calorie History ({dailyData.length} days)</span>
+          <span>
+            Daily Calorie History ({allDates.length} days, {daysWithData.length}{" "}
+            tracked)
+          </span>
         </Space>
       }
     >
@@ -121,12 +188,15 @@ export default function CalorieHistorySection({
 
       {/* Daily History List */}
       <div style={{ maxHeight: "400px", overflowY: "auto" }}>
-        {normalizeData(dailyData)
+        {allDates
           .sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           )
           .map((day, index) => {
             const isToday = day.date === getTodayDate();
+            const isEmpty =
+              day.foodEntries.length === 0 &&
+              (day.exerciseEntries?.length || 0) === 0;
             const foodDeficit = calorieGoal?.maintenanceCalories
               ? calorieGoal.maintenanceCalories - day.totalCalories
               : 0;
@@ -139,9 +209,19 @@ export default function CalorieHistorySection({
                 size="small"
                 style={{
                   marginBottom: 12,
-                  background: isToday ? "#e6f4ff" : "#fafafa",
-                  borderColor: isToday ? "#91caff" : "#d9d9d9",
+                  background: isEmpty
+                    ? "#fff"
+                    : isToday
+                    ? "#e6f4ff"
+                    : "#fafafa",
+                  borderColor: isEmpty
+                    ? "#e8e8e8"
+                    : isToday
+                    ? "#91caff"
+                    : "#d9d9d9",
+                  borderStyle: isEmpty ? "dashed" : "solid",
                   cursor: "pointer",
+                  opacity: isEmpty ? 0.7 : 1,
                 }}
                 onClick={() => toggleDay(day.date)}
                 hoverable
@@ -164,9 +244,7 @@ export default function CalorieHistorySection({
                       })}
                     </Text>
                     {isToday && <Tag color="blue">Today</Tag>}
-                    {index === 1 && !isToday && (
-                      <Tag color="default">Yesterday</Tag>
-                    )}
+                    {isEmpty && <Tag color="default">No entries</Tag>}
                   </Space>
                   <Button
                     size="small"

@@ -133,15 +133,15 @@ export default function CaloriesPage() {
     description: string;
   }) => {
     try {
+      const today = getTodayDate();
       const newFoodEntry: FoodEntry = {
         id: Date.now().toString(),
         name: foodData.name,
         calories: foodData.calories,
         timestamp: new Date().toISOString(),
-        date: getTodayDate(),
+        date: today,
       };
 
-      const today = getTodayDate();
       const existingDayIndex = dailyData.findIndex((d) => d.date === today);
 
       let updatedDailyData: DailyCalorieData[];
@@ -254,16 +254,16 @@ export default function CaloriesPage() {
     description: string;
   }) => {
     try {
+      const today = getTodayDate();
       const newExerciseEntry: ExerciseEntry = {
         id: Date.now().toString(),
         name: exerciseData.name,
         caloriesBurned: exerciseData.caloriesBurned,
         durationMinutes: exerciseData.durationMinutes,
         timestamp: new Date().toISOString(),
-        date: getTodayDate(),
+        date: today,
       };
 
-      const today = getTodayDate();
       const existingDayIndex = dailyData.findIndex((d) => d.date === today);
 
       let updatedDailyData: DailyCalorieData[];
@@ -434,12 +434,23 @@ export default function CaloriesPage() {
   // Handle editing a specific day
   const handleEditDay = (date: string) => {
     const normalizedData = normalizeData(dailyData);
-    const dayData = normalizedData.find((d) => d.date === date);
+    let dayData = normalizedData.find((d) => d.date === date);
 
-    if (dayData) {
-      setDayToEdit(dayData);
-      setEditDayModalOpen(true);
+    // If day doesn't exist, create an empty entry
+    if (!dayData) {
+      dayData = {
+        date,
+        totalCalories: 0,
+        totalCaloriesBurned: 0,
+        foodEntries: [],
+        exerciseEntries: [],
+        remainingCalories: calorieGoal?.dailyCalorieLimit || 2000,
+        calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
+      };
     }
+
+    setDayToEdit(dayData);
+    setEditDayModalOpen(true);
   };
 
   // Handle updating a day's data after editing
@@ -448,8 +459,13 @@ export default function CaloriesPage() {
       const dayIndex = dailyData.findIndex((d) => d.date === updatedDay.date);
 
       if (dayIndex >= 0) {
+        // Update existing day
         const updatedDailyData = [...dailyData];
         updatedDailyData[dayIndex] = updatedDay;
+        await saveDailyData(updatedDailyData);
+      } else {
+        // Add new day (for previously empty days)
+        const updatedDailyData = [updatedDay, ...dailyData];
         await saveDailyData(updatedDailyData);
       }
     } catch (error) {
