@@ -149,7 +149,7 @@ export default function HousePage() {
     {
       title: "Actions",
       key: "actions",
-      render: (_: any, record: HouseExpense) => (
+      render: (_: unknown, record: HouseExpense) => (
         <Space>
           <Button
             type="link"

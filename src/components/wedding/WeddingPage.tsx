@@ -11,7 +11,6 @@ import {
   Card,
   Table,
   Popconfirm,
-  Tag,
 } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useWeddingSpendingFirebase } from "@/hooks/useFirebaseData";
@@ -150,7 +149,7 @@ export default function WeddingPage() {
     {
       title: "Actions",
       key: "actions",
-      render: (_: any, record: WeddingExpense) => (
+      render: (_: unknown, record: WeddingExpense) => (
         <Space>
           <Button
             type="link"
