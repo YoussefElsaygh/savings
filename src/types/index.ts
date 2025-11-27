@@ -211,3 +211,30 @@ export interface WorkoutPreferences {
   createdAt: string;
   updatedAt: string;
 }
+
+// Wedding and House Spending Types (separate from main spending feature)
+export interface WeddingExpense {
+  id: string;
+  amount: number;
+  description: string;
+  date: string; // YYYY-MM-DD
+  timestamp: string; // ISO timestamp
+}
+
+export interface WeddingSpendingData {
+  expenses: WeddingExpense[];
+  totalSpent: number;
+}
+
+export interface HouseExpense {
+  id: string;
+  amount: number;
+  description: string;
+  date: string; // YYYY-MM-DD
+  timestamp: string; // ISO timestamp
+}
+
+export interface HouseSpendingData {
+  expenses: HouseExpense[];
+  totalSpent: number;
+}

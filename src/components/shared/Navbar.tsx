@@ -12,6 +12,8 @@ import {
   LoginOutlined,
   WalletOutlined,
   ThunderboltOutlined,
+  HeartOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { User } from "firebase/auth";
@@ -64,6 +66,9 @@ export default function Navbar() {
     }
   };
 
+  // Check if user is youssefelsaygh@gmail.com for hidden features
+  const isSpecialUser = user?.email === "youssefelsaygh@gmail.com";
+
   const navItems: MenuProps["items"] = user
     ? [
         {
@@ -86,6 +91,21 @@ export default function Navbar() {
           icon: <ThunderboltOutlined />,
           label: <Link href="/workout">Workout</Link>,
         },
+        // Hidden features for youssefelsaygh@gmail.com
+        ...(isSpecialUser
+          ? [
+              {
+                key: "/wedding",
+                icon: <HeartOutlined />,
+                label: <Link href="/wedding">Wedding</Link>,
+              },
+              {
+                key: "/house",
+                icon: <HomeOutlined />,
+                label: <Link href="/house">House</Link>,
+              },
+            ]
+          : []),
       ]
     : [];
 
@@ -94,6 +114,8 @@ export default function Navbar() {
     if (pathname === "/savings") return "/savings";
     if (pathname === "/spending") return "/spending";
     if (pathname === "/workout") return "/workout";
+    if (pathname === "/wedding") return "/wedding";
+    if (pathname === "/house") return "/house";
     return "/";
   };
 
@@ -235,6 +257,29 @@ export default function Navbar() {
               <ThunderboltOutlined style={{ fontSize: "24px" }} />
               <span>Workout</span>
             </Link>
+            {/* Hidden features for youssefelsaygh@gmail.com */}
+            {isSpecialUser && (
+              <>
+                <Link
+                  href="/wedding"
+                  className={`bottom-nav-item ${
+                    pathname === "/wedding" ? "active" : ""
+                  }`}
+                >
+                  <HeartOutlined style={{ fontSize: "24px" }} />
+                  <span>Wedding</span>
+                </Link>
+                <Link
+                  href="/house"
+                  className={`bottom-nav-item ${
+                    pathname === "/house" ? "active" : ""
+                  }`}
+                >
+                  <HomeOutlined style={{ fontSize: "24px" }} />
+                  <span>House</span>
+                </Link>
+              </>
+            )}
           </>
         ) : (
           <div className="bottom-nav-signin-container">

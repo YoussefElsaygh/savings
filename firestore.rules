@@ -61,6 +61,30 @@ service cloud.firestore {
       allow write: if isAuthenticated() && isOwner(getDocumentUserId());
     }
     
+    // Wedding Spending Data Collection
+    // Document ID format: {userId}_wedding
+    match /weddingSpendingData/{document} {
+      // Extract userId from document ID (format: userId_wedding)
+      function getDocumentUserId() {
+        return document.split('_')[0];
+      }
+      
+      allow read: if isAuthenticated() && isOwner(getDocumentUserId());
+      allow write: if isAuthenticated() && isOwner(getDocumentUserId());
+    }
+    
+    // House Spending Data Collection
+    // Document ID format: {userId}_house
+    match /houseSpendingData/{document} {
+      // Extract userId from document ID (format: userId_house)
+      function getDocumentUserId() {
+        return document.split('_')[0];
+      }
+      
+      allow read: if isAuthenticated() && isOwner(getDocumentUserId());
+      allow write: if isAuthenticated() && isOwner(getDocumentUserId());
+    }
+    
     // Deny all other access
     match /{document=**} {
       allow read, write: if false;

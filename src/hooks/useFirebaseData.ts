@@ -10,6 +10,8 @@ import {
   SavingsData,
   RateEntry,
   SpendingData,
+  WeddingSpendingData,
+  HouseSpendingData,
 } from "@/types";
 import {
   saveCacheToLocalStorage,
@@ -58,6 +60,8 @@ export function useFirebaseData<T>(
     | "workoutSessions"
     | "personalRecords"
     | "workoutPreferences"
+    | "weddingSpending"
+    | "houseSpending"
 ): [
   T,
   (value: T) => Promise<void>,
@@ -386,5 +390,36 @@ export function useWorkoutPreferencesFirebase() {
     "preferences",
     DEFAULT_WORKOUT_PREFERENCES,
     "workoutPreferences" as const
+  );
+}
+
+// Wedding and House Spending Hooks
+const DEFAULT_WEDDING_SPENDING: WeddingSpendingData = {
+  expenses: [],
+  totalSpent: 0,
+};
+
+const DEFAULT_HOUSE_SPENDING: HouseSpendingData = {
+  expenses: [],
+  totalSpent: 0,
+};
+
+// Hook for wedding spending
+export function useWeddingSpendingFirebase() {
+  return useFirebaseData<WeddingSpendingData>(
+    "weddingSpendingData",
+    "wedding",
+    DEFAULT_WEDDING_SPENDING,
+    "weddingSpending" as const
+  );
+}
+
+// Hook for house spending
+export function useHouseSpendingFirebase() {
+  return useFirebaseData<HouseSpendingData>(
+    "houseSpendingData",
+    "house",
+    DEFAULT_HOUSE_SPENDING,
+    "houseSpending" as const
   );
 }
