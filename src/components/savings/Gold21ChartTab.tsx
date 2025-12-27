@@ -480,10 +480,12 @@ export default function Gold21ChartTab({
                   tickFormatter={(value) => `${value.toFixed(2)} EGP`}
                 />
                 <Tooltip
-                  formatter={(value: number | undefined) => [
-                    value !== undefined ? `${value.toFixed(3)} EGP/gram` : "",
-                    "Price",
-                  ]}
+                  formatter={(value) => {
+                    if (typeof value === "number") {
+                      return [`${value.toFixed(3)} EGP/gram`, "Price"];
+                    }
+                    return [String(value || ""), "Price"];
+                  }}
                   labelFormatter={(label) => `Date: ${label}`}
                 />
                 <Legend />
