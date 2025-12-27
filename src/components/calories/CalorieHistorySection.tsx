@@ -58,25 +58,34 @@ export default function CalorieHistorySection({
     const today = new Date(getTodayDate());
     const dates: string[] = [];
     
-    // Determine the start date: either 30 days ago or the earliest entry date
-    let startDate: Date;
-    if (dailyData.length > 0) {
-      const earliestEntry = dailyData.reduce((earliest, day) => {
-        const dayDate = new Date(day.date);
-        return dayDate < new Date(earliest) ? day.date : earliest;
-      }, dailyData[0].date);
-      
-      const earliestDate = new Date(earliestEntry);
-      const thirtyDaysAgo = new Date(today);
-      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
-      
-      // Use whichever is earlier
-      startDate = earliestDate < thirtyDaysAgo ? earliestDate : thirtyDaysAgo;
-    } else {
-      // If no data, show last 30 days
-      startDate = new Date(today);
-      startDate.setDate(startDate.getDate() - 29);
+    // If no data exists, only show today
+    if (dailyData.length === 0) {
+      const todayStr = getTodayDate();
+      return [
+        {
+          date: todayStr,
+          totalCalories: 0,
+          totalCaloriesBurned: 0,
+          foodEntries: [],
+          exerciseEntries: [],
+          remainingCalories: calorieGoal?.dailyCalorieLimit || 2000,
+          calorieLimit: calorieGoal?.dailyCalorieLimit || 2000,
+        },
+      ];
     }
+    
+    // Determine the start date: either 30 days ago or the earliest entry date
+    const earliestEntry = dailyData.reduce((earliest, day) => {
+      const dayDate = new Date(day.date);
+      return dayDate < new Date(earliest) ? day.date : earliest;
+    }, dailyData[0].date);
+    
+    const earliestDate = new Date(earliestEntry);
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+    
+    // Use whichever is earlier
+    const startDate = earliestDate < thirtyDaysAgo ? earliestDate : thirtyDaysAgo;
     
     // Generate all dates from start to today
     const currentDate = new Date(startDate);
