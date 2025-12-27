@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { CalorieGoal } from "@/types";
 import { formatNumber } from "@/lib/utils";
 import {
@@ -11,8 +12,15 @@ import {
   Row,
   Col,
   Statistic,
+  Button,
+  Modal,
 } from "antd";
-import { TrophyOutlined, RiseOutlined, FireOutlined } from "@ant-design/icons";
+import {
+  TrophyOutlined,
+  RiseOutlined,
+  FireOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
 
 const { Text } = Typography;
 
@@ -20,14 +28,27 @@ interface WeightLossJourneySectionProps {
   calorieGoal: CalorieGoal | null;
   totalDeficitAchieved: number;
   remainingCaloriesToLose: number;
+  onResetCalculations: () => void;
 }
 
 export default function WeightLossJourneySection({
   calorieGoal,
   totalDeficitAchieved,
   remainingCaloriesToLose,
+  onResetCalculations,
 }: WeightLossJourneySectionProps) {
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+
   if (!calorieGoal?.totalCaloriesToLose) return null;
+
+  const handleReset = () => {
+    setIsResetModalOpen(true);
+  };
+
+  const handleConfirmReset = () => {
+    onResetCalculations();
+    setIsResetModalOpen(false);
+  };
 
   const progressPercent =
     calorieGoal.totalCaloriesToLose > 0
@@ -61,6 +82,16 @@ export default function WeightLossJourneySection({
           <TrophyOutlined style={{ fontSize: "20px" }} />
           <span>🎯 Your Weight Loss Journey</span>
         </Space>
+      }
+      extra={
+        <Button
+          icon={<ReloadOutlined />}
+          onClick={handleReset}
+          danger
+          size="small"
+        >
+          Reset
+        </Button>
       }
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
@@ -170,6 +201,24 @@ export default function WeightLossJourneySection({
           />
         )}
       </Space>
+
+      <Modal
+        title="Reset Calculations"
+        open={isResetModalOpen}
+        onOk={handleConfirmReset}
+        onCancel={() => setIsResetModalOpen(false)}
+        okText="Reset"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true }}
+      >
+        <p>
+          Are you sure you want to reset all calculations? This will delete all
+          your food and exercise entries, and reset your progress to zero.
+        </p>
+        <p style={{ color: "#ff4d4f", fontWeight: "bold" }}>
+          This action cannot be undone.
+        </p>
+      </Modal>
     </Card>
   );
 }

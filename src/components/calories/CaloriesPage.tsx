@@ -479,6 +479,16 @@ export default function CaloriesPage() {
     setDayToEdit(null);
   };
 
+  // Handle resetting all calculations (clear all daily data)
+  const handleResetCalculations = async () => {
+    try {
+      // Clear all daily data
+      await saveDailyData([]);
+    } catch (error) {
+      console.error("Error resetting calculations:", error);
+    }
+  };
+
   // Show loading state
   if (calorieGoalLoading || dailyDataLoading || !user) {
     return (
@@ -567,6 +577,7 @@ export default function CaloriesPage() {
               calorieGoal={calorieGoal}
               totalDeficitAchieved={totalDeficitAchieved}
               remainingCaloriesToLose={remainingCaloriesToLose}
+              onResetCalculations={handleResetCalculations}
             />
           )}
 
