@@ -1,7 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Static export for client-side only build
+  output: "export",
   images: {
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: "https",
@@ -29,6 +32,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Use Webpack for builds (Turbopack is default in Next.js 16)
+  // Empty turbopack config to silence warnings
+  turbopack: {},
 };
 
 export default nextConfig;

@@ -20,6 +20,7 @@ import {
   Space,
   List,
 } from "antd";
+import type { InputNumberProps } from "antd";
 import {
   PlusOutlined,
   ThunderboltOutlined,
@@ -75,7 +76,7 @@ export default function AddExerciseModal({
   const [calculatedCaloriesBurned, setCalculatedCaloriesBurned] = useState(0);
   const [exercisesToAdd, setExercisesToAdd] = useState<ExerciseToAdd[]>([]);
   const [isAdding, setIsAdding] = useState(false);
-  const durationInputRef = useRef<HTMLInputElement>(null);
+  const durationInputRef = useRef<React.ComponentRef<typeof InputNumber>>(null);
 
   const exercisesByCategory = getExercisesByCategory();
 

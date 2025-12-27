@@ -192,7 +192,7 @@ export default function CalorieHistorySection({
           .sort(
             (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
           )
-          .map((day, index) => {
+          .map((day) => {
             const isToday = day.date === getTodayDate();
             const isEmpty =
               day.foodEntries.length === 0 &&
