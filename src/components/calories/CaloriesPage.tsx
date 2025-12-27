@@ -11,6 +11,7 @@ import {
   useCalorieGoalFirebase,
   useDailyCalorieDataFirebase,
 } from "@/hooks/useFirebaseData";
+import { clearCache } from "@/lib/cacheUtils";
 import CalorieGoalSection from "@/components/calories/CalorieGoalSection";
 import WeightLossJourneySection from "@/components/calories/WeightLossJourneySection";
 import TodayProgressSection from "@/components/calories/TodayProgressSection";
@@ -482,10 +483,32 @@ export default function CaloriesPage() {
   // Handle resetting all calculations (clear all daily data)
   const handleResetCalculations = async () => {
     try {
-      // Clear all daily data
+      if (!user) {
+        console.error("User not authenticated");
+        return;
+      }
+
+      // Clear cache for daily calorie data
+      const cacheKey = `cache_calorieData_dailyData`;
+      clearCache(cacheKey);
+
+      // Clear session storage checks related to this cache
+      if (typeof window !== "undefined") {
+        const sessionKeys = Object.keys(sessionStorage);
+        sessionKeys.forEach((key) => {
+          if (key.includes(cacheKey)) {
+            sessionStorage.removeItem(key);
+          }
+        });
+      }
+
+      // Clear all daily data in database (this will also update cache)
       await saveDailyData([]);
+
+      console.log("✓ Reset calculations: cleared cache and database");
     } catch (error) {
       console.error("Error resetting calculations:", error);
+      throw error; // Re-throw to show error in UI if needed
     }
   };
 
