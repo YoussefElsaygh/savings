@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
-import { AntdRegistry } from "@ant-design/nextjs-registry";
-import { ConfigProvider } from "antd";
+import AntdProviders from "@/components/shared/AntdProviders";
 import Navbar from "@/components/shared/Navbar";
 import AuthRedirectHandler from "@/components/shared/AuthRedirectHandler";
 
@@ -35,22 +34,11 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AntdRegistry>
-          <ConfigProvider
-            theme={{
-              token: {
-                colorPrimary: "#000000",
-                borderRadius: 8,
-                colorBorder: "#8c8c8c", // Darker borders
-                colorBorderSecondary: "#a6a6a6", // Darker secondary borders
-              },
-            }}
-          >
-            <AuthRedirectHandler />
-            <Navbar />
-            {children}
-          </ConfigProvider>
-        </AntdRegistry>
+        <AntdProviders>
+          <AuthRedirectHandler />
+          <Navbar />
+          {children}
+        </AntdProviders>
         <Analytics />
       </body>
     </html>
