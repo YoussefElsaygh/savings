@@ -131,6 +131,7 @@ export interface HouseExpense {
   id: string;
   amount: number;
   description: string;
+  category?: string; // "Engineer" | "Materials"; optional for expenses logged before categories existed
   date: string; // YYYY-MM-DD
   timestamp: string; // ISO timestamp
 }

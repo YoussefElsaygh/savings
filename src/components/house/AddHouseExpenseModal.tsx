@@ -1,27 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Form, Input, InputNumber, DatePicker, Button } from "antd";
+import { Form, Input, InputNumber, DatePicker, Button, Select } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { HouseExpense } from "@/types";
+import { HOUSE_CATEGORIES } from "@/constants/house-categories";
 import dayjs from "dayjs";
 import ModalContainer from "@/components/shared/ModalContainer";
+
+export interface HouseExpenseFormData {
+  amount: number;
+  description: string;
+  category: string;
+  date: string;
+}
 
 interface AddHouseExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddExpense: (expense: {
-    amount: number;
-    description: string;
-    date: string;
-  }) => Promise<void>;
+  onAddExpense: (expense: HouseExpenseFormData) => Promise<void>;
   onEditExpense?: (
     expenseId: string,
-    expense: {
-      amount: number;
-      description: string;
-      date: string;
-    }
+    expense: HouseExpenseFormData
   ) => Promise<void>;
   editingExpense?: HouseExpense | null;
 }
@@ -43,6 +43,7 @@ export default function AddHouseExpenseModal({
       form.setFieldsValue({
         amount: editingExpense.amount,
         description: editingExpense.description,
+        category: editingExpense.category,
         date: dayjs(editingExpense.date),
       });
     } else {
@@ -60,6 +61,7 @@ export default function AddHouseExpenseModal({
       const expenseData = {
         amount: values.amount,
         description: values.description || "",
+        category: values.category,
         date: values.date.format("YYYY-MM-DD"),
       };
 
@@ -134,6 +136,18 @@ export default function AddHouseExpenseModal({
             prefix="EGP"
             precision={2}
             size="large"
+          />
+        </Form.Item>
+
+        <Form.Item
+          name="category"
+          label="Category"
+          rules={[{ required: true, message: "Please select a category" }]}
+        >
+          <Select
+            size="large"
+            placeholder="Select a category"
+            options={HOUSE_CATEGORIES.map((c) => ({ label: c, value: c }))}
           />
         </Form.Item>
 

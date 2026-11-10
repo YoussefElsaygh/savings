@@ -11,11 +11,19 @@ import {
   Card,
   Table,
   Popconfirm,
+  Progress,
+  Empty,
 } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useHouseSpendingFirebase } from "@/hooks/useFirebaseData";
 import { HouseExpense } from "@/types";
-import AddHouseExpenseModal from "./AddHouseExpenseModal";
+import {
+  HOUSE_CATEGORIES,
+  UNCATEGORIZED_LABEL,
+} from "@/constants/house-categories";
+import AddHouseExpenseModal, {
+  HouseExpenseFormData,
+} from "./AddHouseExpenseModal";
 import LoadingScreen from "@/components/shared/LoadingScreen";
 import dayjs from "dayjs";
 
@@ -35,15 +43,12 @@ export default function HousePage() {
     0
   );
 
-  const handleAddExpense = async (expenseData: {
-    amount: number;
-    description: string;
-    date: string;
-  }) => {
+  const handleAddExpense = async (expenseData: HouseExpenseFormData) => {
     const newExpense: HouseExpense = {
       id: Date.now().toString(),
       amount: expenseData.amount,
       description: expenseData.description,
+      category: expenseData.category,
       date: expenseData.date,
       timestamp: new Date().toISOString(),
     };
@@ -62,11 +67,7 @@ export default function HousePage() {
 
   const handleEditExpense = async (
     expenseId: string,
-    expenseData: {
-      amount: number;
-      description: string;
-      date: string;
-    }
+    expenseData: HouseExpenseFormData
   ) => {
     const updatedExpenses = houseData.expenses.map((exp) =>
       exp.id === expenseId
@@ -74,6 +75,7 @@ export default function HousePage() {
             ...exp,
             amount: expenseData.amount,
             description: expenseData.description,
+            category: expenseData.category,
             date: expenseData.date,
           }
         : exp
@@ -115,6 +117,38 @@ export default function HousePage() {
     setEditingExpense(null);
   };
 
+  // Totals per category: every fixed category, plus any expense whose
+  // category is missing or unrecognised (shown as Uncategorized)
+  const categoryStats = (() => {
+    const map = new Map<string, { total: number; count: number }>();
+    houseData.expenses.forEach((exp) => {
+      const name =
+        exp.category && (HOUSE_CATEGORIES as readonly string[]).includes(exp.category)
+          ? exp.category
+          : UNCATEGORIZED_LABEL;
+      const entry = map.get(name) ?? { total: 0, count: 0 };
+      entry.total += exp.amount;
+      entry.count += 1;
+      map.set(name, entry);
+    });
+
+    const rows: { name: string; total: number; count: number }[] =
+      HOUSE_CATEGORIES.map((name) => ({
+      name,
+      total: map.get(name)?.total ?? 0,
+      count: map.get(name)?.count ?? 0,
+    }));
+    const uncategorized = map.get(UNCATEGORIZED_LABEL);
+    if (uncategorized) {
+      rows.push({
+        name: UNCATEGORIZED_LABEL,
+        total: uncategorized.total,
+        count: uncategorized.count,
+      });
+    }
+    return rows.sort((a, b) => b.total - a.total);
+  })();
+
   // Sort expenses by date (newest first)
   const sortedExpenses = [...houseData.expenses].sort((a, b) => {
     return dayjs(b.date).valueOf() - dayjs(a.date).valueOf();
@@ -128,6 +162,15 @@ export default function HousePage() {
       render: (date: string) => dayjs(date).format("MMM DD, YYYY"),
       sorter: (a: HouseExpense, b: HouseExpense) =>
         dayjs(a.date).valueOf() - dayjs(b.date).valueOf(),
+    },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (category: string | undefined) =>
+        category || <Text type="secondary">Uncategorized</Text>,
+      sorter: (a: HouseExpense, b: HouseExpense) =>
+        (a.category ?? "").localeCompare(b.category ?? ""),
     },
     {
       title: "Description",
@@ -253,6 +296,44 @@ export default function HousePage() {
           </Card>
         </Col>
       </Row>
+
+      <Card title="Spending by Category" style={{ marginBottom: "24px" }}>
+        {houseData.expenses.length === 0 ? (
+          <Empty description="No expenses yet" />
+        ) : (
+          <Space direction="vertical" style={{ width: "100%" }} size="large">
+            {categoryStats.map((row) => {
+              const percent =
+                totalSpent > 0 ? (row.total / totalSpent) * 100 : 0;
+              return (
+                <div key={row.name}>
+                  <Row justify="space-between" wrap={false} gutter={8}>
+                    <Col flex="auto" style={{ minWidth: 0 }}>
+                      <Text strong ellipsis>
+                        {row.name}
+                      </Text>
+                      <Text type="secondary" style={{ marginLeft: 8 }}>
+                        {row.count} {row.count === 1 ? "item" : "items"}
+                      </Text>
+                    </Col>
+                    <Col>
+                      <Text strong style={{ color: "#cf1322" }}>
+                        EGP {row.total.toFixed(2)}
+                      </Text>
+                    </Col>
+                  </Row>
+                  <Progress
+                    percent={Number(percent.toFixed(1))}
+                    showInfo={false}
+                    strokeColor="#cf1322"
+                    size="small"
+                  />
+                </div>
+              );
+            })}
+          </Space>
+        )}
+      </Card>
 
       <Card title="Expense History" style={{ marginTop: "16px" }}>
         <Table
