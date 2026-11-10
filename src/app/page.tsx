@@ -6,23 +6,43 @@ import {
   DollarOutlined,
   BankOutlined,
   ShoppingOutlined,
-  ThunderboltOutlined,
+  HeartOutlined,
+  HomeOutlined,
 } from "@ant-design/icons";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { onAuthStateChanged, User } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+import { isSpecialUserEmail } from "@/lib/specialUser";
 
 const { Title, Paragraph } = Typography;
 
 export default function Home() {
   const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const isSpecialUser = isSpecialUserEmail(user?.email);
 
   // Prefetch all pages on mount for instant navigation
   useEffect(() => {
     router.prefetch("/savings");
     router.prefetch("/spending");
     router.prefetch("/calories");
-    router.prefetch("/workout");
   }, [router]);
+
+  useEffect(() => {
+    if (isSpecialUser) {
+      router.prefetch("/wedding");
+      router.prefetch("/house");
+    }
+  }, [router, isSpecialUser]);
 
   return (
     <div style={{ minHeight: "100vh", background: "#f5f5f5" }}>
@@ -138,39 +158,76 @@ export default function Home() {
               </Link>
             </Col>
 
-            <Col xs={24} sm={12} md={12}>
-              <Link
-                href="/workout"
-                prefetch={true}
-                style={{ textDecoration: "none" }}
-              >
-                <Card
-                  hoverable
-                  style={{
-                    height: "100%",
-                    textAlign: "center",
-                    border: "2px solid #f0f0f0",
-                    transition: "all 0.3s",
-                  }}
-                  bodyStyle={{ padding: "48px 24px" }}
-                >
-                  <ThunderboltOutlined
-                    style={{
-                      fontSize: "64px",
-                      color: "#722ed1",
-                      marginBottom: "24px",
-                    }}
-                  />
-                  <Title level={2} style={{ marginBottom: "16px" }}>
-                    Workout
-                  </Title>
-                  <Paragraph style={{ fontSize: "16px", color: "#666" }}>
-                    Track workouts, log exercises, and break personal records
-                    with 30+ exercises.
-                  </Paragraph>
-                </Card>
-              </Link>
-            </Col>
+            {isSpecialUser && (
+              <>
+                <Col xs={24} sm={12} md={12}>
+                  <Link
+                    href="/wedding"
+                    prefetch={true}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Card
+                      hoverable
+                      style={{
+                        height: "100%",
+                        textAlign: "center",
+                        border: "2px solid #f0f0f0",
+                        transition: "all 0.3s",
+                      }}
+                      bodyStyle={{ padding: "48px 24px" }}
+                    >
+                      <HeartOutlined
+                        style={{
+                          fontSize: "64px",
+                          color: "#eb2f96",
+                          marginBottom: "24px",
+                        }}
+                      />
+                      <Title level={2} style={{ marginBottom: "16px" }}>
+                        Wedding
+                      </Title>
+                      <Paragraph style={{ fontSize: "16px", color: "#666" }}>
+                        Track wedding expenses by category and see where the
+                        money goes.
+                      </Paragraph>
+                    </Card>
+                  </Link>
+                </Col>
+
+                <Col xs={24} sm={12} md={12}>
+                  <Link
+                    href="/house"
+                    prefetch={true}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Card
+                      hoverable
+                      style={{
+                        height: "100%",
+                        textAlign: "center",
+                        border: "2px solid #f0f0f0",
+                        transition: "all 0.3s",
+                      }}
+                      bodyStyle={{ padding: "48px 24px" }}
+                    >
+                      <HomeOutlined
+                        style={{
+                          fontSize: "64px",
+                          color: "#1677ff",
+                          marginBottom: "24px",
+                        }}
+                      />
+                      <Title level={2} style={{ marginBottom: "16px" }}>
+                        House
+                      </Title>
+                      <Paragraph style={{ fontSize: "16px", color: "#666" }}>
+                        Track house expenses and costs in one place.
+                      </Paragraph>
+                    </Card>
+                  </Link>
+                </Col>
+              </>
+            )}
           </Row>
         </div>
       </div>

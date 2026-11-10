@@ -95,7 +95,7 @@ export default function QuickActionsSection({
             Add Exercise
           </Button>
           <Text type="secondary" style={{ fontSize: "13px" }}>
-            Track what you eat or your workout sessions
+            Track what you eat or your exercise sessions
           </Text>
         </Space>
       </Card>

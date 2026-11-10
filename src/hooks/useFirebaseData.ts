@@ -57,9 +57,6 @@ export function useFirebaseData<T>(
     | "dailyCalorieData"
     | "rateHistory"
     | "spendingData"
-    | "workoutSessions"
-    | "personalRecords"
-    | "workoutPreferences"
     | "weddingSpending"
     | "houseSpending"
 ): [
@@ -349,47 +346,6 @@ export function useSpendingDataFirebase() {
     "spending",
     DEFAULT_SPENDING_DATA,
     "spendingData"
-  );
-}
-
-// Workout Tracker Hooks
-import type {
-  WorkoutSession,
-  PersonalRecord,
-  WorkoutPreferences,
-} from "@/types";
-
-const DEFAULT_WORKOUT_SESSIONS: WorkoutSession[] = [];
-const DEFAULT_PERSONAL_RECORDS: PersonalRecord[] = [];
-const DEFAULT_WORKOUT_PREFERENCES: WorkoutPreferences | null = null;
-
-// Hook for workout sessions
-export function useWorkoutSessionsFirebase() {
-  return useFirebaseData<WorkoutSession[]>(
-    "workoutData",
-    "sessions",
-    DEFAULT_WORKOUT_SESSIONS,
-    "workoutSessions" as const
-  );
-}
-
-// Hook for personal records
-export function usePersonalRecordsFirebase() {
-  return useFirebaseData<PersonalRecord[]>(
-    "workoutData",
-    "personalRecords",
-    DEFAULT_PERSONAL_RECORDS,
-    "personalRecords" as const
-  );
-}
-
-// Hook for workout preferences
-export function useWorkoutPreferencesFirebase() {
-  return useFirebaseData<WorkoutPreferences | null>(
-    "workoutData",
-    "preferences",
-    DEFAULT_WORKOUT_PREFERENCES,
-    "workoutPreferences" as const
   );
 }
 

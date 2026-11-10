@@ -191,7 +191,7 @@ export default function HousePage() {
   }
 
   return (
-    <div style={{ maxWidth: "100%", overflow: "hidden" }}>
+    <div style={{ maxWidth: "100%" }}>
       <Space
         style={{
           width: "100%",
@@ -259,6 +259,7 @@ export default function HousePage() {
           dataSource={sortedExpenses}
           columns={columns}
           rowKey="id"
+          scroll={{ x: "max-content" }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,

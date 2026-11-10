@@ -1,6 +1,6 @@
 # Fitness & Finance Tracker - Next.js App
 
-A comprehensive personal tracking application built with Next.js, TypeScript, Firebase, and Ant Design. Track your finances, calories, and workouts all in one place!
+A comprehensive personal tracking application built with Next.js, TypeScript, Firebase, and Ant Design. Track your finances and calories all in one place!
 
 ## 🚀 Features
 
@@ -27,22 +27,6 @@ A comprehensive personal tracking application built with Next.js, TypeScript, Fi
 - **Food Database**: Pre-loaded with common foods and custom entries
 - **Goal Management**: Set maintenance, deficit, or surplus targets
 
-### 💪 Workout Tracker (NEW!)
-
-- **50+ Exercise Library**: Animated GIFs for proper form demonstration
-- **Smart Equipment Preferences**: Select your available equipment (gym, dumbbells, bodyweight, resistance bands)
-- **Personalized Plans**: Auto-generated workout plans based on your equipment and schedule
-- **Pre-Built Splits**: 2, 3, 4, and 5-day workout routines
-  - 2-Day: Full Body A/B
-  - 3-Day: Push/Pull/Legs
-  - 4-Day: Upper/Lower Split
-  - 5-Day: Bro Split (Chest/Back/Legs/Shoulders/Arms)
-- **Exercise Alternatives**: Swap exercises based on available equipment
-- **Real-Time Logging**: Track sets, reps, and weights during workouts
-- **Personal Records**: Automatic PR detection and tracking
-- **Progress Analytics**: Workout history, volume tracking, and streak counters
-- **Detailed Stats**: Total workouts, total volume, current streak, PRs this month
-
 ## 📱 Progressive Web App (PWA)
 
 **Install as a mobile app!** This application is a fully-featured Progressive Web App with:
@@ -51,7 +35,7 @@ A comprehensive personal tracking application built with Next.js, TypeScript, Fi
 - **📴 Offline Support**: Works without internet after first load
 - **🎯 Bottom Navigation**: Mobile-first navigation design for easy thumb access
 - **📲 Push Ready**: Infrastructure ready for push notifications
-- **🔔 App Shortcuts**: Quick access to Savings, Spending, Calories, and Workout sections
+- **🔔 App Shortcuts**: Quick access to Savings, Spending, and Calories sections
 - **🎨 Native Feel**: Standalone mode with no browser UI, custom splash screen
 
 Works seamlessly on desktop, tablet, and mobile devices with a modern, intuitive UI powered by Ant Design.
@@ -155,17 +139,6 @@ For the full PWA experience with service worker and install prompt:
 3. **History**: View daily calorie logs and weight trends
 4. **Quick Actions**: Fast-add common foods and exercises
 
-### 💪 Workout Module
-
-1. **Set Equipment Preferences**: Configure your available equipment on first use
-2. **Plans Tab**: Choose a workout plan (2/3/4/5 days per week)
-3. **Start Workout**: Click to begin active workout tracking
-4. **Exercise Alternatives**: Swap exercises if you don't have the required equipment
-5. **Log Sets**: Enter weight and reps, mark sets complete with ✓
-6. **Auto PR Detection**: Get notifications when you hit new personal records
-7. **PRs Tab**: View all your personal records by exercise
-8. **History Tab**: Review completed workouts with full details and volume stats
-
 ## 💾 Data Storage
 
 Data is stored using a hybrid approach:
@@ -173,7 +146,6 @@ Data is stored using a hybrid approach:
 - **Savings Module**: Browser localStorage (offline-first)
 - **Spending Module**: Firebase Firestore (cloud-synced)
 - **Calorie Module**: Firebase Firestore (cloud-synced)
-- **Workout Module**: Firebase Firestore (cloud-synced)
 
 All Firebase data is user-specific and secured with authentication rules.
 
@@ -185,26 +157,21 @@ src/
 │   ├── calories/            # Calorie tracker page
 │   ├── savings/             # Savings calculator page
 │   ├── spending/            # Spending tracker page
-│   ├── workout/             # Workout tracker page
 │   └── page.tsx             # Home page
 ├── components/              # React components
 │   ├── auth/                # Authentication components
 │   ├── calories/            # Calorie tracking UI
 │   ├── savings/             # Savings calculator UI
 │   ├── spending/            # Spending tracker UI
-│   ├── workout/             # Workout tracker UI
 │   └── shared/              # Shared components (Navbar, PWA, Modals)
 ├── constants/               # Static data
-│   ├── exercises-library.ts # 50+ exercises with alternatives
-│   ├── foods.ts             # Food database
-│   └── workout-plans.ts     # Pre-built workout splits
+│   └── foods.ts             # Food database
 ├── hooks/                   # Custom React hooks
 │   ├── useFirebaseData.ts   # Firebase data fetching
 │   └── useLocalStorage.ts   # Local storage management
 ├── lib/                     # Utilities
 │   ├── firebase.ts          # Firebase configuration
-│   ├── cache.ts             # Caching system
-│   └── workoutPlanGenerator.ts # Dynamic plan generation
+│   └── cache.ts             # Caching system
 └── types/                   # TypeScript type definitions
     └── index.ts             # All app types
 ```
@@ -241,30 +208,16 @@ Activity multipliers:
 - Very active (6-7 days/week): BMR × 1.725
 - Extra active (physical job + exercise): BMR × 1.9
 
-### Exercise Library
-
-50+ exercises with animated GIFs covering:
-
-- **Chest**: Bench press, incline press, cable fly, push-ups, pec deck
-- **Back**: Pull-ups, rows, lat pulldowns, deadlifts, face pulls
-- **Legs**: Squats, leg press, lunges, leg curls, calf raises
-- **Shoulders**: Overhead press, lateral raises, rear delt fly
-- **Arms**: Curls, tricep extensions, dips, skull crushers
-- **Core**: Planks, crunches, Russian twists, hanging leg raises
-
-All exercises include equipment tags (barbell, dumbbell, cable, machine, bodyweight, resistance bands)
-
 ## 🔐 Firebase Security
 
 The app uses Firestore security rules to protect user data:
 
 - All data is user-scoped and accessible only by the authenticated user
 - Rules are defined in `firestore.rules`
-- Collections secured: `calorieGoals`, `dailyCalories`, `exercises`, `workoutPlans`, `workouts`, `spending`
+- Collections secured: `calorieGoals`, `dailyCalories`, `spending`
 
 ## ⚡ Performance Optimizations
 
-- **Caching Strategy**: Exercise library and workout plans are cached locally for instant loading
 - **Lazy Loading**: Components and data load on-demand
 - **Firebase Indexing**: Optimized queries with compound indexes
 - **Turbopack**: Fast development builds with hot module replacement
@@ -273,22 +226,15 @@ The app uses Firestore security rules to protect user data:
 
 ### Upcoming Features
 
-- **Workout Enhancements**:
-  - Custom workout builder with drag-and-drop
-  - Progress charts and graphs (strength trends over time)
-  - Rest timer between sets
-  - Workout templates and favorites
 - **Nutrition Features**:
   - Macros tracking (protein, carbs, fats)
   - Meal planning and prep
   - Barcode scanner for food logging
   - Recipe builder with macro calculations
 - **Social Features**:
-  - Share workouts and PRs with friends
   - Community challenges and leaderboards
   - Follow other users' progress
 - **Integration**:
-  - Link calorie burn from workouts to calorie tracker
   - Wearable device sync (Apple Health, Google Fit)
   - Export data to CSV/PDF
 - **Mobile App**: React Native version for iOS and Android
@@ -319,23 +265,11 @@ The app uses Firestore security rules to protect user data:
 - Check that Firestore and Authentication are enabled in Firebase Console
 - Verify security rules are deployed
 
-**Exercise GIFs Not Loading:**
-
-- GIF files are located in `public/exercises/`
-- Check browser console for 404 errors
-- Verify file names match the exercise IDs (e.g., `bench-press.gif`)
-
 **Data Not Syncing:**
 
 - Sign in with Google to enable cloud sync
 - Check internet connection
 - Verify Firestore rules allow read/write access
-
-**Workout Plans Not Generating:**
-
-- Ensure equipment preferences are set
-- Check browser console for errors
-- Clear cache and refresh: localStorage.clear()
 
 ## Contributing
 

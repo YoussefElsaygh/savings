@@ -11,7 +11,6 @@ import {
   LogoutOutlined,
   LoginOutlined,
   WalletOutlined,
-  ThunderboltOutlined,
   HeartOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
@@ -21,6 +20,7 @@ import { auth, signInWithGoogle, signOutUser } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import Image from "next/image";
 import { clearLoadedDataTracker } from "@/hooks/useFirebaseData";
+import { isSpecialUserEmail } from "@/lib/specialUser";
 
 const { Text } = Typography;
 
@@ -66,8 +66,8 @@ export default function Navbar() {
     }
   };
 
-  // Check if user is youssefelsaygh@gmail.com for hidden features
-  const isSpecialUser = user?.email === "youssefelsaygh@gmail.com";
+  // Hidden features (Wedding, House) are only for the special user
+  const isSpecialUser = isSpecialUserEmail(user?.email);
 
   const navItems: MenuProps["items"] = user
     ? [
@@ -85,11 +85,6 @@ export default function Navbar() {
           key: "/calories",
           icon: <AppleOutlined />,
           label: <Link href="/calories">Calories</Link>,
-        },
-        {
-          key: "/workout",
-          icon: <ThunderboltOutlined />,
-          label: <Link href="/workout">Workout</Link>,
         },
         // Hidden features for youssefelsaygh@gmail.com
         ...(isSpecialUser
@@ -113,7 +108,6 @@ export default function Navbar() {
     if (pathname === "/calories") return "/calories";
     if (pathname === "/savings") return "/savings";
     if (pathname === "/spending") return "/spending";
-    if (pathname === "/workout") return "/workout";
     if (pathname === "/wedding") return "/wedding";
     if (pathname === "/house") return "/house";
     return "/";
@@ -247,15 +241,6 @@ export default function Navbar() {
             >
               <AppleOutlined style={{ fontSize: "24px" }} />
               <span>Calories</span>
-            </Link>
-            <Link
-              href="/workout"
-              className={`bottom-nav-item ${
-                pathname === "/workout" ? "active" : ""
-              }`}
-            >
-              <ThunderboltOutlined style={{ fontSize: "24px" }} />
-              <span>Workout</span>
             </Link>
             {/* Hidden features for youssefelsaygh@gmail.com */}
             {isSpecialUser && (

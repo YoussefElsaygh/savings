@@ -1,27 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Form, Input, InputNumber, DatePicker, Button } from "antd";
+import { Form, Input, InputNumber, DatePicker, Button, Select } from "antd";
 import { PlusOutlined, EditOutlined } from "@ant-design/icons";
 import { WeddingExpense } from "@/types";
 import dayjs from "dayjs";
 import ModalContainer from "@/components/shared/ModalContainer";
 
+export interface WeddingExpenseFormData {
+  amount: number;
+  description: string;
+  category: string;
+  date: string;
+}
+
 interface AddWeddingExpenseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddExpense: (expense: {
-    amount: number;
-    description: string;
-    date: string;
-  }) => Promise<void>;
+  categories: string[];
+  onAddExpense: (expense: WeddingExpenseFormData) => Promise<void>;
   onEditExpense?: (
     expenseId: string,
-    expense: {
-      amount: number;
-      description: string;
-      date: string;
-    }
+    expense: WeddingExpenseFormData
   ) => Promise<void>;
   editingExpense?: WeddingExpense | null;
 }
@@ -29,6 +29,7 @@ interface AddWeddingExpenseModalProps {
 export default function AddWeddingExpenseModal({
   isOpen,
   onClose,
+  categories,
   onAddExpense,
   onEditExpense,
   editingExpense,
@@ -43,6 +44,7 @@ export default function AddWeddingExpenseModal({
       form.setFieldsValue({
         amount: editingExpense.amount,
         description: editingExpense.description,
+        category: editingExpense.category,
         date: dayjs(editingExpense.date),
       });
     } else {
@@ -57,9 +59,10 @@ export default function AddWeddingExpenseModal({
       const values = await form.validateFields();
       setLoading(true);
 
-      const expenseData = {
+      const expenseData: WeddingExpenseFormData = {
         amount: values.amount,
         description: values.description || "",
+        category: values.category,
         date: values.date.format("YYYY-MM-DD"),
       };
 
@@ -137,6 +140,19 @@ export default function AddWeddingExpenseModal({
           />
         </Form.Item>
 
+        <Form.Item
+          name="category"
+          label="Category"
+          rules={[{ required: true, message: "Please select a category" }]}
+        >
+          <Select
+            size="large"
+            placeholder="Select a category"
+            options={categories.map((c) => ({ label: c, value: c }))}
+            notFoundContent="No categories — add one with Manage Categories"
+          />
+        </Form.Item>
+
         <Form.Item name="description" label="Description (Optional)">
           <Input.TextArea
             placeholder="Enter description..."
@@ -164,4 +180,3 @@ export default function AddWeddingExpenseModal({
     </ModalContainer>
   );
 }
-
